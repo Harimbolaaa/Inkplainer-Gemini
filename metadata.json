@@ -1,0 +1,6 @@
+{
+  "name": "Inkplainer",
+  "description": "Free, open-source whiteboard animation maker that turns images and text into hand-drawn explainer videos directly in your browser.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
