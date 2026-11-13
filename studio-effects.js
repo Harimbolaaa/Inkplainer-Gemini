@@ -525,7 +525,7 @@ const StudioEffects = (() => {
     document.getElementById('btn-assets-templates').after(launch);
     const tool = button('Effects', open, 'tool-btn', paths.Emphasis);
     tool.id = 'studio-gsap-tool';
-    document.getElementById('studio-vector-style').after(tool);
+    (document.getElementById('studio-pen-tool') || document.getElementById('studio-vector-style')).after(tool);
     for (const control of [launch, tool]) {
       control.dataset.gsapLaunch = '';
       control.title = 'Open 50 GSAP effects with live preview';

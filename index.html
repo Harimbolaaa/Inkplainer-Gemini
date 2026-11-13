@@ -34,6 +34,7 @@
   --border:     rgba(0,0,0,0.08);
   --border-hi:  rgba(0,0,0,0.14);
   --accent:     #1a1a1a;
+  --on-accent:  #ffffff;
   --accent-lo:  rgba(26,26,26,0.07);
   --accent-glo: rgba(26,26,26,0.14);
   --accent2:    #dc2626;
@@ -54,6 +55,7 @@ html[data-theme="dark"] {
   --border:     rgba(255,255,255,0.09);
   --border-hi:  rgba(255,255,255,0.17);
   --accent:     #f4f6fb;
+  --on-accent:  #111318;
   --accent-lo:  rgba(255,255,255,0.08);
   --accent-glo: rgba(255,255,255,0.15);
   --text:       #f4f6fb;
@@ -250,8 +252,185 @@ body {
 .topbar-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
+  margin-left: auto;
+}
+#topbar .studio-launch,
+#topbar .studio-action,
+#topbar #btn-projects,
+#topbar #btn-export-top {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+#btn-project-settings {
+  width: 31px;
+  height: 31px;
+  padding: 0;
+  justify-content: center;
+}
+#btn-project-settings > span {
+  display: none;
+}
+
+/* ── Unified Vertical 3-Dot ("⋮") Overflow Menu System ── */
+.more-menu-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.more-dots-btn {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  padding: 0;
+  border-radius: 7px;
+  border: 1px solid var(--border-hi);
+  background: var(--panel);
+  color: var(--muted-hi);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease;
+}
+.more-dots-btn:hover,
+.more-dots-btn[aria-expanded="true"] {
+  background: var(--surface-2);
+  border-color: var(--accent);
+  color: var(--text);
+}
+.more-dots-btn.has-active::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #4f46e5;
+}
+.more-dots-btn--dark {
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  border-radius: 6px;
+  background: #232732;
+  border-color: #323846;
+  color: #cbd5e1;
+}
+.more-dots-btn--dark:hover,
+.more-dots-btn--dark[aria-expanded="true"] {
+  background: #2d3342;
+  border-color: #60a5fa;
+  color: #ffffff;
+}
+.more-menu-dropdown {
+  position: fixed;
+  z-index: 3400;
+  min-width: 196px;
+  max-width: 256px;
+  padding: 6px;
+  border-radius: 10px;
+  background: var(--sidebar);
+  border: 1px solid var(--border-hi);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: none;
+  flex-direction: column;
+  gap: 3px;
+}
+html[data-theme="dark"] .more-menu-dropdown {
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+}
+.more-menu-dropdown.open {
+  display: flex;
+}
+.more-menu-dropdown--dark {
+  background: #1b1f29;
+  border-color: #323846;
+  color: #e2e8f0;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.58);
+}
+.more-menu-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 4px 8px 2px;
+  user-select: none;
+}
+.more-menu-dropdown--dark .more-menu-label {
+  color: #64748b;
+}
+.more-menu-sep {
+  height: 1px;
+  background: var(--border);
+  margin: 3px 4px;
+}
+.more-menu-dropdown--dark .more-menu-sep {
+  background: #2a303d;
+}
+.more-menu-dropdown > button,
+.more-menu-dropdown > .tool-btn,
+.more-menu-dropdown > .tl-btn,
+.more-menu-dropdown > .workspace-quick-toggle,
+.more-menu-dropdown > .more-menu-item {
+  width: 100% !important;
+  height: auto !important;
+  font-size: 11.5px !important;
+  justify-content: flex-start !important;
+  padding: 7px 10px !important;
+  border-radius: 7px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: var(--text) !important;
+  font-weight: 500;
+  gap: 8px;
+  white-space: nowrap;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.more-menu-dropdown > button:hover,
+.more-menu-dropdown > .tool-btn:hover,
+.more-menu-dropdown > .workspace-quick-toggle:hover,
+.more-menu-dropdown > .more-menu-item:hover {
+  background: var(--surface-2) !important;
+  border-color: transparent !important;
+  color: var(--text) !important;
+}
+.more-menu-dropdown > button.active,
+.more-menu-dropdown > .tool-btn.active,
+.more-menu-dropdown > .workspace-quick-toggle.active {
+  background: var(--accent-lo) !important;
+  border-color: var(--border-hi) !important;
+  color: var(--text) !important;
+  font-weight: 600;
+}
+.more-menu-dropdown--dark > button,
+.more-menu-dropdown--dark > .tl-btn,
+.more-menu-dropdown--dark > .more-menu-item {
+  color: #e2e8f0 !important;
+}
+.more-menu-dropdown--dark > button:hover,
+.more-menu-dropdown--dark > .tl-btn:hover,
+.more-menu-dropdown--dark > .more-menu-item:hover {
+  background: #282e3d !important;
+  color: #ffffff !important;
+}
+.more-menu-dropdown--dark > .tl-btn.active {
+  background: rgba(59, 130, 246, 0.22) !important;
+  border-color: rgba(59, 130, 246, 0.5) !important;
+  color: #93c5fd !important;
+}
+.more-menu-dropdown--dark > .tl-btn-danger:hover {
+  background: rgba(220, 38, 38, 0.2) !important;
+  color: #fca5a5 !important;
+}
+.more-menu-dropdown .tl-kbd {
   margin-left: auto;
 }
 
@@ -730,7 +909,7 @@ html[data-theme="dark"] .theme-toggle .theme-icon-moon { display: block; }
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  height: 28px;
+  height: 24px;
   padding: 0 12px;
   gap: 10px;
   user-select: none;
@@ -741,24 +920,24 @@ html[data-theme="dark"] .theme-toggle .theme-icon-moon { display: block; }
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 600;
-  letter-spacing: 1.1px;
+  letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--muted-hi);
 }
 
 #topbar.is-collapsed,
 [data-collapsible-panel][data-panel-axis="top"].is-collapsed {
-  height: 28px !important;
-  min-height: 28px !important;
+  height: 24px !important;
+  min-height: 24px !important;
   padding: 0 !important;
   overflow: hidden !important;
 }
 #bottom-bar.is-collapsed,
 [data-collapsible-panel][data-panel-axis="bottom"].is-collapsed {
-  height: 28px !important;
-  min-height: 28px !important;
+  height: 24px !important;
+  min-height: 24px !important;
   padding: 0 !important;
   overflow: hidden !important;
 }
@@ -774,22 +953,22 @@ html[data-theme="dark"] .theme-toggle .theme-icon-moon { display: block; }
 /* Center Above Panel (docked above canvas inside #main) */
 #center-top-panel {
   flex-shrink: 0;
-  height: 40px;
-  min-height: 40px;
+  height: 34px;
+  min-height: 34px;
   background: var(--sidebar);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 12px;
-  gap: 10px;
+  padding: 0 10px;
+  gap: 8px;
   z-index: 40;
 }
 .center-top-left,
 .center-top-right {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   min-width: 0;
 }
 .center-top-title {
@@ -998,7 +1177,7 @@ html[data-theme="dark"] .theme-toggle .theme-icon-moon { display: block; }
 }
 .sidebar-tab-btn.active {
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent, #ffffff);
   box-shadow: 0 1px 5px rgba(0,0,0,0.18);
 }
 .sidebar-tab-btn svg { flex-shrink: 0; opacity: 0.75; }
@@ -1642,8 +1821,79 @@ input[type="range"]::-webkit-slider-thumb:active { cursor: grabbing; }
 }
 .tab-btn.active {
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent, #ffffff);
   box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+}
+.video-target-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+  margin-top: 8px;
+}
+.video-target-btn {
+  border: none;
+  background: transparent;
+  color: var(--muted-hi);
+  font-family: 'Geist', 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.video-target-btn.active {
+  background: var(--accent);
+  color: var(--on-accent, #ffffff);
+}
+.video-inspector-card {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border-hi);
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.video-layout-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+.video-mini-btn {
+  border: 1px solid var(--border-hi);
+  background: var(--sidebar);
+  color: var(--text);
+  font-family: 'Geist', 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 5px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+}
+.video-mini-btn:hover {
+  border-color: var(--accent);
+  background: var(--accent-lo);
+}
+.video-mini-btn.active {
+  background: var(--accent);
+  color: var(--on-accent, #ffffff);
+  border-color: var(--accent);
+}
+.video-mini-btn.danger {
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+.video-mini-btn.danger:hover {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: #ef4444;
 }
 
 /* Drop zone */
@@ -2266,7 +2516,7 @@ html[data-theme="dark"] .layer-item.canvas-hovered .layer-name {
   background-image: radial-gradient(circle, rgba(0,0,0,0.07) 1px, transparent 1px);
   background-size: 24px 24px;
   position: relative;
-  padding: 20px;
+  padding: 10px 14px 54px;
   min-height: 0;
 }
 
@@ -2277,7 +2527,7 @@ html[data-theme="dark"] .layer-item.canvas-hovered .layer-name {
   border-top: 1px solid var(--border);
   display: flex;
   align-items: stretch;
-  min-height: 108px;
+  min-height: 78px;
   overflow: hidden;
 }
 
@@ -2285,11 +2535,11 @@ html[data-theme="dark"] .layer-item.canvas-hovered .layer-name {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding: 12px 16px;
+  padding: 8px 12px;
   min-width: 0;
   flex: 1;
   border-right: 1px solid var(--border);
-  gap: 8px;
+  gap: 6px;
 }
 .bb-section:last-child { border-right: none; }
 
@@ -2446,7 +2696,7 @@ html[data-theme="dark"] .layer-item.canvas-hovered .layer-name {
 }
 @media (max-width: 1280px) {
   #bottom-bar {
-    min-height: 120px;
+    min-height: 86px;
   }
   .bb-hand-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2522,24 +2772,25 @@ html[data-theme="dark"] .layer-item.canvas-hovered .layer-name {
 ═══════════════════════════════════════════ */
 #playbar {
   position: absolute;
-  bottom: 16px;
+  bottom: 8px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(255,255,255,0.96);
   backdrop-filter: blur(16px);
   border: 1px solid var(--border-hi);
   border-radius: 100px;
-  padding: 8px 16px;
+  padding: 5px 14px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-width: 320px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06);
+  gap: 10px;
+  min-width: 300px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06);
+  z-index: 45;
 }
 
 .play-btn {
-  width: 38px;
-  height: 38px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: none;
   background: var(--accent);
@@ -4489,6 +4740,14 @@ html[data-theme="dark"] #preset-hover-preview {
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Export Video
     </button>
+    <div class="more-menu-wrap" id="topbar-more-wrap">
+      <button type="button" class="more-dots-btn" id="btn-topbar-more" onclick="UIMoreMenuSystem.toggle('topbar-more-menu', this, event)" title="Studios &amp; Workspaces" aria-label="Studios and Workspaces" aria-haspopup="true" aria-expanded="false">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>
+      </button>
+      <div class="more-menu-dropdown" id="topbar-more-menu" role="menu">
+        <div class="more-menu-label">Workspaces &amp; Studios</div>
+      </div>
+    </div>
     <span class="version-pill">v54</span>
     <button type="button" class="panel-collapse-btn" onclick="UIPanelSystem.toggle('topbar')" title="Collapse Top Bar" aria-label="Collapse Top Bar" aria-expanded="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
@@ -5098,7 +5357,7 @@ html[data-theme="dark"] #preset-hover-preview {
   <div id="center-top-panel" class="ui-collapsible-panel" data-collapsible-panel data-panel-id="center-top-panel" data-panel-axis="top" data-panel-title="Workspace Bar">
     <div class="center-top-left">
       <span class="center-top-title">Canvas Workspace</span>
-      <span class="center-top-badge" id="center-scene-badge" style="background:var(--accent);color:#fff;border-color:var(--accent);">Scene 1</span>
+      <span class="center-top-badge" id="center-scene-badge" style="background:var(--accent);color:var(--on-accent,#fff);border-color:var(--accent);">Scene 1</span>
       <span class="center-top-badge" id="center-size-badge">1280 × 720</span>
       <span class="center-top-badge" id="center-fps-badge">30 FPS</span>
       <span class="center-top-badge" id="center-anim-badge">Scanner</span>
@@ -5108,10 +5367,6 @@ html[data-theme="dark"] #preset-hover-preview {
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
         Left Panel
       </button>
-      <button type="button" class="workspace-quick-toggle active" data-target-panel="bottom-bar" onclick="UIPanelSystem.toggle('bottom-bar')" title="Toggle Bottom Controls">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
-        Bottom Bar
-      </button>
       <button type="button" class="workspace-quick-toggle active" data-target-panel="timeline-panel" onclick="UIPanelSystem.toggle('timeline-panel')" title="Toggle Timeline Panel">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="8" y1="4" x2="8" y2="20"/></svg>
         Timeline
@@ -5120,6 +5375,22 @@ html[data-theme="dark"] #preset-hover-preview {
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
         Right Panel
       </button>
+      <div class="more-menu-wrap" id="workspace-more-wrap">
+        <button type="button" class="more-dots-btn" id="btn-workspace-more" onclick="UIMoreMenuSystem.toggle('workspace-more-menu', this, event)" title="More Panel Controls" aria-label="More Panel Controls" aria-haspopup="true" aria-expanded="false">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>
+        </button>
+        <div class="more-menu-dropdown" id="workspace-more-menu" role="menu">
+          <div class="more-menu-label">Extra Panels</div>
+          <button type="button" class="workspace-quick-toggle" data-target-panel="bottom-bar" onclick="UIPanelSystem.toggle('bottom-bar')" title="Toggle Bottom Controls">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+            Hand &amp; Speed Bar
+          </button>
+          <button type="button" class="workspace-quick-toggle active" data-target-panel="topbar" onclick="UIPanelSystem.toggle('topbar')" title="Toggle Top Bar">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+            Top Bar
+          </button>
+        </div>
+      </div>
       <button type="button" class="panel-collapse-btn" onclick="UIPanelSystem.toggle('center-top-panel')" title="Collapse Workspace Bar" aria-label="Collapse Workspace Bar" aria-expanded="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
       </button>
@@ -5227,30 +5498,36 @@ html[data-theme="dark"] #preset-hover-preview {
       <button type="button" class="cam-bar-btn" id="btn-dismiss-autosave">Ignorer</button>
     </div>
 
-    <!-- Tool Toolbar (Crop / Slicer / Caméra) -->
+    <!-- Tool Toolbar (Select / Pen / Effects / Atelier SVG / Caméra + ⋮ More Tools) -->
     <div id="tool-toolbar">
-      <button class="tool-btn" id="btn-crop-tool" onclick="activateCropTool()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
-        Crop
-      </button>
-      <div class="tool-divider"></div>
-      <button class="tool-btn" id="btn-slicer-tool" onclick="openSlicerModal()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
-        Slicer
-      </button>
       <div class="tool-divider"></div>
       <button class="tool-btn" id="btn-camera-tool" onclick="toggleCameraEditMode()" title="Définir et ajuster le cadre caméra sur le canvas">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
         Caméra
       </button>
-      <button class="tool-btn active" id="btn-cam-docks-toggle" onclick="toggleCameraDocks()" title="Afficher/Masquer les panneaux caméra latéraux">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><rect x="2" y="4" width="5" height="16" rx="1"/><rect x="17" y="4" width="5" height="16" rx="1"/><rect x="9" y="6" width="6" height="12" rx="1"/></svg>
-        Docks Cam
-      </button>
+      <div class="more-menu-wrap" id="toolbar-more-wrap">
+        <button type="button" class="more-dots-btn" id="btn-toolbar-more" onclick="UIMoreMenuSystem.toggle('toolbar-more-menu', this, event)" title="More Canvas Tools" aria-label="More Canvas Tools" aria-haspopup="true" aria-expanded="false">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>
+        </button>
+        <div class="more-menu-dropdown" id="toolbar-more-menu" role="menu">
+          <button class="tool-btn" id="btn-crop-tool" onclick="activateCropTool()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
+            Crop
+          </button>
+          <button class="tool-btn" id="btn-slicer-tool" onclick="openSlicerModal()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+            Slicer
+          </button>
+          <button class="tool-btn" id="btn-cam-docks-toggle" onclick="toggleCameraDocks()" title="Afficher/Masquer les panneaux caméra latéraux">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><rect x="2" y="4" width="5" height="16" rx="1"/><rect x="17" y="4" width="5" height="16" rx="1"/><rect x="9" y="6" width="6" height="12" rx="1"/></svg>
+            Docks Cam
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- LEFT CAMERA DOCK (Contrôles rapides Caméra) -->
-    <aside class="cam-side-dock" id="cam-dock-left" aria-label="Contrôles caméra rapides">
+    <aside class="cam-side-dock collapsed" id="cam-dock-left" aria-label="Contrôles caméra rapides" onclick="if(this.classList.contains('collapsed'))toggleCameraDocks()">
       <div class="cam-dock-head">
         <div class="cam-dock-head-left">
           <span class="cam-dock-icon">
@@ -5258,7 +5535,7 @@ html[data-theme="dark"] #preset-hover-preview {
           </span>
           <span class="cam-dock-title">Caméra</span>
         </div>
-        <button type="button" class="cam-dock-fold-btn" onclick="toggleCameraDocks()" title="Replier / Déplier">‹</button>
+        <button type="button" class="cam-dock-fold-btn" onclick="toggleCameraDocks()" title="Replier / Déplier">›</button>
       </div>
       <div class="cam-dock-body">
         <div class="cam-dock-sec-label"><span>Mode</span></div>
@@ -5317,13 +5594,13 @@ html[data-theme="dark"] #preset-hover-preview {
     </div>
 
     <!-- RIGHT CAMERA DOCK (Templates Presets & Timeline Keyframes) -->
-    <aside class="cam-side-dock" id="cam-dock-right" aria-label="Templates et clés caméra">
+    <aside class="cam-side-dock collapsed" id="cam-dock-right" aria-label="Templates et clés caméra" onclick="if(this.classList.contains('collapsed'))toggleCameraDocks()">
       <div class="cam-dock-head">
         <div class="cam-dock-head-left">
           <span class="cam-dock-title">Presets</span>
           <span class="cam-dock-time" id="cam-dock-time-badge">@ 0.0s</span>
         </div>
-        <button type="button" class="cam-dock-fold-btn" onclick="toggleCameraDocks()" title="Replier / Déplier">›</button>
+        <button type="button" class="cam-dock-fold-btn" onclick="toggleCameraDocks()" title="Replier / Déplier">‹</button>
       </div>
       <div class="cam-dock-body">
         <div class="cam-dock-sec-label">
@@ -5463,68 +5740,98 @@ html[data-theme="dark"] #preset-hover-preview {
 
   <!-- ════════ PROFESSIONAL MULTI-SCENE TIMELINE & AUDIO PANEL ════════ -->
   <div id="timeline-panel" class="ui-collapsible-panel" data-collapsible-panel data-panel-id="timeline-panel" data-panel-axis="bottom" data-panel-title="Timeline &amp; Audio">
-    <!-- Timeline Control Toolbar -->
+    <div class="tl-resize-handle" id="tl-resize-handle" title="Drag up/down to resize timeline"></div>
+    <!-- Timeline Control Toolbar: Scrollable actions on the left, Pinned ⋮ + Collapse outside scroll on the right -->
     <div class="tl-toolbar">
-      <div class="tl-toolbar-group">
-        <button type="button" class="tl-btn tl-btn-primary" id="tl-btn-preview-all" onclick="TimelineStudio.togglePreviewAll()" title="Preview All Scenes from Playhead (Space)">
-          <svg id="tl-play-icon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
-          <svg id="tl-pause-icon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-          <span id="tl-preview-label">Preview All</span>
-        </button>
-        <button type="button" class="tl-btn" onclick="TimelineStudio.stopPreviewAndRewind()" title="Stop &amp; Rewind to Start">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
-        </button>
-        <div class="tl-timecode" id="tl-timecode-display">00:00.0 / 00:05.0</div>
-      </div>
+      <div class="tl-toolbar-scroll">
+        <div class="tl-toolbar-group">
+          <button type="button" class="tl-btn tl-btn-primary" id="tl-btn-preview-all" onclick="TimelineStudio.togglePreviewAll()" title="Preview All Scenes from Playhead (Space)">
+            <svg id="tl-play-icon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+            <svg id="tl-pause-icon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            <span id="tl-preview-label">Preview All</span>
+          </button>
+          <button type="button" class="tl-btn" onclick="TimelineStudio.stopPreviewAndRewind()" title="Stop &amp; Rewind to Start">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+          </button>
+          <div class="tl-timecode" id="tl-timecode-display">00:00.0 / 00:05.0</div>
+        </div>
 
-      <div class="tl-toolbar-divider"></div>
+        <div class="tl-toolbar-divider"></div>
 
-      <div class="tl-toolbar-group">
-        <button type="button" class="tl-btn" onclick="TimelineStudio.addScene()" title="Add New Scene">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Add New
-        </button>
-        <button type="button" class="tl-btn" onclick="TimelineStudio.duplicateScene()" title="Duplicate Active Scene">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          Duplicate
-        </button>
-        <button type="button" class="tl-btn tl-btn-danger" onclick="TimelineStudio.deleteScene()" title="Delete Active Scene">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
-          Delete
-        </button>
-        <button type="button" class="tl-btn" onclick="TimelineStudio.splitAtPlayhead()" title="Split Scene or Selected Layer Clip at Playhead (Shortcut: S)">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
-          Split <kbd class="tl-kbd">S</kbd>
-        </button>
-        <button type="button" class="tl-btn" onclick="TimelineStudio.addKeyframeAtPlayhead()" title="Add/Update Keyframe (Scale, Position, Opacity) for Selected Layer at Playhead">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 22 12 12 22 2 12 12 2"/></svg>
-          + Keyframe
-        </button>
-        <div style="display:inline-flex;align-items:center;gap:4px;margin-left:2px;">
-          <span style="font-size:9.5px;color:#94a3b8;font-weight:600;">Transition:</span>
-          <select id="tl-scene-transition-select" onchange="TimelineStudio.setActiveSceneTransitionFromToolbar(this.value)" title="Transition at end of active scene" style="background:#232732;color:#e2e8f0;border:1px solid #323846;border-radius:5px;padding:3px 6px;font-size:10px;font-weight:600;cursor:pointer;">
-            <option value="cut">Cut (Instant)</option>
-            <option value="board-wipe">Board Wipe (Hand Cloth)</option>
-            <option value="push-canvas">Push Canvas (Slide)</option>
-            <option value="morph">Morph (Shape Melt)</option>
-            <option value="fade-black">Fade to Black</option>
-            <option value="wipe">Wipe</option>
-            <option value="cross-dissolve">Cross Dissolve</option>
-          </select>
+        <div class="tl-toolbar-group">
+          <button type="button" class="tl-btn" onclick="TimelineStudio.addScene()" title="Add New Scene">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add New
+          </button>
+          <button type="button" class="tl-btn" id="tl-btn-razor" onclick="TimelineStudio.toggleRazorTool()" title="Outil Lame / Razor (Raccourci : C) — Cliquez sur un clip vidéo ou une scène pour couper" aria-pressed="false">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
+            Cut <kbd class="tl-kbd">C</kbd>
+          </button>
+          <button type="button" class="tl-btn tl-btn-danger" id="tl-btn-delete-selected" onclick="TimelineStudio.deleteSelectedClipOrScene()" title="Supprimer le clip/calque sélectionné (ou la scène)">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+            Del
+          </button>
+          <button type="button" class="tl-btn" onclick="TimelineStudio.addKeyframeAtPlayhead()" title="Add/Update Keyframe (Scale, Position, Opacity) for Selected Layer at Playhead">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 22 12 12 22 2 12 12 2"/></svg>
+            + Keyframe
+          </button>
+          <div style="display:inline-flex;align-items:center;gap:4px;margin-left:2px;">
+            <span style="font-size:9.5px;color:#94a3b8;font-weight:600;">Transition:</span>
+            <select id="tl-scene-transition-select" onchange="TimelineStudio.setActiveSceneTransitionFromToolbar(this.value)" title="Transition at end of active scene" style="background:#232732;color:#e2e8f0;border:1px solid #323846;border-radius:5px;padding:3px 6px;font-size:10px;font-weight:600;cursor:pointer;">
+              <option value="cut">Cut (Instant)</option>
+              <option value="board-wipe">Board Wipe (Hand Cloth)</option>
+              <option value="push-canvas">Push Canvas (Slide)</option>
+              <option value="morph">Morph (Shape Melt)</option>
+              <option value="fade-black">Fade to Black</option>
+              <option value="wipe">Wipe</option>
+              <option value="cross-dissolve">Cross Dissolve</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="tl-toolbar-divider"></div>
+
+        <div class="tl-toolbar-group">
+          <div class="tl-zoom-wrap" title="Timeline Zoom">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="range" id="tl-zoom-slider" min="25" max="220" value="80" oninput="TimelineStudio.setZoom(+this.value)">
+            <span id="tl-zoom-val" class="tl-zoom-val">100%</span>
+          </div>
         </div>
       </div>
 
-      <div class="tl-toolbar-right">
-        <button type="button" class="tl-btn active" id="tl-snap-indicator" onclick="TimelineStudio.toggleMagneticSnap()" title="Magnetic Snapping (On/Off)">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v7a6 6 0 0 0 12 0V3"/><line x1="4" y1="3" x2="8" y2="3"/><line x1="16" y1="3" x2="20" y2="3"/></svg>
-          Snap
-        </button>
-        <div class="tl-zoom-wrap" title="Timeline Zoom">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="range" id="tl-zoom-slider" min="25" max="220" value="80" oninput="TimelineStudio.setZoom(+this.value)">
-          <span id="tl-zoom-val" class="tl-zoom-val">100%</span>
+      <!-- Pinned Right Controls (NEVER inside horizontal scroll!) -->
+      <div class="tl-toolbar-pinned">
+        <div class="more-menu-wrap" id="tl-more-wrap">
+          <button type="button" class="more-dots-btn more-dots-btn--dark" id="btn-tl-more" onclick="UIMoreMenuSystem.toggle('tl-more-menu', this, event)" title="More Timeline Actions" aria-label="More Timeline Actions" aria-haspopup="true" aria-expanded="false">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>
+          </button>
+          <div class="more-menu-dropdown more-menu-dropdown--dark" id="tl-more-menu" role="menu">
+            <div class="more-menu-label">Scene &amp; Timeline</div>
+            <button type="button" class="tl-btn" onclick="TimelineStudio.duplicateScene()" title="Duplicate Active Scene">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Duplicate Scene
+            </button>
+            <button type="button" class="tl-btn" onclick="TimelineStudio.splitAtPlayhead()" title="Split Scene or Selected Layer Clip at Playhead (Shortcut: S)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
+              Split at Playhead <kbd class="tl-kbd">S</kbd>
+            </button>
+            <button type="button" class="tl-btn tl-btn-danger" onclick="TimelineStudio.deleteScene()" title="Delete Active Scene">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+              Delete Scene
+            </button>
+            <div class="more-menu-sep"></div>
+            <button type="button" class="tl-btn active" id="tl-snap-indicator" onclick="TimelineStudio.toggleMagneticSnap()" title="Magnetic Snapping (On/Off)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v7a6 6 0 0 0 12 0V3"/><line x1="4" y1="3" x2="8" y2="3"/><line x1="16" y1="3" x2="20" y2="3"/></svg>
+              Magnetic Snap
+            </button>
+            <button type="button" class="tl-btn" onclick="TimelineStudio.toggleLayerSubtracks()" title="Expand or Collapse Layer Tracks">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/></svg>
+              Toggle Layer Tracks
+            </button>
+          </div>
         </div>
-        <button type="button" class="panel-collapse-btn" onclick="UIPanelSystem.toggle('timeline-panel')" title="Collapse Timeline Panel" aria-label="Collapse Timeline Panel" aria-expanded="true">
+        <button type="button" class="panel-collapse-btn" id="btn-timeline-collapse" onclick="UIPanelSystem.toggle('timeline-panel')" title="Collapse Timeline Panel" aria-label="Collapse Timeline Panel" aria-expanded="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
       </div>
@@ -5633,8 +5940,9 @@ html[data-theme="dark"] #preset-hover-preview {
     </div>
     <div class="input-card-body">
     <div class="tab-group">
-      <button class="tab-btn active" onclick="switchTab('image')">Image</button>
-      <button class="tab-btn"        onclick="switchTab('text')">Text</button>
+      <button class="tab-btn active" data-tab="image" onclick="switchTab('image')">Image</button>
+      <button class="tab-btn"        data-tab="text"  onclick="switchTab('text')">Text</button>
+      <button class="tab-btn"        data-tab="video" onclick="switchTab('video')">Video</button>
     </div>
 
     <!-- IMAGE PANEL -->
@@ -5647,10 +5955,10 @@ html[data-theme="dark"] #preset-hover-preview {
             <line x1="12" y1="3" x2="12" y2="15"/>
           </svg>
         </div>
-        <div class="drop-primary">Drop images or <span>browse</span></div>
-        <div class="drop-secondary">PNG, JPG, GIF, SVG · Multiple files OK</div>
+        <div class="drop-primary">Drop images/video or <span>browse</span></div>
+        <div class="drop-secondary">PNG, JPG, SVG, MP4, WebM · Multiple OK</div>
       </div>
-      <input type="file" id="file-input" accept="image/*" multiple>
+      <input type="file" id="file-input" accept="image/*,video/*,.mp4,.webm,.mov,.mkv,.m4v" multiple>
 
       <!-- Background section -->
       <div style="margin-top:14px">
@@ -5780,6 +6088,66 @@ html[data-theme="dark"] #preset-hover-preview {
         </div>
       </div>
 
+    </div>
+
+    <!-- VIDEO PANEL -->
+    <div id="video-panel" style="display:none">
+      <div class="section-label" style="margin-top:8px;">Destination</div>
+      <div class="video-target-switch" role="group" aria-label="Video import destination">
+        <button type="button" class="video-target-btn active" id="btn-video-target-active" onclick="setVideoImportTarget('active')">Scène active</button>
+        <button type="button" class="video-target-btn" id="btn-video-target-new" onclick="setVideoImportTarget('new')">Nouvelle scène</button>
+      </div>
+
+      <div id="video-drop-zone" onclick="document.getElementById('video-file-input').click()" style="margin-top:8px;border:2px dashed var(--border-hi);border-radius:12px;padding:16px 12px;text-align:center;cursor:pointer;background:rgba(0,0,0,0.01);transition:all 0.2s;">
+        <div class="drop-icon" style="margin:0 auto 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="15" height="16" rx="2"/>
+            <polygon points="17 9 22 6 22 18 17 15 17 9"/>
+          </svg>
+        </div>
+        <div class="drop-primary">Importer une vidéo ou <span>parcourir</span></div>
+        <div class="drop-secondary">MP4, WebM, MOV · Redimensionnable pour SVG</div>
+      </div>
+      <input type="file" id="video-file-input" accept="video/*,.mp4,.webm,.mov,.mkv,.m4v" multiple style="display:none">
+
+      <div id="video-inspector-empty" style="margin-top:10px;padding:9px 10px;border-radius:8px;background:var(--panel);border:1px solid var(--border);font-size:10.5px;color:var(--muted-hi);line-height:1.45;">
+        Importez une vidéo ci-dessus ou sélectionnez un calque vidéo pour régler son volume, la couper au cutter (C) ou ajuster ses dimensions pour placer des SVG.
+      </div>
+
+      <div id="video-inspector-card" class="video-inspector-card" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+          <span id="video-inspector-name" style="font-size:11.5px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Vidéo</span>
+          <span id="video-inspector-trim" style="font-size:10px;color:var(--muted-hi);font-variant-numeric:tabular-nums;">0.0s – 5.0s</span>
+        </div>
+
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <span class="section-sublabel" style="margin:0;">Son vidéo</span>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span id="video-vol-val" style="font-size:10px;color:var(--muted-hi);font-variant-numeric:tabular-nums;">100%</span>
+              <button type="button" id="video-mute-btn" class="video-mini-btn" onclick="toggleSelectedVideoMute()" style="padding:2px 7px;font-size:9.5px;">Mute</button>
+            </div>
+          </div>
+          <input type="range" id="video-vol-slider" min="0" max="100" value="100" style="width:100%;" oninput="setSelectedVideoVolume(+this.value)">
+        </div>
+
+        <div>
+          <div class="section-sublabel" style="margin-bottom:5px;">Disposition &amp; Espace SVG</div>
+          <div class="video-layout-grid">
+            <button type="button" class="video-mini-btn" onclick="applyVideoLayoutPreset('stage')">Centré 74%</button>
+            <button type="button" class="video-mini-btn" onclick="applyVideoLayoutPreset('left')">Gauche 50%</button>
+            <button type="button" class="video-mini-btn" onclick="applyVideoLayoutPreset('right')">Droite 50%</button>
+            <button type="button" class="video-mini-btn" onclick="applyVideoLayoutPreset('pip')">Vignette PiP</button>
+            <button type="button" class="video-mini-btn" onclick="applyVideoLayoutPreset('full')">Plein cadre</button>
+            <button type="button" class="video-mini-btn" onclick="TimelineStudio.toggleRazorTool()">Lame (C)</button>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:6px;">
+          <button type="button" class="video-mini-btn" style="flex:1;" onclick="TimelineStudio.splitAtPlayhead()">Couper ici (S)</button>
+          <button type="button" class="video-mini-btn danger" style="flex:1;" onclick="deleteSelectedVideoLayer()">Supprimer</button>
+        </div>
+      </div>
     </div>
     </div><!-- /.input-card-body -->
   </div>
@@ -5948,22 +6316,26 @@ function generateRandomName() {
 // Initialize IndexedDB
 function initDB() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('WhiteboardAnimatorDB', 1);
+    const request = indexedDB.open('WhiteboardAnimatorDB', 2);
     
     request.onerror = () => reject(request.error);
     request.onsuccess = () => {
       db = request.result;
+      window.VideoCore?.setDBGetter?.(() => db);
       resolve(db);
     };
     
     request.onupgradeneeded = (event) => {
-      const db = event.target.result;
+      const upgradeDb = event.target.result;
       
-      if (!db.objectStoreNames.contains('projects')) {
-        const objectStore = db.createObjectStore('projects', { keyPath: 'id', autoIncrement: true });
+      if (!upgradeDb.objectStoreNames.contains('projects')) {
+        const objectStore = upgradeDb.createObjectStore('projects', { keyPath: 'id', autoIncrement: true });
         objectStore.createIndex('name', 'name', { unique: false });
         objectStore.createIndex('createdAt', 'createdAt', { unique: false });
         objectStore.createIndex('modifiedAt', 'modifiedAt', { unique: false });
+      }
+      if (!upgradeDb.objectStoreNames.contains('media')) {
+        upgradeDb.createObjectStore('media', { keyPath: 'id' });
       }
     };
   });
@@ -7070,6 +7442,25 @@ document.addEventListener('keydown', e => {
     }
     if (_ts.placing) { deactivateTextPlacement(); e.preventDefault(); return; }
     if (_ts.active)  { closeTextEditor(false);    e.preventDefault(); return; }
+    if (window.TimelineStudio?.getTimelineTool?.() === 'razor') {
+      window.TimelineStudio.setTimelineTool('select');
+      e.preventDefault();
+      return;
+    }
+  }
+
+  // Razor / Cut tool shortcuts: C toggles Razor (Lame), V returns to Select
+  if (!mod && !typing && (e.key === 'c' || e.key === 'C')) {
+    e.preventDefault();
+    window.TimelineStudio?.toggleRazorTool?.();
+    return;
+  }
+  if (!mod && !typing && (e.key === 'v' || e.key === 'V')) {
+    if (window.TimelineStudio?.getTimelineTool?.() === 'razor') {
+      e.preventDefault();
+      window.TimelineStudio.setTimelineTool('select');
+      return;
+    }
   }
 
   // Space — play / pause (no modifier, not typing)
@@ -7366,8 +7757,77 @@ function syncTopbarLabels() {
 // Automatically wraps and manages all major panels, sections, cards & layers,
 // and auto-inherits on any future DOM panels/components via MutationObserver.
 // ═══════════════════════════════════════════════════════════════════════════
+const UIMoreMenuSystem = (() => {
+  let activeMenu = null;
+  let activeTrigger = null;
+
+  function closeAll() {
+    document.querySelectorAll('.more-menu-dropdown.open').forEach(menu => {
+      menu.classList.remove('open');
+    });
+    document.querySelectorAll('.more-dots-btn[aria-expanded="true"]').forEach(btn => {
+      btn.setAttribute('aria-expanded', 'false');
+    });
+    activeMenu = null;
+    activeTrigger = null;
+  }
+
+  function positionMenu(menu, trigger) {
+    const tr = trigger.getBoundingClientRect();
+    menu.style.visibility = 'hidden';
+    menu.classList.add('open');
+    const mw = menu.offsetWidth || 210;
+    const mh = menu.offsetHeight || 180;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    let left = Math.min(vw - mw - 8, Math.max(8, tr.right - mw));
+    let top = tr.bottom + 6;
+    if (top + mh > vh - 8) {
+      top = Math.max(8, tr.top - mh - 6);
+    }
+    menu.style.left = `${Math.round(left)}px`;
+    menu.style.top = `${Math.round(top)}px`;
+    menu.style.visibility = '';
+  }
+
+  function toggle(menuId, trigger, event) {
+    if (event) {
+      event.stopPropagation();
+    }
+    const menu = document.getElementById(menuId);
+    if (!menu || !trigger) return;
+    const wasOpen = menu.classList.contains('open');
+    closeAll();
+    if (!wasOpen) {
+      positionMenu(menu, trigger);
+      trigger.setAttribute('aria-expanded', 'true');
+      activeMenu = menu;
+      activeTrigger = trigger;
+    }
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!activeMenu) return;
+    if (e.target.closest('.more-dots-btn') === activeTrigger) return;
+    const clickedBtn = e.target.closest('.more-menu-dropdown button');
+    if (clickedBtn && activeMenu.contains(clickedBtn)) {
+      setTimeout(closeAll, 0);
+      return;
+    }
+    if (!activeMenu.contains(e.target)) closeAll();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && activeMenu) closeAll();
+  });
+  window.addEventListener('resize', closeAll);
+
+  return { toggle, closeAll };
+})();
+window.UIMoreMenuSystem = UIMoreMenuSystem;
+
 const UIPanelSystem = (() => {
   const STORAGE_KEY = 'inkplainer_panel_layout_v1';
+  const DEFAULT_COLLAPSED = { 'bottom-bar': true };
   const panels = new Map();
   let savedState = {};
 
@@ -7493,7 +7953,8 @@ const UIPanelSystem = (() => {
 
     panels.set(id, { el, id, axis, title });
 
-    if (savedState[id] === true) {
+    const shouldCollapse = savedState[id] === true || (savedState[id] === undefined && DEFAULT_COLLAPSED[id] === true);
+    if (shouldCollapse) {
       el.classList.add('is-collapsed');
     }
     updateAria(el);
@@ -7846,6 +8307,7 @@ window.addEventListener('load', () => {
 ════════════════════════════════════════════════════════════════════════ -->
 <script src="studio-core.js"></script>
 <script src="camera-core.js"></script>
+<script src="video-core.js"></script>
 <script src="stickman-core.js"></script>
 <script src="studio-assets.js"></script>
 <script src="vendor/anime.min.js"></script>
@@ -8104,6 +8566,9 @@ function fillBg(c) {
 }
 function fillBgOnCtx(c) { fillBg(c); }
 
+let _cameraEdit = { active: false, layerId: null, sceneId: null, timelineKfId: null, previewing: false };
+let _activeSnapGuides = [];
+
 initCanvas(1280,720);
 window.addEventListener('resize', fitCanvas);
 
@@ -8172,6 +8637,13 @@ function addLayer(img, name) {
 }
 
 function removeLayer(id) {
+  const targetLayer = getLayerById(id);
+  if (targetLayer?.videoEl) {
+    try {
+      targetLayer.videoEl.muted = true;
+      targetLayer.videoEl.pause();
+    } catch (_) {}
+  }
   pushUndoSnapshot();
   // Remove from any group it belongs to
   state.groups.forEach(grp => {
@@ -8195,6 +8667,7 @@ function removeLayer(id) {
   renderLayerList();
   redrawLayersOnCanvas();
   drawSelectionHandles();
+  if (typeof syncVideoInspectorUI === 'function') syncVideoInspectorUI();
   scheduleAutoSave();
 }
 
@@ -8211,6 +8684,7 @@ function selectLayer(id) {
   renderLayerList();
   drawSelectionHandles();
   syncSidebarToLayer(id);
+  if (typeof syncVideoInspectorUI === 'function') syncVideoInspectorUI();
 }
 
 function syncSidebarToLayer(id) {
@@ -8356,6 +8830,7 @@ function _hasStickmanProductionAnimation(sceneOverride = null) {
 function _sceneNeedsCompositePlayback(sceneOverride = null, layersOverride = null) {
   const scene = sceneOverride || window.TimelineStudio?.getActiveScene?.();
   const layers = layersOverride || scene?.layers || state.layers || [];
+  if (layers.some(l => l.visible !== false && l.kind === 'video')) return true;
   if (window.StudioUI?.hasMotion?.(layers)) return true;
   if (_hasStickmanProductionAnimation(scene)) return true;
   return false;
@@ -8822,6 +9297,9 @@ function _buildLayerItem(layer) {
     ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
     : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
 
+  const thumbSrc = layer.img?.src || '';
+  const isVideo = layer.kind === 'video';
+  const vidVolPct = Math.round((layer.muted ? 0 : (layer.volume ?? 1)) * 100);
   const item = document.createElement('div');
   const isSettingsOpen = layer._settingsCollapsed !== undefined ? !layer._settingsCollapsed : isSelected;
   item.className = 'layer-item' + (isSelected ? ' selected' : '') + (isHidden ? ' layer-hidden' : '') + (isSettingsOpen ? ' settings-open' : '');
@@ -8830,9 +9308,9 @@ function _buildLayerItem(layer) {
     <div class="layer-item-header" onclick="selectLayer(${layer.id})">
       <span class="layer-drag-handle" title="Drag to reorder">⠿</span>
       <button class="layer-eye-btn${isHidden ? ' hidden' : ''}" onclick="event.stopPropagation();toggleLayerVisibility(${layer.id})" title="Toggle visibility">${eyeIcon}</button>
-      <img class="layer-thumb" src="${layer.img.src}" alt="">
+      <img class="layer-thumb" src="${thumbSrc}" alt="">
       <div style="flex:1;min-width:0">
-        <div class="layer-name" title="${layer.name}">${layer.name}${layer.camera?.enabled ? '<span class="layer-cam-badge" title="Caméra personnalisée définie">CAM</span>' : ''}</div>
+        <div class="layer-name" title="${layer.name}">${layer.name}${isVideo ? '<span style="font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:#0f766e;color:#ccfbf1;margin-left:5px;">VIDEO</span>' : ''}${layer.camera?.enabled ? '<span class="layer-cam-badge" title="Caméra personnalisée définie">CAM</span>' : ''}</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0" onclick="event.stopPropagation()">
         <span style="font-size:9px;color:var(--muted)">Order</span>
@@ -8847,6 +9325,18 @@ function _buildLayerItem(layer) {
       <button class="layer-del-btn" onclick="event.stopPropagation();removeLayer(${layer.id})" title="Remove layer">✕</button>
     </div>
     <div class="layer-settings${isSettingsOpen ? ' open' : ''}" id="ls-${layer.id}">
+      ${isVideo ? `
+      <div class="section-label" style="margin-top:2px;display:flex;align-items:center;justify-content:space-between;">
+        <span>Son vidéo</span>
+        <button type="button" class="video-mini-btn" style="padding:1px 6px;font-size:9px;" onclick="event.stopPropagation();toggleLayerVideoMute(${layer.id})">${layer.muted ? 'Muet' : 'Actif'}</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+        <input type="range" min="0" max="100" value="${vidVolPct}"
+          data-slider-fill
+          onclick="event.stopPropagation()"
+          oninput="event.stopPropagation();updateRangeFill(this);setLayerVideoVolume(${layer.id},+this.value);this.closest('div').querySelector('.vid-vol-val').textContent=this.value+'%'">
+        <span class="vid-vol-val" style="font-size:10px;color:var(--muted);min-width:28px;text-align:right;font-variant-numeric:tabular-nums;">${vidVolPct}%</span>
+      </div>` : ''}
       <div class="section-label" style="margin-top:2px">Resize</div>
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
         <input type="range" min="10" max="300" value="${resizePct}"
@@ -9323,7 +9813,7 @@ window.getActiveViewCamera = function() {
     return { active: false, cx: W / 2, cy: H / 2, zoom: 1 };
   }
   const localT = _getSceneLocalTime(activeScene);
-  const ordered = (activeScene.layers || []).filter(l => l.visible !== false && l.img);
+  const ordered = (activeScene.layers || []).filter(l => l.visible !== false && (l.img || l.videoEl));
   return window.CameraCore.evaluateSceneCameraAtTime(
     activeScene,
     localT,
@@ -9363,7 +9853,8 @@ function redrawLayersOnCanvas() {
 
   state.layers.forEach(layer => {
     if (layer.visible === false) return;
-    if (!layer.img) return; // Skip if image not loaded
+    const drawable = window.VideoCore?.getLayerDrawable?.(layer) || layer.img;
+    if (!drawable) return; // Skip if image/video not loaded
     // Hide the layer being edited — the overlay textarea is the live preview
     if (_ts.active && _ts.editingId !== null && layer.id === _ts.editingId) return;
 
@@ -9376,7 +9867,7 @@ function redrawLayersOnCanvas() {
     }
 
     if (window.StudioUI) StudioUI.drawLayer(ctx, layer, { ...layer, trimPath: layer.trimPath ?? 100 });
-    else ctx.drawImage(layer.img, layer.x, layer.y, layer.w, layer.h);
+    else ctx.drawImage(drawable, layer.x, layer.y, layer.w, layer.h);
     ctx.restore();
   });
 
@@ -9485,8 +9976,6 @@ function _drawSelectionBox(bounds, isHover = false, hoverLabel = '', haloOnly = 
   });
   sctx.restore();
 }
-let _cameraEdit = { active: false, layerId: null, sceneId: null, timelineKfId: null, previewing: false };
-let _activeSnapGuides = [];
 
 function _getActiveSceneLocalTimeSafe() {
   const activeSc = window.TimelineStudio?.getActiveScene?.();
@@ -9990,6 +10479,20 @@ function _getSiblingRectsForSnap(excludeLayerId, scene, localTime) {
 const wrapper = document.getElementById('canvas-wrapper');
 selectCanvas.style.pointerEvents = 'auto';
 
+if (wrapper) {
+  wrapper.addEventListener('dragover', e => {
+    if (e.dataTransfer?.types && Array.from(e.dataTransfer.types).includes('Files')) {
+      e.preventDefault();
+    }
+  });
+  wrapper.addEventListener('drop', e => {
+    const files = Array.from(e.dataTransfer?.files || []);
+    if (!files.length) return;
+    e.preventDefault();
+    handleMixedMediaFiles(files);
+  });
+}
+
 selectCanvas.addEventListener('wheel', e => {
   if (!_cameraEdit.active || state.recording || state.playing) return;
   const target = _getEditableCameraTarget();
@@ -10469,14 +10972,22 @@ document.addEventListener('mouseup', () => {
 // ─── UI HANDLERS ───
 function switchTab(m) {
   state.mode = m;
-  document.getElementById('image-panel').style.display = m==='image'?'block':'none';
-  document.getElementById('text-panel').style.display  = m==='text' ?'block':'none';
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>
-    b.classList.toggle('active',(i===0&&m==='image')||(i===1&&m==='text')));
+  const imgPanel = document.getElementById('image-panel');
+  const txtPanel = document.getElementById('text-panel');
+  const vidPanel = document.getElementById('video-panel');
+  if (imgPanel) imgPanel.style.display = m === 'image' ? 'block' : 'none';
+  if (txtPanel) txtPanel.style.display = m === 'text'  ? 'block' : 'none';
+  if (vidPanel) vidPanel.style.display = m === 'video' ? 'block' : 'none';
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === m);
+  });
   // Cancel text placement/editing when switching away from text tab
   if (m !== 'text') {
     deactivateTextPlacement();
     closeTextEditor(true);
+  }
+  if (m === 'video' && typeof syncVideoInspectorUI === 'function') {
+    syncVideoInspectorUI();
   }
 }
 function selectColor(el) {
@@ -12727,16 +13238,269 @@ document.getElementById('spec-tile-slider').addEventListener('input', function()
 });
 document.querySelectorAll('input[type="range"]').forEach(updateSliderFill);
 
-// ─── FILE UPLOAD (multi) ───
+// ─── FILE UPLOAD (multi: images & video) ───
 const dropZone  = document.getElementById('drop-zone');
 const fileInput = document.getElementById('file-input');
+const videoDropZone = document.getElementById('video-drop-zone');
+const videoFileInput = document.getElementById('video-file-input');
+
+state.videoImportTarget = state.videoImportTarget || 'active';
+
+function handleMixedMediaFiles(fileList, targetOverride = null) {
+  const files = Array.from(fileList || []);
+  const videos = [];
+  const images = [];
+  files.forEach(f => {
+    if (window.VideoCore?.isVideoFile?.(f)) videos.push(f);
+    else if (f.type?.startsWith('image/') || /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(f.name || '')) images.push(f);
+  });
+  images.forEach(loadImageFile);
+  if (videos.length) importVideoFiles(videos, targetOverride);
+}
+
 dropZone.addEventListener('dragover', e=>{ e.preventDefault(); dropZone.classList.add('drag-over'); });
 dropZone.addEventListener('dragleave', ()=>dropZone.classList.remove('drag-over'));
 dropZone.addEventListener('drop', e=>{
   e.preventDefault(); dropZone.classList.remove('drag-over');
-  Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/')).forEach(loadImageFile);
+  handleMixedMediaFiles(e.dataTransfer.files);
 });
-fileInput.addEventListener('change', ()=>{ Array.from(fileInput.files).forEach(loadImageFile); fileInput.value=''; });
+fileInput.addEventListener('change', ()=>{ handleMixedMediaFiles(fileInput.files); fileInput.value=''; });
+
+if (videoDropZone) {
+  videoDropZone.addEventListener('dragover', e => { e.preventDefault(); videoDropZone.classList.add('drag-over'); });
+  videoDropZone.addEventListener('dragleave', () => videoDropZone.classList.remove('drag-over'));
+  videoDropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    videoDropZone.classList.remove('drag-over');
+    handleMixedMediaFiles(e.dataTransfer.files, state.videoImportTarget || 'active');
+  });
+}
+if (videoFileInput) {
+  videoFileInput.addEventListener('change', () => {
+    importVideoFiles(videoFileInput.files, state.videoImportTarget || 'active');
+    videoFileInput.value = '';
+  });
+}
+
+function setVideoImportTarget(mode) {
+  state.videoImportTarget = mode === 'new' ? 'new' : 'active';
+  document.getElementById('btn-video-target-active')?.classList.toggle('active', state.videoImportTarget === 'active');
+  document.getElementById('btn-video-target-new')?.classList.toggle('active', state.videoImportTarget === 'new');
+}
+
+function syncVideoInspectorUI() {
+  const layer = getSelectedLayer();
+  const isVideo = Boolean(layer && layer.kind === 'video');
+  const emptyEl = document.getElementById('video-inspector-empty');
+  const cardEl = document.getElementById('video-inspector-card');
+  if (emptyEl) emptyEl.style.display = isVideo ? 'none' : 'block';
+  if (cardEl) cardEl.style.display = isVideo ? 'flex' : 'none';
+  if (!isVideo) return;
+
+  const nameEl = document.getElementById('video-inspector-name');
+  const trimEl = document.getElementById('video-inspector-trim');
+  const sliderEl = document.getElementById('video-vol-slider');
+  const valEl = document.getElementById('video-vol-val');
+  const muteBtn = document.getElementById('video-mute-btn');
+  const volPct = Math.round((layer.muted ? 0 : (layer.volume ?? 1)) * 100);
+
+  if (nameEl) nameEl.textContent = layer.name || 'Vidéo';
+  if (trimEl) {
+    const inS = Number(layer.inPoint ?? 0).toFixed(1);
+    const outS = Number(layer.outPoint ?? 5).toFixed(1);
+    trimEl.textContent = `${inS}s – ${outS}s`;
+  }
+  if (sliderEl) {
+    sliderEl.value = volPct;
+    updateRangeFill(sliderEl);
+  }
+  if (valEl) valEl.textContent = `${volPct}%`;
+  if (muteBtn) {
+    muteBtn.textContent = layer.muted ? 'Unmute' : 'Mute';
+    muteBtn.classList.toggle('active', !!layer.muted);
+  }
+}
+
+function setLayerVideoVolume(id, pct) {
+  const l = getLayerById(id);
+  if (!l || l.kind !== 'video') return;
+  const vol = Math.max(0, Math.min(1, Number(pct) / 100));
+  l.volume = vol;
+  if (vol > 0 && l.muted) l.muted = false;
+  if (l.videoEl && !state.recording) {
+    l.videoEl.volume = l.muted ? 0 : vol;
+    l.videoEl.muted = Boolean(l.muted || vol <= 0.001);
+  }
+  syncVideoInspectorUI();
+  window.TimelineStudio?.renderTimeline?.();
+  scheduleAutoSave();
+}
+
+function toggleLayerVideoMute(id) {
+  const l = getLayerById(id);
+  if (!l || l.kind !== 'video') return;
+  pushUndoSnapshot('Toggle Video Mute');
+  l.muted = !l.muted;
+  if (l.videoEl && !state.recording) {
+    l.videoEl.muted = Boolean(l.muted || (l.volume ?? 1) <= 0.001);
+    l.videoEl.volume = l.muted ? 0 : (l.volume ?? 1);
+  }
+  renderLayerList();
+  syncVideoInspectorUI();
+  window.TimelineStudio?.renderTimeline?.();
+  scheduleAutoSave();
+}
+
+function setSelectedVideoVolume(pct) {
+  const sel = getSelectedLayer();
+  if (!sel || sel.kind !== 'video') return;
+  setLayerVideoVolume(sel.id, pct);
+  const lsSlider = document.querySelector(`#ls-${sel.id} .vid-vol-val`);
+  const lsRange = lsSlider?.closest('div')?.querySelector('input[type="range"]');
+  if (lsSlider) lsSlider.textContent = `${Math.round(pct)}%`;
+  if (lsRange) {
+    lsRange.value = pct;
+    updateRangeFill(lsRange);
+  }
+}
+
+function toggleSelectedVideoMute() {
+  const sel = getSelectedLayer();
+  if (!sel || sel.kind !== 'video') return;
+  toggleLayerVideoMute(sel.id);
+}
+
+function applyVideoLayoutPreset(preset) {
+  const sel = getSelectedLayer();
+  if (!sel || sel.kind !== 'video' || !window.VideoCore) return;
+  pushUndoSnapshot('Resize Video');
+  const vw = sel.videoEl?.videoWidth || sel.img?.width || sel.w || state.canvasW;
+  const vh = sel.videoEl?.videoHeight || sel.img?.height || sel.h || state.canvasH;
+  const rect = window.VideoCore.computeVideoPlacement(vw, vh, state.canvasW, state.canvasH, preset);
+  sel.x = rect.x;
+  sel.y = rect.y;
+  sel.w = rect.w;
+  sel.h = rect.h;
+  sel.baseW = rect.w;
+  sel.baseH = rect.h;
+  sel.resizePct = 100;
+  renderLayerList();
+  redrawLayersOnCanvas();
+  drawSelectionHandles();
+  syncVideoInspectorUI();
+  scheduleAutoSave();
+}
+
+function deleteSelectedVideoLayer() {
+  const sel = getSelectedLayer();
+  if (!sel) return;
+  removeLayer(sel.id);
+  showToast('Vidéo supprimée — Ctrl+Z pour annuler');
+}
+
+async function importVideoFiles(files, targetOverride = null) {
+  const list = Array.from(files || []).filter(f => window.VideoCore?.isVideoFile?.(f));
+  if (!list.length) return;
+  const dest = targetOverride || state.videoImportTarget || 'active';
+  for (let i = 0; i < list.length; i++) {
+    await loadVideoFile(list[i], { destination: dest });
+  }
+}
+
+async function loadVideoFile(file, opts = {}) {
+  if (!file || !window.VideoCore) return null;
+  const baseName = (file.name || 'Vidéo').replace(/\.[^.]+$/, '') || 'Vidéo';
+  try {
+    const assetEntry = await window.VideoCore.registerVideoBlob(file, { name: baseName, mime: file.type });
+    const videoEl = await window.VideoCore.createHydratedVideoElement(assetEntry.objectUrl, 0);
+    if (!videoEl) throw new Error('Unable to read video');
+
+    const vw = videoEl.videoWidth || state.canvasW;
+    const vh = videoEl.videoHeight || state.canvasH;
+    const srcDur = (Number.isFinite(videoEl.duration) && videoEl.duration > 0) ? Number(videoEl.duration.toFixed(2)) : 5;
+    await window.VideoCore.registerVideoBlob(file, { name: baseName, mime: file.type, duration: srcDur, width: vw, height: vh }, assetEntry.id);
+
+    const posterImg = await window.VideoCore.capturePosterImage(videoEl);
+    const rect = window.VideoCore.computeVideoPlacement(vw, vh, state.canvasW, state.canvasH, opts.preset || 'stage');
+    const maxId = (state.scenes || []).flatMap(s => s.layers || []).reduce((m, l) => Math.max(m, Number(l.id) || 0), Math.max(_layerIdCounter || 0, window._layerIdCounter || 0));
+    const id = maxId + 1;
+    _layerIdCounter = id;
+    window._layerIdCounter = id;
+
+    const layer = {
+      id,
+      name: baseName,
+      kind: 'video',
+      videoAssetId: assetEntry.id,
+      videoEl,
+      img: posterImg,
+      x: rect.x,
+      y: rect.y,
+      w: rect.w,
+      h: rect.h,
+      baseW: rect.w,
+      baseH: rect.h,
+      resizePct: 100,
+      sourceDuration: srcDur,
+      sourceIn: 0,
+      sourceOut: srcDur,
+      inPoint: 0,
+      outPoint: srcDur,
+      volume: 1,
+      muted: false,
+      keyframes: [],
+      animStyle: 'scanner',
+      hand: 'ghost',
+      animOrder: null,
+      opacity: 1,
+      visible: true,
+      groupId: null,
+      speed: 40,
+      handSpeed: 6,
+      chunks: 30,
+      specChunks: 35,
+      zigzag: false,
+      pushDir: 'bottom',
+      outAnim: 'none',
+      cameraMode: 'static',
+      cameraZoom: 1.8,
+      hasPngAlpha: false,
+    };
+
+    const dest = opts.destination || state.videoImportTarget || 'active';
+    if (dest === 'new' && window.TimelineStudio?.createSceneForVideo) {
+      window.TimelineStudio.createSceneForVideo(layer, srcDur);
+      syncVideoInspectorUI();
+      return layer;
+    }
+
+    pushUndoSnapshot('Import Video');
+    const activeSc = window.TimelineStudio?.getActiveScene?.();
+    if (activeSc && srcDur > activeSc.duration) {
+      const prevDur = activeSc.duration;
+      activeSc.duration = Number(Math.max(1.0, srcDur).toFixed(2));
+      (activeSc.layers || []).forEach(l => {
+        if (Math.abs((l.outPoint ?? prevDur) - prevDur) < 0.1) {
+          l.outPoint = activeSc.duration;
+        }
+      });
+    }
+    state.layers.push(layer);
+    fitCanvas();
+    renderLayerList();
+    selectLayer(layer.id);
+    redrawLayersOnCanvas();
+    window.TimelineStudio?.renderTimeline?.();
+    syncVideoInspectorUI();
+    scheduleAutoSave();
+    showToast(`Vidéo importée (${srcDur.toFixed(1)}s) — redimensionnable pour SVG`);
+    return layer;
+  } catch (err) {
+    console.error('Video import failed:', err);
+    showToast('Impossible de lire cette vidéo (utilisez MP4, WebM ou MOV)');
+    return null;
+  }
+}
 
 function loadImageFile(file) {
   const reader = new FileReader();
@@ -15894,16 +16658,40 @@ function obEnd() {
 
 /* ── Professional Timeline Panel (CapCut / Premiere Inspired) ── */
 #timeline-panel {
+  --tl-bg: #14171f;
+  --tl-border: #222632;
+  --tl-border-hi: #323846;
+  --tl-text: #cbd5e1;
+  --tl-text-muted: #94a3b8;
+  --tl-surface: #1e222d;
+  --tl-header-bg: #181b22;
+  position: relative;
   flex-shrink: 0;
   background: #14161b;
   color: #e2e8f0;
   border-top: 1px solid #2a2e39;
   display: flex;
   flex-direction: column;
-  min-height: 226px;
-  max-height: 310px;
+  height: 172px;
+  min-height: 112px;
+  max-height: 58vh;
   user-select: none;
   z-index: 60;
+}
+.tl-resize-handle {
+  position: absolute;
+  top: -3px;
+  left: 0;
+  right: 0;
+  height: 6px;
+  cursor: ns-resize;
+  z-index: 70;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+.tl-resize-handle:hover,
+.tl-resize-handle.dragging {
+  background: rgba(59, 130, 246, 0.55);
 }
 #timeline-panel .ui-panel-collapsed-bar {
   background: #14161b;
@@ -15915,27 +16703,47 @@ function obEnd() {
 }
 
 .tl-toolbar {
-  height: 38px;
-  min-height: 38px;
-  padding: 0 10px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0 10px 0 0;
   background: #1b1e26;
   border-bottom: 1px solid #2a2e39;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0;
+  overflow: visible;
+}
+.tl-toolbar-scroll {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #323846 transparent;
+}
+.tl-toolbar-scroll::-webkit-scrollbar { height: 4px; }
+.tl-toolbar-scroll::-webkit-scrollbar-track { background: transparent; }
+.tl-toolbar-scroll::-webkit-scrollbar-thumb { background: #323846; border-radius: 3px; }
+.tl-toolbar-pinned {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 10px;
+  border-left: 1px solid #2e3340;
+  margin-left: auto;
+  flex-shrink: 0;
+  background: #1b1e26;
+  z-index: 3;
 }
 .tl-toolbar-group {
   display: flex;
   align-items: center;
   gap: 5px;
-  flex-shrink: 0;
-}
-.tl-toolbar-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-left: auto;
   flex-shrink: 0;
 }
 .tl-toolbar-divider {
@@ -15948,7 +16756,7 @@ function obEnd() {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 9px;
+  padding: 4px 7px;
   border-radius: 6px;
   border: 1px solid #323846;
   background: #232732;
@@ -16051,8 +16859,8 @@ function obEnd() {
   z-index: 15;
 }
 .tl-ruler-corner {
-  height: 24px;
-  min-height: 24px;
+  height: 22px;
+  min-height: 22px;
   padding: 0 10px;
   border-bottom: 1px solid #2a2e39;
   display: flex;
@@ -16064,7 +16872,7 @@ function obEnd() {
   color: #64748b;
 }
 .tl-track-header {
-  padding: 6px 10px;
+  padding: 5px 10px;
   border-bottom: 1px solid #242834;
   display: flex;
   align-items: center;
@@ -16072,8 +16880,8 @@ function obEnd() {
   gap: 6px;
 }
 .tl-track-header-scenes {
-  height: 62px;
-  min-height: 62px;
+  height: 42px;
+  min-height: 42px;
   background: rgba(59, 130, 246, 0.05);
 }
 .tl-track-header-title {
@@ -16118,8 +16926,8 @@ function obEnd() {
   opacity: 0;
 }
 .tl-layer-header-row {
-  height: 30px;
-  min-height: 30px;
+  height: 28px;
+  min-height: 28px;
   padding: 0 10px 0 16px;
   border-bottom: 1px solid #20242e;
   display: flex;
@@ -16146,14 +16954,16 @@ function obEnd() {
 }
 .tl-layer-badge-dot.kind-image { background: #0ea5e9; }
 .tl-layer-badge-dot.kind-text  { background: #a855f7; }
+.tl-layer-badge-dot.kind-video { background: #14b8a6; }
 
 .tl-track-header-audio {
-  height: 48px;
-  min-height: 48px;
+  height: 38px;
+  min-height: 38px;
+  padding: 3px 10px;
   flex-direction: column;
   align-items: stretch;
   justify-content: center;
-  gap: 4px;
+  gap: 2px;
   background: rgba(16, 185, 129, 0.05);
 }
 .tl-audio-controls {
@@ -16198,14 +17008,21 @@ function obEnd() {
   overflow-y: auto;
   position: relative;
   background: #12141a;
+  scrollbar-width: thin;
+  scrollbar-color: #3b4254 #12141a;
 }
+.tl-scroll-area::-webkit-scrollbar { width: 7px; height: 7px; }
+.tl-scroll-area::-webkit-scrollbar-track { background: #12141a; }
+.tl-scroll-area::-webkit-scrollbar-thumb { background: #3b4254; border-radius: 4px; }
+.tl-scroll-area::-webkit-scrollbar-thumb:hover { background: #64748b; }
+.tl-scroll-area::-webkit-scrollbar-corner { background: #12141a; }
 .tl-Stage {
   position: relative;
   min-width: 100%;
   min-height: 100%;
 }
 .tl-ruler-wrap {
-  height: 24px;
+  height: 22px;
   background: #181b22;
   border-bottom: 1px solid #2a2e39;
   position: sticky;
@@ -16215,7 +17032,7 @@ function obEnd() {
 }
 #tl-ruler-canvas {
   display: block;
-  height: 24px;
+  height: 22px;
 }
 
 .tl-lane {
@@ -16223,7 +17040,7 @@ function obEnd() {
   border-bottom: 1px solid #222632;
 }
 .tl-lane-scenes {
-  height: 62px;
+  height: 42px;
   background: repeating-linear-gradient(
     90deg,
     rgba(255,255,255,0.015) 0px,
@@ -16245,14 +17062,14 @@ function obEnd() {
   opacity: 0;
 }
 .tl-layer-lane {
-  height: 30px;
-  min-height: 30px;
+  height: 28px;
+  min-height: 28px;
   position: relative;
   border-bottom: 1px solid #1d202a;
   background: #14171f;
 }
 .tl-lane-audio {
-  height: 48px;
+  height: 38px;
   position: relative;
   background: rgba(16, 185, 129, 0.03);
 }
@@ -16264,16 +17081,16 @@ function obEnd() {
 /* ── Scene Blocks & Thumbnails ── */
 .tl-scene-block {
   position: absolute;
-  top: 5px;
-  height: 52px;
-  border-radius: 7px;
+  top: 3px;
+  height: 36px;
+  border-radius: 6px;
   border: 1.5px solid #3b4254;
   background: #1f2430;
   overflow: hidden;
-  cursor: pointer;
+  cursor: grab;
   display: flex;
   align-items: stretch;
-  transition: border-color 0.14s, box-shadow 0.14s;
+  transition: border-color 0.14s, box-shadow 0.14s, opacity 0.14s;
 }
 .tl-scene-block:hover {
   border-color: #64748b;
@@ -16282,9 +17099,52 @@ function obEnd() {
   border-color: #3b82f6;
   box-shadow: 0 0 0 1px #3b82f6, 0 4px 14px rgba(37, 99, 235, 0.25);
 }
+.tl-scene-block.is-dragging {
+  opacity: 0.52;
+  cursor: grabbing;
+  border-color: #f59e0b;
+}
+.tl-scene-drop-indicator {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  width: 3px;
+  margin-left: -1.5px;
+  background: #f59e0b;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.85);
+  border-radius: 2px;
+  z-index: 20;
+  pointer-events: none;
+  display: none;
+}
+.tl-scene-del-btn {
+  position: absolute;
+  top: 3px;
+  right: 9px;
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+  border: 0;
+  background: rgba(15, 23, 42, 0.78);
+  color: #cbd5e1;
+  font-size: 9px;
+  line-height: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 4;
+}
+.tl-scene-block:hover .tl-scene-del-btn {
+  display: inline-flex;
+}
+.tl-scene-del-btn:hover {
+  background: #dc2626;
+  color: #ffffff;
+}
 .tl-scene-thumb {
-  width: 68px;
-  min-width: 44px;
+  width: 56px;
+  min-width: 40px;
   height: 100%;
   object-fit: cover;
   background: #ffffff;
@@ -16294,7 +17154,7 @@ function obEnd() {
 .tl-scene-meta {
   flex: 1;
   min-width: 0;
-  padding: 5px 8px;
+  padding: 3px 7px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -16335,7 +17195,7 @@ function obEnd() {
 /* ── Inter-Scene Transition Junction Button ── */
 .tl-transition-btn {
   position: absolute;
-  top: 19px;
+  top: 12px;
   width: 24px;
   height: 24px;
   transform: translateX(-50%);
@@ -16359,14 +17219,15 @@ function obEnd() {
   transform: translateX(-50%) scale(1.08);
 }
 
-/* ── Layer Clip Blocks (Color-coded Image vs Text) & Keyframes ── */
+/* ── Layer Clip Blocks (Color-coded Image vs Text vs Video) & Keyframes ── */
 .tl-layer-clip {
   position: absolute;
   top: 3px;
-  height: 24px;
+  height: 22px;
   border-radius: 5px;
   display: flex;
   align-items: center;
+  gap: 5px;
   padding: 0 10px;
   font-size: 9.5px;
   font-weight: 600;
@@ -16383,9 +17244,68 @@ function obEnd() {
   background: rgba(168, 85, 247, 0.28);
   border: 1px solid #a855f7;
 }
+.tl-layer-clip.kind-video {
+  background: rgba(20, 184, 166, 0.3);
+  border: 1px solid #14b8a6;
+}
 .tl-layer-clip.kind-stickman {
   background: linear-gradient(90deg, #7c3aed, #a855f7);
   border: 1px solid #c084fc;
+}
+.tl-clip-vol-tag {
+  font-size: 8px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: rgba(15, 23, 42, 0.55);
+  color: #99f6e4;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+.tl-clip-vol-tag.muted {
+  color: #fca5a5;
+}
+.tl-clip-del-btn {
+  margin-left: auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 0;
+  background: rgba(15, 23, 42, 0.65);
+  color: #cbd5e1;
+  font-size: 8.5px;
+  line-height: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  z-index: 6;
+}
+.tl-layer-clip:hover .tl-clip-del-btn,
+.tl-layer-clip.selected .tl-clip-del-btn {
+  display: inline-flex;
+}
+.tl-clip-del-btn:hover {
+  background: #dc2626;
+  color: #ffffff;
+}
+#timeline-panel.tl-razor-active .tl-lane-scenes,
+#timeline-panel.tl-razor-active .tl-scene-block,
+#timeline-panel.tl-razor-active .tl-layers-subtracks,
+#timeline-panel.tl-razor-active .tl-layer-clip {
+  cursor: crosshair !important;
+}
+.tl-razor-hover-line {
+  position: absolute;
+  top: 22px;
+  bottom: 0;
+  width: 0;
+  border-left: 1.5px dashed #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.55);
+  pointer-events: none;
+  z-index: 25;
+  display: none;
 }
 .tl-stickman-header-row {
   background: rgba(124, 58, 237, .12);
@@ -16451,8 +17371,8 @@ function obEnd() {
 /* ── Audio Track Clip & Waveform ── */
 .tl-audio-clip {
   position: absolute;
-  top: 4px;
-  height: 40px;
+  top: 3px;
+  height: 35px;
   border-radius: 6px;
   background: rgba(16, 185, 129, 0.2);
   border: 1px solid #10b981;
@@ -16748,6 +17668,8 @@ const TimelineStudio = (() => {
   let _exportSuccessTimer = null;
   let _motionResume = null;
   let _motionSingle = false;
+  let _timelineTool = 'select'; // 'select' | 'razor'
+  let _suppressSceneClickId = null;
 
   // Initialize Multi-Scene fields on global `state`
   state.projectSettings = state.projectSettings || {
@@ -16770,6 +17692,9 @@ const TimelineStudio = (() => {
     }
     if (!Array.isArray(layer.keyframes)) {
       layer.keyframes = [];
+    }
+    if (layer.kind === 'video' && window.VideoCore?.normalizeVideoTiming) {
+      window.VideoCore.normalizeVideoTiming(layer, sceneDuration);
     }
     ensureLayerResizeState(layer);
   }
@@ -16987,6 +17912,12 @@ const TimelineStudio = (() => {
           trimPath: layer.trimPath ?? 100,
           vectorData: layer.vectorData ? JSON.parse(JSON.stringify(layer.vectorData)) : undefined,
           kind: layer.kind,
+          videoAssetId: layer.videoAssetId || undefined,
+          sourceDuration: layer.kind === 'video' ? (layer.sourceDuration ?? sc.duration) : undefined,
+          sourceIn: layer.kind === 'video' ? (layer.sourceIn ?? 0) : undefined,
+          sourceOut: layer.kind === 'video' ? (layer.sourceOut ?? layer.sourceDuration ?? sc.duration) : undefined,
+          volume: layer.kind === 'video' ? (layer.volume ?? 1) : undefined,
+          muted: layer.kind === 'video' ? !!layer.muted : undefined,
           textProps: layer.textProps ? JSON.parse(JSON.stringify(layer.textProps)) : undefined,
           _textContent: layer._textContent, _textFont: layer._textFont,
           _textSize: layer._textSize, _textBold: layer._textBold,
@@ -17002,6 +17933,7 @@ const TimelineStudio = (() => {
     if (!snap) { if (onComplete) onComplete(); return; }
     pausePreviewAll();
     cancelPreviewForSingleSceneRun();
+    if (window.VideoCore?.pauseAllVideos) window.VideoCore.pauseAllVideos(state);
     if (window.StudioUI) StudioUI.closeEditors();
     ctx = _mainCtx;
     state.bgCanvas = null;
@@ -17062,7 +17994,7 @@ const TimelineStudio = (() => {
           _layerIdCounter = Number(ld.id);
           window._layerIdCounter = _layerIdCounter;
         }
-        return {
+        const hydratedLayer = {
           id: ld.id,
           name: ld.name,
           img,
@@ -17106,6 +18038,12 @@ const TimelineStudio = (() => {
           trimPath: ld.trimPath ?? 100,
           vectorData,
           kind: ld.kind,
+          videoAssetId: ld.videoAssetId || undefined,
+          sourceDuration: ld.sourceDuration,
+          sourceIn: ld.sourceIn,
+          sourceOut: ld.sourceOut,
+          volume: typeof ld.volume === 'number' ? ld.volume : 1,
+          muted: !!ld.muted,
           textProps: ld.textProps,
           _textContent: ld._textContent, _textFont: ld._textFont,
           _textSize: ld._textSize, _textBold: ld._textBold,
@@ -17115,6 +18053,10 @@ const TimelineStudio = (() => {
           _origImg: origImg || undefined,
           _origX: ld.origX, _origY: ld.origY, _origW: ld.origW, _origH: ld.origH,
         };
+        if (hydratedLayer.kind === 'video' && hydratedLayer.videoAssetId && window.VideoCore?.hydrateVideoLayer) {
+          try { await window.VideoCore.hydrateVideoLayer(hydratedLayer, hydratedLayer.inPoint || 0); } catch (_) {}
+        }
+        return hydratedLayer;
       }));
 
       return {
@@ -17131,7 +18073,7 @@ const TimelineStudio = (() => {
         cameraKeyframes: window.CameraCore?.normalizeSceneCameraKeyframes?.(scData.cameraKeyframes, dur, state.canvasW, state.canvasH) || [],
         thumbnailDataUrl: scData.thumbnailDataUrl || null,
         production: scData.production ? JSON.parse(JSON.stringify(scData.production)) : undefined,
-        layers: hydratedLayers.filter(l => l.img),
+        layers: hydratedLayers.filter(l => l.img || l.kind === 'video'),
       };
     })).then(hydratedScenes => {
       state.scenes = hydratedScenes.length ? hydratedScenes : [createBlankScene('Scene 1', 5.0)];
@@ -17153,6 +18095,7 @@ const TimelineStudio = (() => {
       state.scenes.forEach(updateSceneThumbnail);
       applySceneToWorkingState(getActiveScene());
       if (typeof syncExtraVideoScribeControls === 'function') syncExtraVideoScribeControls(getSelectedLayer());
+      if (typeof syncVideoInspectorUI === 'function') syncVideoInspectorUI();
       syncProjectSettingsUI();
       renderTimeline();
       _undoRestoring = false;
@@ -17360,19 +18303,63 @@ const TimelineStudio = (() => {
     showToast(`Added ${newSc.name}`);
   }
 
+  function createSceneForVideo(videoLayer, duration = 5.0) {
+    saveWorkingStateToActiveScene();
+    pushUndoSnapshot('Import Video (New Scene)');
+    const scDur = Number(Math.max(1.0, Number(duration) || 5.0).toFixed(2));
+    const curIdx = state.scenes.findIndex(s => s.id === state.activeSceneId);
+    const newSc = createBlankScene(videoLayer?.name || `Scene ${state.scenes.length + 1}`, scDur);
+    if (videoLayer) {
+      videoLayer.inPoint = 0;
+      videoLayer.outPoint = scDur;
+      _ensureLayerTimingAndKeyframes(videoLayer, scDur);
+      newSc.layers.push(videoLayer);
+      newSc.selectedLayerId = videoLayer.id;
+    }
+    const insertIdx = curIdx >= 0 ? curIdx + 1 : state.scenes.length;
+    state.scenes.splice(insertIdx, 0, newSc);
+    updateSceneThumbnail(newSc);
+    applySceneToWorkingState(newSc);
+    state.playheadTime = getSceneStartOffset(newSc.id);
+    if (typeof fitCanvas === 'function') fitCanvas();
+    renderTimeline();
+    scheduleAutoSave();
+    showToast(`Vidéo importée dans ${newSc.name} (${scDur.toFixed(1)}s)`);
+    return newSc;
+  }
+
+  function _nextLayerId(offset = 1) {
+    const maxExisting = (state.scenes || [])
+      .flatMap(s => s.layers || [])
+      .reduce((m, l) => Math.max(m, Number(l.id) || 0), Math.max(_layerIdCounter || 0, window._layerIdCounter || 0));
+    const next = maxExisting + offset;
+    _layerIdCounter = next;
+    window._layerIdCounter = next;
+    return next;
+  }
+
   function duplicateScene() {
     saveWorkingStateToActiveScene();
     const src = getActiveScene();
     if (!src) return;
     pushUndoSnapshot('Duplicate Scene');
     const curIdx = state.scenes.findIndex(s => s.id === src.id);
-    const clonedLayers = src.layers.map((l, idx) => ({
-      ...l,
-      id: (++window._layerIdCounter) + Date.now() + idx,
-      keyframes: JSON.parse(JSON.stringify(l.keyframes || [])),
-      camera: l.camera ? JSON.parse(JSON.stringify(l.camera)) : undefined,
-      textProps: l.textProps ? JSON.parse(JSON.stringify(l.textProps)) : undefined,
-    }));
+    const clonedLayers = src.layers.map((l, idx) => {
+      const clone = {
+        ...l,
+        id: _nextLayerId(idx + 1),
+        videoEl: null,
+        keyframes: JSON.parse(JSON.stringify(l.keyframes || [])),
+        camera: l.camera ? JSON.parse(JSON.stringify(l.camera)) : undefined,
+        textProps: l.textProps ? JSON.parse(JSON.stringify(l.textProps)) : undefined,
+      };
+      if (clone.kind === 'video' && clone.videoAssetId && window.VideoCore?.hydrateVideoLayer) {
+        window.VideoCore.hydrateVideoLayer(clone, clone.inPoint || 0).then(() => {
+          if (clone.id && getActiveScene()?.id === copy.id) redrawLayersOnCanvas();
+        }).catch(() => {});
+      }
+      return clone;
+    });
     const copy = {
       id: 'scene-' + (++_sceneCounter) + '-' + Date.now().toString(36).slice(-3),
       name: `${src.name} Copy`,
@@ -17396,72 +18383,171 @@ const TimelineStudio = (() => {
     showToast(`Duplicated ${src.name}`);
   }
 
-  function deleteScene() {
+  function deleteSceneById(sceneId) {
     saveWorkingStateToActiveScene();
     if (state.scenes.length <= 1) {
-      showToast('Project must contain at least one scene');
-      return;
+      showToast('Le projet doit contenir au moins une scène');
+      return false;
     }
-    const curIdx = state.scenes.findIndex(s => s.id === state.activeSceneId);
-    if (curIdx === -1) return;
+    const targetIdx = state.scenes.findIndex(s => s.id === sceneId);
+    if (targetIdx === -1) return false;
     pushUndoSnapshot('Delete Scene');
-    const removed = state.scenes.splice(curIdx, 1)[0];
-    const nextSc = state.scenes[Math.max(0, curIdx - 1)] || state.scenes[0];
-    applySceneToWorkingState(nextSc);
-    state.playheadTime = getSceneStartOffset(nextSc.id);
+    const removed = state.scenes.splice(targetIdx, 1)[0];
+    (removed.layers || []).forEach(l => {
+      if (l.videoEl) {
+        try { l.videoEl.muted = true; l.videoEl.pause(); } catch (_) {}
+      }
+    });
+    const nextSc = state.scenes[Math.min(state.scenes.length - 1, Math.max(0, targetIdx - (sceneId === state.activeSceneId ? 1 : 0)))] || state.scenes[0];
+    if (sceneId === state.activeSceneId || !state.scenes.some(s => s.id === state.activeSceneId)) {
+      applySceneToWorkingState(nextSc);
+      state.playheadTime = getSceneStartOffset(nextSc.id);
+    } else {
+      const activeSc = getActiveScene();
+      if (activeSc) state.playheadTime = Math.min(getTotalProjectDuration(), Math.max(getSceneStartOffset(activeSc.id), state.playheadTime));
+    }
     renderTimeline();
+    if (typeof syncVideoInspectorUI === 'function') syncVideoInspectorUI();
     scheduleAutoSave();
-    showToast(`Deleted ${removed.name}`);
+    showToast(`Scène supprimée : ${removed.name}`);
+    return true;
   }
 
-  function splitAtPlayhead() {
-    saveWorkingStateToActiveScene();
-    const info = getSceneAtGlobalTime(state.playheadTime);
-    const sc = info.scene;
-    if (!sc) return;
-    const localT = info.localTime;
+  function deleteScene() {
+    return deleteSceneById(state.activeSceneId);
+  }
 
-    // 1) If a layer is selected in the active scene and playhead is strictly inside its [inPoint, outPoint], split the layer clip
-    const selLayer = sc.layers.find(l => l.id === state.selectedLayerId);
-    if (selLayer && sc.id === state.activeSceneId) {
-      _ensureLayerTimingAndKeyframes(selLayer, sc.duration);
-      if (localT > selLayer.inPoint + 0.15 && localT < selLayer.outPoint - 0.15) {
-        pushUndoSnapshot('Split Layer Clip');
-        const origOut = selLayer.outPoint;
-        selLayer.outPoint = Number(localT.toFixed(2));
-        const evalAtSplit = evaluateLayerAtTime(selLayer, localT);
-        const secondSegment = {
-          ...selLayer,
-          id: (++window._layerIdCounter) + Date.now(),
-          name: `${selLayer.name} (Part 2)`,
-          x: evalAtSplit.x,
-          y: evalAtSplit.y,
-          w: evalAtSplit.w,
-          h: evalAtSplit.h,
-          resizePct: evalAtSplit.resizePct,
-          opacity: evalAtSplit.opacity,
-          inPoint: Number(localT.toFixed(2)),
-          outPoint: origOut,
-          keyframes: (selLayer.keyframes || []).filter(k => k.time >= localT),
-          camera: selLayer.camera ? JSON.parse(JSON.stringify(selLayer.camera)) : undefined,
-          textProps: selLayer.textProps ? JSON.parse(JSON.stringify(selLayer.textProps)) : undefined,
-        };
-        selLayer.keyframes = (selLayer.keyframes || []).filter(k => k.time <= localT);
-        const idx = sc.layers.indexOf(selLayer);
-        sc.layers.splice(idx + 1, 0, secondSegment);
-        state.selectedLayerId = secondSegment.id;
-        applySceneToWorkingState(sc);
+  function deleteSelectedClipOrScene() {
+    saveWorkingStateToActiveScene();
+    if (state.selectedLayerId && state.layers.some(l => l.id === state.selectedLayerId)) {
+      removeLayer(state.selectedLayerId);
+      showToast('Clip / calque supprimé — Ctrl+Z pour annuler');
+      return true;
+    }
+    if (typeof selectedStickmanTrackId !== 'undefined' && selectedStickmanTrackId && window.StickmanProduction?.deleteTrack) {
+      const sc = getActiveScene();
+      if (sc) {
+        pushUndoSnapshot('Delete Stickman Character');
+        window.StickmanProduction.deleteTrack(sc, selectedStickmanTrackId);
+        selectedStickmanTrackId = null;
+        renderActiveSceneImmediately();
+        drawSelectionHandles();
         renderTimeline();
         scheduleAutoSave();
-        showToast(`Split layer "${selLayer.name}" at ${localT.toFixed(2)}s`);
-        return;
+        showToast('Personnage supprimé — Ctrl+Z pour annuler');
+        return true;
       }
     }
+    if (state.scenes.length > 1) {
+      return deleteSceneById(state.activeSceneId);
+    }
+    showToast('Sélectionnez un clip ou ajoutez une autre scène pour supprimer');
+    return false;
+  }
 
-    // 2) Otherwise split the scene itself at the playhead
-    if (localT <= 0.25 || localT >= sc.duration - 0.25) {
-      showToast('Move playhead inside a scene or layer clip to split');
-      return;
+  function setTimelineTool(tool) {
+    _timelineTool = tool === 'razor' ? 'razor' : 'select';
+    const panel = document.getElementById('timeline-panel');
+    const razorBtn = document.getElementById('tl-btn-razor');
+    const hoverLine = document.getElementById('tl-razor-hover-line');
+    const isRazor = _timelineTool === 'razor';
+    if (panel) panel.classList.toggle('tl-razor-active', isRazor);
+    if (razorBtn) {
+      razorBtn.classList.toggle('active', isRazor);
+      razorBtn.setAttribute('aria-pressed', String(isRazor));
+    }
+    if (!isRazor && hoverLine) hoverLine.style.display = 'none';
+  }
+
+  function getTimelineTool() {
+    return _timelineTool;
+  }
+
+  function toggleRazorTool() {
+    const next = _timelineTool === 'razor' ? 'select' : 'razor';
+    setTimelineTool(next);
+    if (next === 'razor') {
+      showToast('Outil Lame (C) actif — cliquez sur un clip vidéo ou une scène pour couper');
+    }
+    return next;
+  }
+
+  function _performLayerClipSplit(sc, layer, cutLocalTime) {
+    const splitPlan = window.VideoCore?.splitVideoLayerSegment
+      ? window.VideoCore.splitVideoLayerSegment(layer, cutLocalTime, { minSlice: 0.12 })
+      : null;
+    if (!splitPlan) return null;
+
+    pushUndoSnapshot('Split Layer Clip');
+    const cutT = splitPlan.cutTime;
+    const evalAtSplit = evaluateLayerAtTime(layer, cutT);
+
+    layer.outPoint = splitPlan.leftPatch.outPoint;
+    if (layer.kind === 'video') {
+      layer.sourceIn = splitPlan.leftPatch.sourceIn;
+      layer.sourceOut = splitPlan.leftPatch.sourceOut;
+    }
+    layer.keyframes = splitPlan.leftPatch.keyframes;
+
+    const secondSegment = {
+      ...layer,
+      id: _nextLayerId(1),
+      name: layer.name?.includes('(Part') ? `${layer.name.replace(/\s*\(Part \d+\)$/, '')} (Cut)` : `${layer.name} (Part 2)`,
+      videoEl: null,
+      x: evalAtSplit.x,
+      y: evalAtSplit.y,
+      w: evalAtSplit.w,
+      h: evalAtSplit.h,
+      resizePct: evalAtSplit.resizePct,
+      opacity: evalAtSplit.opacity,
+      inPoint: splitPlan.rightSegmentProps.inPoint,
+      outPoint: splitPlan.rightSegmentProps.outPoint,
+      sourceIn: splitPlan.rightSegmentProps.sourceIn,
+      sourceOut: splitPlan.rightSegmentProps.sourceOut,
+      sourceDuration: splitPlan.rightSegmentProps.sourceDuration,
+      keyframes: splitPlan.rightSegmentProps.keyframes,
+      camera: layer.camera ? JSON.parse(JSON.stringify(layer.camera)) : undefined,
+      textProps: layer.textProps ? JSON.parse(JSON.stringify(layer.textProps)) : undefined,
+    };
+
+    const idx = sc.layers.indexOf(layer);
+    sc.layers.splice(idx + 1, 0, secondSegment);
+    if (secondSegment.kind === 'video' && secondSegment.videoAssetId && window.VideoCore?.hydrateVideoLayer) {
+      window.VideoCore.hydrateVideoLayer(secondSegment, cutT).then(() => {
+        if (getActiveScene()?.id === sc.id) redrawLayersOnCanvas();
+      }).catch(() => {});
+    }
+
+    state.selectedLayerId = secondSegment.id;
+    applySceneToWorkingState(sc);
+    renderTimeline();
+    if (typeof syncVideoInspectorUI === 'function') syncVideoInspectorUI();
+    scheduleAutoSave();
+    showToast(`Découpe effectuée sur "${layer.name}" à ${cutT.toFixed(2)}s`);
+    return secondSegment;
+  }
+
+  function cutLayerClipAtTime(sceneId, layerId, globalSec) {
+    saveWorkingStateToActiveScene();
+    const sc = state.scenes.find(s => s.id === sceneId);
+    if (!sc) return false;
+    const layer = (sc.layers || []).find(l => l.id === layerId);
+    if (!layer) return false;
+    _ensureLayerTimingAndKeyframes(layer, sc.duration);
+    const scStart = getSceneStartOffset(sc.id);
+    const localT = Number((globalSec - scStart).toFixed(2));
+    const seg = _performLayerClipSplit(sc, layer, localT);
+    if (!seg) {
+      showToast('Cliquez à l\'intérieur du clip pour le couper');
+      return false;
+    }
+    return true;
+  }
+
+  function _splitSceneAtLocalTime(sc, sceneIdx, localT) {
+    if (!sc || localT <= 0.25 || localT >= sc.duration - 0.25) {
+      showToast('Placez le curseur à l\'intérieur d\'une scène ou d\'un clip pour couper');
+      return false;
     }
     pushUndoSnapshot('Split Scene');
     const firstDur = Number(localT.toFixed(2));
@@ -17477,28 +18563,42 @@ const TimelineStudio = (() => {
     sc.duration = firstDur;
 
     const secondLayers = sc.layers
-      .filter(l => (l.outPoint ?? (firstDur + secondDur)) > firstDur)
+      .filter(l => (l.outPoint ?? (firstDur + secondDur)) > firstDur + 0.05)
       .map((l, idx) => {
         const evalSplit = evaluateLayerAtTime(l, firstDur);
-        const newIn = Math.max(0, Number(((l.inPoint ?? 0) - firstDur).toFixed(2)));
-        const newOut = Math.min(secondDur, Number(((l.outPoint ?? (firstDur + secondDur)) - firstDur).toFixed(2)));
-        return {
+        const shifted = window.VideoCore?.shiftVideoClipOnSceneSplit
+          ? window.VideoCore.shiftVideoClipOnSceneSplit(l, firstDur, secondDur)
+          : {
+              inPoint: Math.max(0, Number(((l.inPoint ?? 0) - firstDur).toFixed(2))),
+              outPoint: Math.max(0.1, Math.min(secondDur, Number(((l.outPoint ?? (firstDur + secondDur)) - firstDur).toFixed(2)))),
+            };
+        const seg = {
           ...l,
-          id: (++window._layerIdCounter) + Date.now() + idx,
+          id: _nextLayerId(idx + 1),
+          videoEl: null,
           x: evalSplit.x,
           y: evalSplit.y,
           w: evalSplit.w,
           h: evalSplit.h,
           resizePct: evalSplit.resizePct,
           opacity: evalSplit.opacity,
-          inPoint: newIn,
-          outPoint: Math.max(newIn + 0.1, newOut),
+          inPoint: shifted.inPoint,
+          outPoint: shifted.outPoint,
+          ...(l.kind === 'video' ? {
+            sourceIn: shifted.sourceIn,
+            sourceOut: shifted.sourceOut,
+            sourceDuration: shifted.sourceDuration,
+          } : {}),
           keyframes: (l.keyframes || [])
             .filter(k => k.time >= firstDur)
             .map(k => ({ ...k, time: Number((k.time - firstDur).toFixed(2)) })),
           camera: l.camera ? JSON.parse(JSON.stringify(l.camera)) : undefined,
           textProps: l.textProps ? JSON.parse(JSON.stringify(l.textProps)) : undefined,
         };
+        if (seg.kind === 'video' && seg.videoAssetId && window.VideoCore?.hydrateVideoLayer) {
+          window.VideoCore.hydrateVideoLayer(seg, seg.inPoint || 0).catch(() => {});
+        }
+        return seg;
       });
 
     const origCamKfs = Array.isArray(sc.cameraKeyframes) ? sc.cameraKeyframes : [];
@@ -17523,10 +18623,12 @@ const TimelineStudio = (() => {
     }
     sc.cameraKeyframes = origCamKfs.filter(k => k.time <= firstDur);
 
-    // Clamp first scene's layers to firstDur
+    sc.layers = sc.layers.filter(l => (l.inPoint ?? 0) < firstDur - 0.05);
     sc.layers.forEach(l => {
-      l.inPoint = Math.min(l.inPoint ?? 0, firstDur - 0.1);
       l.outPoint = Math.min(l.outPoint ?? firstDur, firstDur);
+      if (l.kind === 'video' && window.VideoCore?.normalizeVideoTiming) {
+        window.VideoCore.normalizeVideoTiming(l, firstDur);
+      }
       l.keyframes = (l.keyframes || []).filter(k => k.time <= firstDur);
     });
 
@@ -17544,13 +18646,44 @@ const TimelineStudio = (() => {
       transitionOut: JSON.parse(JSON.stringify(sc.transitionOut || { type: 'cut', duration: 0.6 })),
     };
 
-    state.scenes.splice(info.index + 1, 0, secondScene);
+    state.scenes.splice(sceneIdx + 1, 0, secondScene);
     updateSceneThumbnail(sc);
     updateSceneThumbnail(secondScene);
     applySceneToWorkingState(secondScene);
     renderTimeline();
+    if (typeof syncVideoInspectorUI === 'function') syncVideoInspectorUI();
     scheduleAutoSave();
-    showToast(`Split ${sc.name} at ${firstDur.toFixed(2)}s`);
+    showToast(`Scène coupée "${sc.name}" à ${firstDur.toFixed(2)}s`);
+    return true;
+  }
+
+  function cutSceneAtGlobalTime(sceneId, globalSec) {
+    saveWorkingStateToActiveScene();
+    const idx = state.scenes.findIndex(s => s.id === sceneId);
+    if (idx === -1) return false;
+    const sc = state.scenes[idx];
+    const localT = Number((globalSec - getSceneStartOffset(sc.id)).toFixed(2));
+    return _splitSceneAtLocalTime(sc, idx, localT);
+  }
+
+  function splitAtPlayhead() {
+    saveWorkingStateToActiveScene();
+    const info = getSceneAtGlobalTime(state.playheadTime);
+    const sc = info.scene;
+    if (!sc) return;
+    const localT = info.localTime;
+
+    // 1) If a layer is selected in the active scene and playhead is strictly inside its [inPoint, outPoint], split the layer clip
+    const selLayer = sc.layers.find(l => l.id === state.selectedLayerId);
+    if (selLayer && sc.id === state.activeSceneId) {
+      _ensureLayerTimingAndKeyframes(selLayer, sc.duration);
+      if (localT > selLayer.inPoint + 0.15 && localT < selLayer.outPoint - 0.15) {
+        if (_performLayerClipSplit(sc, selLayer, localT)) return;
+      }
+    }
+
+    // 2) Otherwise split the scene itself at the playhead
+    _splitSceneAtLocalTime(sc, info.index, localT);
   }
 
   // ── Visual Transitions Context Menu ──
@@ -17812,7 +18945,7 @@ const TimelineStudio = (() => {
 
   // ── Composite Frame Renderer at Arbitrary Global Time `t` (with Transitions & Keyframes) ──
   function _getSceneOrderedLayers(scene) {
-    const visible = (scene?.layers || []).filter(l => l.visible !== false && l.img);
+    const visible = (scene?.layers || []).filter(l => l.visible !== false && (l.img || l.videoEl || l.kind === 'video'));
     const ordered = visible.filter(l => l.animOrder !== null).sort((a, b) => a.animOrder - b.animOrder);
     const unordered = visible.filter(l => l.animOrder === null);
     return [...ordered, ...unordered];
@@ -17878,12 +19011,15 @@ const TimelineStudio = (() => {
         ? 1
         : Math.max(0, Math.min(1, (localTime - drawStart) / clipSpan));
 
+      const drawable = window.VideoCore?.getLayerDrawable?.(layer) || layer.img;
+      if (!drawable) return;
+
       targetCtx.save();
       targetCtx.globalAlpha = evalState.opacity;
 
       if (layer.svgMotion || layer.gsapEffect || layer.vectorData || layer.keyframes?.length || evalState.rotation || evalState.trimPath < 100 || window.EffectManager?.has(layer)) {
         StudioUI.drawLayer(targetCtx, layer, evalState);
-      } else if (progressiveReveal && clipProgress < 0.98) {
+      } else if (progressiveReveal && layer.kind !== 'video' && clipProgress < 0.98) {
         // High-fidelity progressive whiteboard reveal with zig-zag / hatching stroke sweep
         const bandH = Math.max(16, Math.min(48, Math.round(evalState.h / 14)));
         const numBands = Math.max(1, Math.ceil(evalState.h / bandH));
@@ -17911,7 +19047,7 @@ const TimelineStudio = (() => {
           targetCtx.rect(tipX, bandY, Math.max(2, evalState.x + evalState.w - tipX), curBandH);
         }
         targetCtx.clip();
-        targetCtx.drawImage(layer.img, evalState.x, evalState.y, evalState.w, evalState.h);
+        targetCtx.drawImage(drawable, evalState.x, evalState.y, evalState.w, evalState.h);
         targetCtx.restore();
 
         // Save active hand position to draw on top of the scene
@@ -17920,7 +19056,7 @@ const TimelineStudio = (() => {
           activeHand = { tipX, tipY, dir, style: handStyle };
         }
       } else {
-        targetCtx.drawImage(layer.img, evalState.x, evalState.y, evalState.w, evalState.h);
+        targetCtx.drawImage(drawable, evalState.x, evalState.y, evalState.w, evalState.h);
       }
       targetCtx.restore();
     });
@@ -18121,16 +19257,18 @@ const TimelineStudio = (() => {
           targetCtx.rotate(Math.sin(ease * Math.PI) * 0.08 * (i % 2 === 0 ? 1 : -1));
           targetCtx.scale(1 + midPulse * 0.12, 1 - midPulse * 0.08);
           if (midPulse > 0.05) targetCtx.filter = `blur(${blurPx}px)`;
-          if (fL && fL.img) {
+          const fDrawable = fL ? (window.VideoCore?.getLayerDrawable?.(fL) || fL.img) : null;
+          const tDrawable = tL ? (window.VideoCore?.getLayerDrawable?.(tL) || tL.img) : null;
+          if (fL && fDrawable) {
             targetCtx.save();
             targetCtx.globalAlpha = (1 - ease) * (fL.opacity ?? 1);
-            targetCtx.drawImage(fL.img, -mw / 2, -mh / 2, mw, mh);
+            targetCtx.drawImage(fDrawable, -mw / 2, -mh / 2, mw, mh);
             targetCtx.restore();
           }
-          if (tL && tL.img) {
+          if (tL && tDrawable) {
             targetCtx.save();
             targetCtx.globalAlpha = ease * (tL.opacity ?? 1);
-            targetCtx.drawImage(tL.img, -mw / 2, -mh / 2, mw, mh);
+            targetCtx.drawImage(tDrawable, -mw / 2, -mh / 2, mw, mh);
             targetCtx.restore();
           }
           targetCtx.restore();
@@ -18204,6 +19342,25 @@ const TimelineStudio = (() => {
         _audioEl.currentTime = Math.max(0, Math.min(dur, state.playheadTime));
       } catch (_) {}
     }
+    if (window.VideoCore?.pauseAllVideos) window.VideoCore.pauseAllVideos(state);
+    if (window.VideoCore?.seekVideosForRender && info.scene) {
+      const nextSc = state.scenes[info.index + 1] || null;
+      const tr = info.scene.transitionOut || { type: 'cut', duration: 0.6 };
+      const trDur = (tr.type !== 'cut' && nextSc) ? Math.min(tr.duration || 0.6, info.scene.duration * 0.5) : 0;
+      const sceneTargets = [{ scene: info.scene, localTime: info.localTime }];
+      if (trDur > 0 && info.localTime >= info.scene.duration - trDur && nextSc) {
+        sceneTargets.push({ scene: nextSc, localTime: 0 });
+      }
+      window.VideoCore.seekVideosForRender(state, sceneTargets, {
+        exactSeek: false,
+        onAsyncSeekLanded: () => {
+          if (!_previewPlaying && !state.recording) {
+            renderProjectAtGlobalTime(state.playheadTime, _mainCtx, false);
+            drawSelectionHandles();
+          }
+        },
+      });
+    }
     renderProjectAtGlobalTime(state.playheadTime, ctx, progressive);
     if (sceneChanged && !state.recording) {
       renderTimeline();
@@ -18256,6 +19413,9 @@ const TimelineStudio = (() => {
       state._animProgress = t / sc.duration;
       hctx.clearRect(0, 0, state.canvasW, state.canvasH);
       sctx.clearRect(0, 0, state.canvasW, state.canvasH);
+      if (window.VideoCore?.syncVideosForPlayback) {
+        window.VideoCore.syncVideosForPlayback(state, sc, t, { recording: !!state.recording });
+      }
       if (_motionSingle) renderSceneCompositeToContext(ctx, sc, t, false);
       else renderProjectAtGlobalTime(state.playheadTime, ctx, false);
       if (!state.recording) {
@@ -18268,6 +19428,7 @@ const TimelineStudio = (() => {
       else {
         _motionResume = null;
         if (_motionSingle) {
+          if (window.VideoCore?.pauseAllVideos) window.VideoCore.pauseAllVideos(state);
           _motionSingle = false;
           _previewPlaying = false;
           state.playing = false;
@@ -18385,6 +19546,7 @@ const TimelineStudio = (() => {
       state.playing = false;
       state.done = true;
       if (_audioEl) _audioEl.pause();
+      if (window.VideoCore?.pauseAllVideos) window.VideoCore.pauseAllVideos(state);
       _syncPreviewButtons();
       document.getElementById('done-badge')?.classList.add('show');
       if (typeof _onExportAllScenesComplete === 'function') {
@@ -18549,6 +19711,7 @@ const TimelineStudio = (() => {
       _previewTransitionTimer = null;
     }
     if (_audioEl) _audioEl.pause();
+    if (window.VideoCore?.pauseAllVideos) window.VideoCore.pauseAllVideos(state);
     _syncPreviewButtons();
     drawSelectionHandles();
   }
@@ -18577,6 +19740,7 @@ const TimelineStudio = (() => {
       _previewTransitionTimer = null;
     }
     if (_audioEl) _audioEl.pause();
+    if (window.VideoCore?.pauseAllVideos) window.VideoCore.pauseAllVideos(state);
     _syncPreviewButtons();
   }
 
@@ -18709,12 +19873,28 @@ const TimelineStudio = (() => {
 
     renderRuler(stageWidthPx);
 
-    // 1. Render Scene Blocks & Transition Junctions
+    // Ensure razor hover indicator exists in #tl-stage
+    let hoverLine = document.getElementById('tl-razor-hover-line');
+    if (!hoverLine) {
+      hoverLine = document.createElement('div');
+      hoverLine.id = 'tl-razor-hover-line';
+      hoverLine.className = 'tl-razor-hover-line';
+      stage.appendChild(hoverLine);
+    }
+
+    // 1. Render Scene Blocks & Transition Junctions + Drop Indicator
     scenesLane.innerHTML = '';
+    const dropInd = document.createElement('div');
+    dropInd.id = 'tl-scene-drop-indicator';
+    dropInd.className = 'tl-scene-drop-indicator';
+    scenesLane.appendChild(dropInd);
+
+    const sceneSpans = [];
     let offsetSec = 0;
     state.scenes.forEach((sc, idx) => {
       const leftPx = Math.round(offsetSec * state.timelineZoom);
       const widthPx = Math.max(36, Math.round(sc.duration * state.timelineZoom));
+      sceneSpans.push({ id: sc.id, idx, startPx: leftPx, endPx: leftPx + widthPx, midPx: leftPx + widthPx / 2 });
       const isActive = sc.id === state.activeSceneId;
 
       const block = document.createElement('div');
@@ -18724,6 +19904,7 @@ const TimelineStudio = (() => {
       block.dataset.sceneId = sc.id;
 
       const thumbSrc = sc.thumbnailDataUrl || '';
+      const canDeleteScene = state.scenes.length > 1;
       block.innerHTML = `
         ${thumbSrc ? `<img class="tl-scene-thumb" src="${thumbSrc}" alt="">` : `<div class="tl-scene-thumb"></div>`}
         <div class="tl-scene-meta">
@@ -18735,41 +19916,96 @@ const TimelineStudio = (() => {
             <span>${(sc.production?.tracks || []).length}S</span>
           </div>
         </div>
-        <div class="tl-scene-resize-handle" title="Drag to change scene duration"></div>
+        ${canDeleteScene ? `<button type="button" class="tl-scene-del-btn" title="Supprimer cette scène" aria-label="Supprimer cette scène">✕</button>` : ''}
+        <div class="tl-scene-resize-handle" title="Glisser pour modifier la durée de la scène"></div>
       `;
 
+      const delBtn = block.querySelector('.tl-scene-del-btn');
+      if (delBtn) {
+        delBtn.addEventListener('mousedown', (ev) => ev.stopPropagation());
+        delBtn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          deleteSceneById(sc.id);
+        });
+      }
+
       block.addEventListener('click', (e) => {
-        if (e.target.closest('.tl-scene-resize-handle')) return;
+        if (_suppressSceneClickId === sc.id) {
+          _suppressSceneClickId = null;
+          return;
+        }
+        if (e.target.closest('.tl-scene-resize-handle') || e.target.closest('.tl-scene-del-btn') || e.target.closest('.tl-transition-btn')) return;
+        if (_timelineTool === 'razor') {
+          e.stopPropagation();
+          const stRect = stage.getBoundingClientRect();
+          const rawSec = Math.max(0, (e.clientX - stRect.left) / state.timelineZoom);
+          const snappedGlobal = snapTime(rawSec);
+          cutSceneAtGlobalTime(sc.id, snappedGlobal);
+          return;
+        }
         selectScene(sc.id, false);
       });
-      let sceneDrag = null;
+
       block.addEventListener('mousedown', (e) => {
-        if (e.button !== 0 || e.target.closest('.tl-scene-resize-handle') || e.target.closest('.tl-transition-btn')) return;
-        sceneDrag = { startX: e.clientX, moved: false };
-        const onMove = (me) => {
-          if (!sceneDrag) return;
-          if (Math.abs(me.clientX - sceneDrag.startX) > 8) sceneDrag.moved = true;
-          if (!sceneDrag.moved) return;
-          const timelineRect = scenesLane.getBoundingClientRect();
-          const targetTime = Math.max(0, (me.clientX - timelineRect.left) / state.timelineZoom);
-          let targetIndex = 0, cursor = 0;
-          for (let i = 0; i < state.scenes.length; i++) {
-            const midpoint = cursor + state.scenes[i].duration / 2;
-            if (targetTime >= midpoint) targetIndex = i;
-            cursor += state.scenes[i].duration;
+        if (e.button !== 0 || _timelineTool === 'razor' || state.scenes.length < 2) return;
+        if (e.target.closest('.tl-scene-resize-handle') || e.target.closest('.tl-transition-btn') || e.target.closest('.tl-scene-del-btn')) return;
+        const startX = e.clientX;
+        let moved = false;
+        let targetGap = idx;
+
+        const computeInsertGap = (clientX) => {
+          const laneRect = scenesLane.getBoundingClientRect();
+          const relX = clientX - laneRect.left;
+          let gap = sceneSpans.length;
+          for (let i = 0; i < sceneSpans.length; i++) {
+            if (relX < sceneSpans[i].midPx) {
+              gap = i;
+              break;
+            }
           }
-          const fromIndex = state.scenes.findIndex(item => item.id === sc.id);
-          if (fromIndex >= 0 && targetIndex !== fromIndex) {
-            const [movedScene] = state.scenes.splice(fromIndex, 1);
-            state.scenes.splice(Math.max(0, Math.min(targetIndex, state.scenes.length)), 0, movedScene);
-            renderTimeline();
-          }
+          const indX = gap === 0 ? 0 : (gap >= sceneSpans.length ? sceneSpans[sceneSpans.length - 1].endPx : sceneSpans[gap].startPx);
+          return { gap, indX };
         };
+
+        const onMove = (me) => {
+          if (!moved && Math.abs(me.clientX - startX) > 6) {
+            moved = true;
+            block.classList.add('is-dragging');
+          }
+          if (!moved) return;
+          const { gap, indX } = computeInsertGap(me.clientX);
+          targetGap = gap;
+          dropInd.style.left = indX + 'px';
+          dropInd.style.display = 'block';
+        };
+
         const onUp = () => {
           window.removeEventListener('mousemove', onMove);
           window.removeEventListener('mouseup', onUp);
-          if (sceneDrag?.moved) { saveWorkingStateToActiveScene(); scheduleAutoSave(); }
-          sceneDrag = null;
+          block.classList.remove('is-dragging');
+          dropInd.style.display = 'none';
+          if (moved) {
+            _suppressSceneClickId = sc.id;
+            setTimeout(() => { if (_suppressSceneClickId === sc.id) _suppressSceneClickId = null; }, 120);
+            const fromIdx = state.scenes.findIndex(item => item.id === sc.id);
+            if (fromIdx >= 0 && targetGap !== fromIdx && targetGap !== fromIdx + 1) {
+              saveWorkingStateToActiveScene();
+              pushUndoSnapshot('Reorder Scenes');
+              const reordered = window.VideoCore?.reorderArrayMove
+                ? window.VideoCore.reorderArrayMove(state.scenes, fromIdx, targetGap)
+                : (() => {
+                    const arr = state.scenes.slice();
+                    const d = targetGap > fromIdx ? targetGap - 1 : targetGap;
+                    const [m] = arr.splice(fromIdx, 1);
+                    arr.splice(Math.max(0, Math.min(arr.length, d)), 0, m);
+                    return { list: arr };
+                  })();
+              state.scenes = reordered.list;
+              renderTimeline();
+              scheduleAutoSave();
+              showToast(`Scène "${sc.name}" déplacée`);
+            }
+          }
         };
         window.addEventListener('mousemove', onMove);
         window.addEventListener('mouseup', onUp);
@@ -18791,6 +20027,9 @@ const TimelineStudio = (() => {
           sc.layers.forEach(l => {
             if ((l.outPoint ?? 0) > sc.duration || Math.abs((l.outPoint ?? 0) - origDur) < 0.05) {
               l.outPoint = sc.duration;
+              if (l.kind === 'video' && window.VideoCore?.normalizeVideoTiming) {
+                window.VideoCore.normalizeVideoTiming(l, sc.duration);
+              }
             }
           });
           renderTimeline();
@@ -18831,18 +20070,21 @@ const TimelineStudio = (() => {
       const layersRev = [...(activeSc.layers || [])].reverse();
       layersRev.forEach(layer => {
         _ensureLayerTimingAndKeyframes(layer, activeSc.duration);
+        const isVideo = layer.kind === 'video';
         const isText = layer.kind === 'text' || !!layer.textProps;
-        const kindClass = isText ? 'kind-text' : 'kind-image';
+        const kindClass = isVideo ? 'kind-video' : (isText ? 'kind-text' : 'kind-image');
         const isSel = layer.id === state.selectedLayerId;
 
         // Left header row
         const hRow = document.createElement('div');
         hRow.className = 'tl-layer-header-row' + (isSel ? ' selected' : '');
+        const volBadgeTxt = isVideo ? (layer.muted ? 'MUTE' : `${Math.round((layer.volume ?? 1) * 100)}%`) : '';
         hRow.innerHTML = `
           <div style="display:flex;align-items:center;gap:6px;min-width:0;flex:1;">
             <span class="tl-layer-badge-dot ${kindClass}"></span>
             <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${layer.name}</span>
           </div>
+          ${isVideo ? `<span style="font-size:8px;color:${layer.muted ? '#fca5a5' : '#5eead4'};font-weight:700;">${volBadgeTxt}</span>` : ''}
           <span style="font-size:8.5px;color:#64748b;">${(layer.keyframes || []).length}◆</span>
         `;
         hRow.addEventListener('click', () => selectLayer(layer.id));
@@ -18857,13 +20099,26 @@ const TimelineStudio = (() => {
 
         const clip = document.createElement('div');
         clip.className = `tl-layer-clip ${kindClass}${isSel ? ' selected' : ''}`;
+        clip.dataset.layerId = String(layer.id);
         clip.style.left = clipLeftPx + 'px';
         clip.style.width = clipWidthPx + 'px';
         clip.innerHTML = `
-          <div class="tl-clip-handle left" title="Drag In-Point"></div>
+          <div class="tl-clip-handle left" title="Glisser In-Point"></div>
           <span class="tl-layer-clip-label">${layer.name} (${layer.inPoint.toFixed(1)}s–${layer.outPoint.toFixed(1)}s)</span>
-          <div class="tl-clip-handle right" title="Drag Out-Point"></div>
+          ${isVideo ? `<span class="tl-clip-vol-tag${layer.muted ? ' muted' : ''}">${layer.muted ? 'MUTE' : Math.round((layer.volume ?? 1) * 100) + '%'}</span>` : ''}
+          <button type="button" class="tl-clip-del-btn" title="Supprimer ce clip" aria-label="Supprimer ce clip">✕</button>
+          <div class="tl-clip-handle right" title="Glisser Out-Point"></div>
         `;
+
+        const clipDelBtn = clip.querySelector('.tl-clip-del-btn');
+        if (clipDelBtn) {
+          clipDelBtn.addEventListener('mousedown', (ev) => ev.stopPropagation());
+          clipDelBtn.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            removeLayer(layer.id);
+            showToast(`Clip "${layer.name}" supprimé`);
+          });
+        }
 
         // Render keyframe diamonds on the clip
         (layer.keyframes || []).forEach(kf => {
@@ -18878,10 +20133,17 @@ const TimelineStudio = (() => {
           clip.appendChild(diamond);
         });
 
-        // Dragging In-Point / Out-Point / Clip Body
+        // Razor Cut OR Dragging In-Point / Out-Point / Clip Body
         clip.addEventListener('mousedown', (e) => {
-          if (e.target.classList.contains('tl-kf-diamond')) return;
+          if (e.target.classList.contains('tl-kf-diamond') || e.target.closest('.tl-clip-del-btn')) return;
           e.stopPropagation();
+          if (_timelineTool === 'razor') {
+            const stRect = stage.getBoundingClientRect();
+            const rawSec = Math.max(0, (e.clientX - stRect.left) / state.timelineZoom);
+            const snappedGlobal = snapTime(rawSec, layer.id);
+            cutLayerClipAtTime(activeSc.id, layer.id, snappedGlobal);
+            return;
+          }
           selectLayer(layer.id);
           const isLeft = e.target.classList.contains('left');
           const isRight = e.target.classList.contains('right');
@@ -18896,11 +20158,21 @@ const TimelineStudio = (() => {
             if (isLeft) {
               const rawGlobal = scStartSec + Math.max(0, Math.min(origOut - 0.15, origIn + dt));
               const snappedLocal = snapTime(rawGlobal, layer.id) - scStartSec;
-              layer.inPoint = Number(Math.max(0, Math.min(origOut - 0.15, snappedLocal)).toFixed(2));
+              if (window.VideoCore?.trimVideoLayerEdge) {
+                const patch = window.VideoCore.trimVideoLayerEdge(layer, 'left', snappedLocal, activeSc.duration);
+                if (patch) Object.assign(layer, patch);
+              } else {
+                layer.inPoint = Number(Math.max(0, Math.min(origOut - 0.15, snappedLocal)).toFixed(2));
+              }
             } else if (isRight) {
               const rawGlobal = scStartSec + Math.max(origIn + 0.15, Math.min(activeSc.duration, origOut + dt));
               const snappedLocal = snapTime(rawGlobal, layer.id) - scStartSec;
-              layer.outPoint = Number(Math.max(origIn + 0.15, Math.min(activeSc.duration, snappedLocal)).toFixed(2));
+              if (window.VideoCore?.trimVideoLayerEdge) {
+                const patch = window.VideoCore.trimVideoLayerEdge(layer, 'right', snappedLocal, activeSc.duration);
+                if (patch) Object.assign(layer, patch);
+              } else {
+                layer.outPoint = Number(Math.max(origIn + 0.15, Math.min(activeSc.duration, snappedLocal)).toFixed(2));
+              }
             } else {
               const rawGlobalStart = scStartSec + Math.max(0, Math.min(activeSc.duration - dur, origIn + dt));
               const snappedLocalStart = snapTime(rawGlobalStart, layer.id) - scStartSec;
@@ -18909,6 +20181,7 @@ const TimelineStudio = (() => {
               layer.outPoint = Number((clampedStart + dur).toFixed(2));
             }
             renderTimeline();
+            if (typeof syncVideoInspectorUI === 'function') syncVideoInspectorUI();
           };
           const onUp = () => {
             window.removeEventListener('mousemove', onMove);
@@ -19165,10 +20438,71 @@ const TimelineStudio = (() => {
       });
     }
 
+    // Forward vertical wheel scroll from track headers column to #tl-scroll-area
+    const headersCol = document.querySelector('#timeline-panel .tl-headers-col');
+    const scrollArea = document.getElementById('tl-scroll-area');
+    if (headersCol && scrollArea) {
+      headersCol.addEventListener('wheel', (e) => {
+        if (Math.abs(e.deltaY) >= Math.abs(e.deltaX)) {
+          scrollArea.scrollTop += e.deltaY;
+          if (window.StudioUI) StudioUI.syncTrackScroll();
+          e.preventDefault();
+        }
+      }, { passive: false });
+    }
+
+    // Drag-to-resize timeline panel height
+    const tlPanel = document.getElementById('timeline-panel');
+    const resizeHandle = document.getElementById('tl-resize-handle');
+    if (tlPanel && resizeHandle) {
+      resizeHandle.addEventListener('mousedown', (e) => {
+        if (e.button !== 0 || tlPanel.classList.contains('is-collapsed')) return;
+        e.preventDefault();
+        const startY = e.clientY;
+        const startH = tlPanel.getBoundingClientRect().height;
+        const maxH = Math.round(window.innerHeight * 0.62);
+        resizeHandle.classList.add('dragging');
+        const onMove = (me) => {
+          const nextH = Math.max(112, Math.min(maxH, startH + (startY - me.clientY)));
+          tlPanel.style.height = `${Math.round(nextH)}px`;
+          if (typeof fitCanvas === 'function') fitCanvas();
+          if (window.StudioUI) StudioUI.syncTrackScroll();
+        };
+        const onUp = () => {
+          resizeHandle.classList.remove('dragging');
+          window.removeEventListener('mousemove', onMove);
+          window.removeEventListener('mouseup', onUp);
+          if (typeof fitCanvas === 'function') fitCanvas();
+        };
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+      });
+    }
+
+    if (stage) {
+      stage.addEventListener('mousemove', (e) => {
+        const hoverLine = document.getElementById('tl-razor-hover-line');
+        if (!hoverLine) return;
+        if (_timelineTool !== 'razor' || !e.target.closest('#tl-scenes-lane, #tl-layers-subtracks')) {
+          hoverLine.style.display = 'none';
+          return;
+        }
+        const rect = stage.getBoundingClientRect();
+        const rawSec = Math.max(0, (e.clientX - rect.left) / state.timelineZoom);
+        const snapped = snapTime(rawSec);
+        hoverLine.style.left = Math.round(snapped * state.timelineZoom) + 'px';
+        hoverLine.style.display = 'block';
+      });
+      stage.addEventListener('mouseleave', () => {
+        const hoverLine = document.getElementById('tl-razor-hover-line');
+        if (hoverLine) hoverLine.style.display = 'none';
+      });
+    }
+
     // Global click to close popovers
     document.addEventListener('click', () => closePopovers());
 
-    // Keyboard shortcut 'S' for Split & Space for Preview All
+    // Keyboard shortcut 'S' for Split
     document.addEventListener('keydown', (e) => {
       const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
       if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target?.isContentEditable) return;
@@ -19529,6 +20863,7 @@ const TimelineStudio = (() => {
       hasPending: () => rafQueue.size > 0 || timerQueue.size > 0,
       realNow: origPerfNow,
       realSetTimeout: origSetTimeout,
+      realClearTimeout: origClearTimeout,
     };
   }
 
@@ -19577,22 +20912,41 @@ const TimelineStudio = (() => {
   }
 
   async function _prepareOfflineAudioEncoder(audioTrack, format, onChunk, cleanups) {
-    if (!audioTrack?.dataUrl || typeof AudioEncoder === 'undefined' || typeof AudioData === 'undefined') {
+    if (typeof AudioEncoder === 'undefined' || typeof AudioData === 'undefined') {
       return null;
     }
     try {
-      const resp = await fetch(audioTrack.dataUrl);
-      const arrBuf = await resp.arrayBuffer();
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      const actx = new AudioCtx();
-      let decoded;
-      try {
-        decoded = await actx.decodeAudioData(arrBuf);
-      } finally {
-        await actx.close().catch(() => {});
+      let rendered = null;
+      if (window.VideoCore?.renderMixedProjectAudioBuffer) {
+        const inputs = window.VideoCore.collectProjectAudioMixInputs?.(state.scenes, audioTrack) || [];
+        if (!inputs.length) return null;
+        rendered = await window.VideoCore.renderMixedProjectAudioBuffer(state.scenes, audioTrack, getTotalProjectDuration());
+      } else if (audioTrack?.dataUrl) {
+        const resp = await fetch(audioTrack.dataUrl);
+        const arrBuf = await resp.arrayBuffer();
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        const actx = new AudioCtx();
+        let decoded;
+        try {
+          decoded = await actx.decodeAudioData(arrBuf);
+        } finally {
+          await actx.close().catch(() => {});
+        }
+        const totalSamples = Math.max(1, Math.ceil(decoded.duration * 48000));
+        const offline = new OfflineAudioContext(Math.min(2, Math.max(1, decoded.numberOfChannels || 2)), totalSamples, 48000);
+        const src = offline.createBufferSource();
+        src.buffer = decoded;
+        const gain = offline.createGain();
+        gain.gain.value = audioTrack.volume ?? 0.85;
+        src.connect(gain);
+        gain.connect(offline.destination);
+        src.start(0);
+        rendered = await offline.startRendering();
       }
-      const targetRate = 48000;
-      const targetCh = Math.min(2, Math.max(1, decoded.numberOfChannels || 2));
+      if (!rendered) return null;
+
+      const targetRate = rendered.sampleRate || 48000;
+      const targetCh = Math.min(2, Math.max(1, rendered.numberOfChannels || 2));
       const codecOrder = format === 'mp4'
         ? [
             { encCodec: 'mp4a.40.2', muxCodec: 'aac' },
@@ -19614,18 +20968,6 @@ const TimelineStudio = (() => {
         } catch (_) {}
       }
       if (!chosen) return null;
-
-      // Resample offline to 48kHz & apply track volume in one fast pass
-      const totalSamples = Math.max(1, Math.ceil(decoded.duration * targetRate));
-      const offline = new OfflineAudioContext(targetCh, totalSamples, targetRate);
-      const src = offline.createBufferSource();
-      src.buffer = decoded;
-      const gain = offline.createGain();
-      gain.gain.value = audioTrack.volume ?? 0.85;
-      src.connect(gain);
-      gain.connect(offline.destination);
-      src.start(0);
-      const rendered = await offline.startRendering();
 
       const encoder = new AudioEncoder({
         output: (chunk, meta) => onChunk(chunk, meta),
@@ -19729,7 +21071,7 @@ const TimelineStudio = (() => {
     if (vClock.hasPending() && (!state._activeSlots || state._activeSlots.length === 0)) {
       vClock.tick(0);
     }
-    await onCaptureFrame(frameIndex, 0);
+    await onCaptureFrame(frameIndex, 0, vClock);
     frameIndex++;
     nextCaptureMs = frameIntervalMs;
 
@@ -19748,7 +21090,7 @@ const TimelineStudio = (() => {
 
       while (elapsedVirtualMs >= nextCaptureMs && !exportFinished) {
         const tsUs = frameIndex * frameDurationUs;
-        await onCaptureFrame(frameIndex, tsUs);
+        await onCaptureFrame(frameIndex, tsUs, vClock);
         frameIndex++;
         nextCaptureMs += frameIntervalMs;
 
@@ -19771,7 +21113,7 @@ const TimelineStudio = (() => {
     }
 
     // Ensure final completed frame is captured cleanly
-    await onCaptureFrame(frameIndex, frameIndex * frameDurationUs);
+    await onCaptureFrame(frameIndex, frameIndex * frameDurationUs, vClock);
     frameIndex++;
 
     state.recording = false;
@@ -19790,16 +21132,43 @@ const TimelineStudio = (() => {
     saveWorkingStateToActiveScene();
     pausePreviewAll();
     signal.throwIfAborted();
-    if (window.SVGMotion) {
-      for (const sc of state.scenes) {
-        for (const l of sc.layers || []) {
-          if (l.svgMotion) {
+    let hasVideos = false;
+    for (const sc of state.scenes) {
+      for (const l of sc.layers || []) {
+        if (l.svgMotion && window.SVGMotion) {
+          signal.throwIfAborted();
+          await SVGMotion.prepare(l.svgMotion);
+        }
+        if (l.kind === 'video') {
+          hasVideos = true;
+          if (window.VideoCore?.hydrateVideoLayer) {
             signal.throwIfAborted();
-            await SVGMotion.prepare(l.svgMotion);
+            await window.VideoCore.hydrateVideoLayer(l, l.inPoint || 0);
           }
         }
       }
     }
+    const syncExportVideoFrame = async (vClock) => {
+      if (!hasVideos || !window.VideoCore?.seekVideosForRender) return;
+      const info = getSceneAtGlobalTime(state.playheadTime);
+      if (!info?.scene) return;
+      const nextSc = state.scenes[info.index + 1] || null;
+      const tr = info.scene.transitionOut || { type: 'cut', duration: 0.6 };
+      const trDur = (tr.type !== 'cut' && nextSc) ? Math.min(tr.duration || 0.6, info.scene.duration * 0.5) : 0;
+      const targets = [{ scene: info.scene, localTime: info.localTime }];
+      if (trDur > 0 && info.localTime >= info.scene.duration - trDur && nextSc) {
+        targets.push({ scene: nextSc, localTime: 0 });
+      }
+      await window.VideoCore.seekVideosForRender(state, targets, {
+        exactSeek: true,
+        realSetTimeout: vClock?.realSetTimeout,
+        realClearTimeout: vClock?.realClearTimeout,
+      });
+      if (_sceneNeedsCompositePlayback(info.scene) && (!state._activeSlots || state._activeSlots.length === 0)) {
+        renderProjectAtGlobalTime(state.playheadTime, _mainCtx, false);
+      }
+    };
+
     const fmt = state.exportFormat || 'webm';
     const fps = state.projectSettings.fps || 30;
     const qualityMap = { high: 8000000, medium: 4000000, low: 2000000 };
@@ -19819,7 +21188,8 @@ const TimelineStudio = (() => {
         fps: gifFps,
         signal,
         cleanups,
-        onCaptureFrame: async () => {
+        onCaptureFrame: async (_idx, _tsUs, vClock) => {
+          await syncExportVideoFrame(vClock);
           _compositeLiveCanvasesToTarget(gCtx, gw, gh);
           frames.push(new Uint8ClampedArray(gCtx.getImageData(0, 0, gw, gh).data));
         },
@@ -19904,7 +21274,8 @@ const TimelineStudio = (() => {
           fps,
           signal,
           cleanups,
-          onCaptureFrame: async (idx, tsUs) => {
+          onCaptureFrame: async (idx, tsUs, vClock) => {
+            await syncExportVideoFrame(vClock);
             _compositeLiveCanvasesToTarget(rctx, W, H);
             if (encoder.state === 'configured') {
               const vf = new VideoFrame(recCvs, {
@@ -19966,7 +21337,22 @@ const TimelineStudio = (() => {
 
         let audioSource = null;
         let mixCtx = null;
-        if (state.audioTrack && state.audioTrack.dataUrl) {
+        const mixInputs = window.VideoCore?.collectProjectAudioMixInputs?.(state.scenes, state.audioTrack) || [];
+        if (mixInputs.length > 0 && window.VideoCore?.renderMixedProjectAudioBuffer) {
+          try {
+            const mixedBuf = await window.VideoCore.renderMixedProjectAudioBuffer(state.scenes, state.audioTrack, getTotalProjectDuration());
+            if (mixedBuf) {
+              const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+              mixCtx = new AudioContextClass();
+              cleanups.push(() => { if (mixCtx.state !== 'closed') mixCtx.close().catch(() => {}); });
+              const dest = mixCtx.createMediaStreamDestination();
+              audioSource = mixCtx.createBufferSource();
+              audioSource.buffer = mixedBuf;
+              audioSource.connect(dest);
+              dest.stream.getAudioTracks().forEach(t => stream.addTrack(t));
+            }
+          } catch (_) {}
+        } else if (state.audioTrack && state.audioTrack.dataUrl) {
           try {
             const AudioContextClass = window.AudioContext || window.webkitAudioContext;
             mixCtx = new AudioContextClass();
@@ -20222,46 +21608,46 @@ const TimelineStudio = (() => {
       }
     };
 
-    function checkAutoSaveRecovery() {
-      const bar = document.getElementById('autosave-recovery-bar');
-      const txt = document.getElementById('autosave-recovery-text');
-      const btnRestore = document.getElementById('btn-restore-autosave');
-      const btnDismiss = document.getElementById('btn-dismiss-autosave');
-      if (!bar || !btnRestore || !btnDismiss) return;
-      try {
-        const raw = localStorage.getItem(AUTOSAVE_LS_KEY);
-        if (!raw) return;
-        const parsed = JSON.parse(raw);
-        if (!parsed || !parsed.state || !Array.isArray(parsed.state.scenes)) return;
-        if (parsed.syncedToDb) return;
-        const totalLayers = parsed.state.scenes.reduce((acc, s) => acc + ((s.layers || []).length), 0);
-        if (totalLayers === 0) return;
-        const dismissKey = `inkplainer_autosave_dismissed_${parsed.savedAt || ''}`;
-        if (sessionStorage.getItem(dismissKey) === '1') return;
-
-        const when = parsed.savedAt ? new Date(parsed.savedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-        if (txt) {
-          txt.textContent = `Brouillon auto-sauvegardé (${totalLayers} calque${totalLayers > 1 ? 's' : ''}${when ? ` · ${when}` : ''}) disponible`;
-        }
-        bar.classList.add('visible');
-        btnRestore.onclick = () => {
-          bar.classList.remove('visible');
-          sessionStorage.setItem(dismissKey, '1');
-          pushUndoSnapshot('Restore Auto-Save Draft');
-          deserializeProjectState(parsed.state, () => {
-            showToast('Brouillon auto-sauvegardé restauré');
-          });
-        };
-        btnDismiss.onclick = () => {
-          bar.classList.remove('visible');
-          sessionStorage.setItem(dismissKey, '1');
-        };
-      } catch (_) {}
-    }
-
     applySceneToWorkingState(getActiveScene());
     renderTimeline();
     setTimeout(checkAutoSaveRecovery, 900);
+  }
+
+  function checkAutoSaveRecovery() {
+    const bar = document.getElementById('autosave-recovery-bar');
+    const txt = document.getElementById('autosave-recovery-text');
+    const btnRestore = document.getElementById('btn-restore-autosave');
+    const btnDismiss = document.getElementById('btn-dismiss-autosave');
+    if (!bar || !btnRestore || !btnDismiss) return;
+    try {
+      const raw = localStorage.getItem(AUTOSAVE_LS_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (!parsed || !parsed.state || !Array.isArray(parsed.state.scenes)) return;
+      if (parsed.syncedToDb) return;
+      const totalLayers = parsed.state.scenes.reduce((acc, s) => acc + ((s.layers || []).length), 0);
+      if (totalLayers === 0) return;
+      const dismissKey = `inkplainer_autosave_dismissed_${parsed.savedAt || ''}`;
+      if (sessionStorage.getItem(dismissKey) === '1') return;
+
+      const when = parsed.savedAt ? new Date(parsed.savedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+      if (txt) {
+        txt.textContent = `Brouillon auto-sauvegardé (${totalLayers} calque${totalLayers > 1 ? 's' : ''}${when ? ` · ${when}` : ''}) disponible`;
+      }
+      bar.classList.add('visible');
+      btnRestore.onclick = () => {
+        bar.classList.remove('visible');
+        sessionStorage.setItem(dismissKey, '1');
+        pushUndoSnapshot('Restore Auto-Save Draft');
+        deserializeProjectState(parsed.state, () => {
+          showToast('Brouillon auto-sauvegardé restauré');
+        });
+      };
+      btnDismiss.onclick = () => {
+        bar.classList.remove('visible');
+        sessionStorage.setItem(dismissKey, '1');
+      };
+    } catch (_) {}
   }
 
   return {
@@ -20269,8 +21655,16 @@ const TimelineStudio = (() => {
     selectScene,
     switchToSceneForCanvasHit,
     addScene,
+    createSceneForVideo,
     duplicateScene,
     deleteScene,
+    deleteSceneById,
+    deleteSelectedClipOrScene,
+    setTimelineTool,
+    getTimelineTool,
+    toggleRazorTool,
+    cutLayerClipAtTime,
+    cutSceneAtGlobalTime,
     splitAtPlayhead,
     addKeyframeAtPlayhead,
     openKeyframePopover,

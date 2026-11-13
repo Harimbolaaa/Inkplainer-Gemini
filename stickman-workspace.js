@@ -129,9 +129,12 @@
   function open() { readPrefs(); if (!dialog) build(); render(); dialog.showModal(); }
   function install() {
     if (document.getElementById('stickman-workspace-launch')) return;
+    const moreMenu = document.getElementById('topbar-more-menu');
     const anchor = document.getElementById('stickman-launch');
-    if (!anchor) return;
-    const button = document.createElement('button'); button.id = 'stickman-workspace-launch'; button.type = 'button'; button.textContent = 'Workstation'; button.title = 'Open the professional Stickman workstation'; button.onclick = open; anchor.after(button);
+    if (!moreMenu && !anchor) return;
+    const button = document.createElement('button'); button.id = 'stickman-workspace-launch'; button.type = 'button'; button.textContent = 'Workstation'; button.title = 'Open the professional Stickman workstation'; button.onclick = open;
+    if (moreMenu) moreMenu.appendChild(button);
+    else anchor.after(button);
   }
   root.StickmanWorkspace = { open, render };
   setTimeout(install, 320);

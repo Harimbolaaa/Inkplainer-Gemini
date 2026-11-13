@@ -19,6 +19,25 @@
   transition: all 0.15s ease;
 }
 #stickman-workspace-launch:hover { background: var(--accent-lo, #d3e3fd); border-color: var(--accent, #0b57d0); color: var(--accent, #0b57d0); }
+#topbar-more-menu #stickman-launch,
+#topbar-more-menu #stickman-workspace-launch,
+#topbar-more-menu #stickman-production-launch {
+  width: 100%;
+  justify-content: flex-start;
+  border-radius: 7px;
+  border-color: transparent;
+  background: transparent;
+  padding: 7px 10px;
+  font: 500 12px/1.3 'Geist', 'DM Sans', sans-serif;
+  color: var(--text);
+}
+#topbar-more-menu #stickman-launch:hover,
+#topbar-more-menu #stickman-workspace-launch:hover,
+#topbar-more-menu #stickman-production-launch:hover {
+  background: var(--surface-2);
+  border-color: transparent;
+  color: var(--text);
+}
 #stickman-studio-dialog {
   width: min(1180px, calc(100vw - 32px));
   height: min(820px, calc(100vh - 32px));

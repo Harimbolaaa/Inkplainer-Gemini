@@ -102,7 +102,7 @@ const StudioUI = (() => {
     return sc ? clamp(state.playheadTime - TimelineStudio.getSceneStartOffset(sc.id), 0, sc.duration) : 0;
   }
   function hasMotion(layers = []) {
-    return layers.some(l => l.visible !== false && (l.svgMotion || l.gsapEffect || l.keyframes?.length || l.rotation || (l.trimPath ?? 100) < 100));
+    return layers.some(l => l.visible !== false && (l.kind === 'video' || l.svgMotion || l.gsapEffect || l.keyframes?.length || l.rotation || (l.trimPath ?? 100) < 100));
   }
   function nextId() {
     const max = (state.scenes || []).flatMap(s => s.layers || []).reduce((n, l) => Math.max(n, Number(l.id) || 0), _layerIdCounter);
@@ -202,7 +202,8 @@ const StudioUI = (() => {
     c.lineDashOffset = 0;
   }
   function drawLayer(c, layer, pose) {
-    if (!layer.img || pose.w <= 0 || pose.h <= 0) return;
+    const drawable = window.VideoCore?.getLayerDrawable?.(layer) || layer.img;
+    if (!drawable || pose.w <= 0 || pose.h <= 0) return;
     if (pen?.mode === 'nodes' && pen.layerId === layer.id) return;
     c.save();
     // Position is the original layer origin; scale/rotation use its center anchor.
@@ -215,7 +216,7 @@ const StudioUI = (() => {
       output.save();
       if (layer.svgMotion && Number.isFinite(pose.gsapTime) && window.SVGMotion) {
         if (trim < 100) { output.beginPath(); output.rect(0, 0, pose.w * trim / 100, pose.h); output.clip(); }
-        if (!SVGMotion.draw(output, layer.svgMotion, pose.gsapTime, pose.w, pose.h)) output.drawImage(layer.img, 0, 0, pose.w, pose.h);
+        if (!SVGMotion.draw(output, layer.svgMotion, pose.gsapTime, pose.w, pose.h)) output.drawImage(drawable, 0, 0, pose.w, pose.h);
       } else if (layer.vectorData) {
         output.scale(pose.w / layer.vectorData.width, pose.h / layer.vectorData.height);
         drawVector(output, layer.vectorData, trim);
@@ -223,7 +224,7 @@ const StudioUI = (() => {
         if (trim < 100) {
           output.beginPath(); output.rect(0, 0, pose.w * trim / 100, pose.h); output.clip();
         }
-        output.drawImage(layer.img, 0, 0, pose.w, pose.h);
+        output.drawImage(drawable, 0, 0, pose.w, pose.h);
       }
       output.restore();
     };
@@ -1282,7 +1283,13 @@ const StudioUI = (() => {
     nodes.title = 'Edit the selected custom vector (A)';
     const style = button('Vector style', () => openVectorStyle(), 'tool-btn', 'M12 3L4 14a8 8 0 0 0 16 0Z');
     style.id = 'studio-vector-style';
-    toolbar.prepend(pick, draw, nodes, style, el('div', 'tool-divider'));
+    toolbar.prepend(pick, draw, el('div', 'tool-divider'));
+    const moreMenu = document.getElementById('toolbar-more-menu');
+    if (moreMenu) {
+      moreMenu.prepend(nodes, style, el('div', 'more-menu-sep'));
+    } else {
+      draw.after(nodes, style);
+    }
     toolbar.classList.add('visible');
     new ResizeObserver(() => { if (pen) drawPen(); }).observe(document.getElementById('canvas-wrapper'));
   }
@@ -1713,9 +1720,15 @@ const StudioUI = (() => {
     const presets = button('Motion presets', () => openPresets(), 'tl-btn');
     presets.id = 'studio-motion-presets';
     toolbar.querySelector('[onclick*="addKeyframeAtPlayhead"]').after(property, presets);
-    const exportSVG = button('SVG', () => downloadVector(), 'tool-btn', 'M12 3v12m-4-4 4 4 4-4M4 16v5h16v-5');
+    const exportSVG = button('Export SVG', () => downloadVector(), 'tool-btn', 'M12 3v12m-4-4 4 4 4-4M4 16v5h16v-5');
     exportSVG.title = 'Download the selected vector as SVG';
-    document.getElementById('tool-toolbar').append(exportSVG);
+    const vectorStyleBtn = document.getElementById('studio-vector-style');
+    const toolbarMoreMenu = document.getElementById('toolbar-more-menu');
+    if (toolbarMoreMenu && vectorStyleBtn && toolbarMoreMenu.contains(vectorStyleBtn)) {
+      vectorStyleBtn.after(exportSVG);
+    } else {
+      document.getElementById('tool-toolbar').append(exportSVG);
+    }
     document.addEventListener('keydown', keyboard, true);
     const scroll = document.getElementById('tl-scroll-area');
     scroll.addEventListener('scroll', syncTrackScroll);

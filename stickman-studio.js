@@ -318,11 +318,15 @@
   }
   root.StickmanStudio = { open, serialize, restore, render };
   function installLaunchButton() {
+    if (document.getElementById('stickman-launch')) return;
+    const moreMenu = document.getElementById('topbar-more-menu');
     const anchor = document.getElementById('btn-projects');
-    if (!anchor || document.getElementById('stickman-launch')) return;
+    if (!moreMenu && !anchor) return;
     const button = document.createElement('button');
     button.id = 'stickman-launch'; button.type = 'button'; button.textContent = 'Stickman Studio';
-    button.title = 'Open the offline stickman animation workspace'; button.onclick = open; anchor.after(button);
+    button.title = 'Open the offline stickman animation workspace'; button.onclick = open;
+    if (moreMenu) moreMenu.appendChild(button);
+    else anchor.after(button);
   }
   setTimeout(installLaunchButton, 260);
   const launchRetry = setInterval(() => {
