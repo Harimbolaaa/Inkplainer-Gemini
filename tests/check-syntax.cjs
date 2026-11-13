@@ -16,7 +16,7 @@ try {
     writeFileSync(file, match[1]);
     check(file);
   }
-  const localScripts = ['animations.js', 'studio-core.js', 'stickman-core.js', 'stickman-production-core.js', 'stickman-studio.js', 'stickman-templates.js', 'stickman-production-ui.js', 'stickman-workspace.js', 'studio-assets.js', 'studio-effects.js', 'studio.js',
+  const localScripts = ['animations.js', 'studio-core.js', 'camera-core.js', 'stickman-core.js', 'stickman-production-core.js', 'stickman-studio.js', 'stickman-templates.js', 'stickman-production-ui.js', 'stickman-workspace.js', 'studio-assets.js', 'studio-effects.js', 'studio.js',
     'svg-motion-core.js', 'svg-motion.js', 'svg-workshop.js', 'svg-motion-gif-worker.js',
     'vendor/mp4-muxer.mjs', 'vendor/gsap.min.js', 'vendor/anime.min.js', 'vendor/svg.min.js', 'vendor/purify.min.js', 'vendor/gifenc.mjs'];
   for (const file of localScripts) check(join(root, file));

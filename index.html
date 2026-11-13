@@ -2065,11 +2065,43 @@ input[type="number"]:focus { border-color: var(--accent); }
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.07);
 }
+.layer-item.canvas-hovered {
+  border-color: #6c63ff;
+  background: rgba(108, 99, 255, 0.08);
+  box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.22), 0 6px 16px rgba(108, 99, 255, 0.14);
+  transform: translateY(-1px);
+}
+.layer-item.canvas-hovered .layer-name {
+  color: #5b52eb;
+  font-weight: 600;
+}
 .layer-item.selected {
   border-color: var(--accent);
   border-left-width: 3px;
   background: var(--accent-lo);
   box-shadow: 0 0 0 1px rgba(26,26,26,0.1);
+}
+.layer-item.selected.canvas-hovered {
+  border-color: #6c63ff;
+  box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.34), 0 6px 16px rgba(108, 99, 255, 0.16);
+}
+html[data-theme="dark"] .layer-item.canvas-hovered {
+  border-color: #818cf8;
+  background: rgba(129, 140, 248, 0.14);
+  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.28), 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+html[data-theme="dark"] .layer-item.canvas-hovered .layer-name {
+  color: #a5b4fc;
+}
+.layer-group.canvas-hovered {
+  border-color: #6c63ff;
+  box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.22);
+}
+@media (prefers-reduced-motion: reduce) {
+  .layer-item.canvas-hovered,
+  .layer-item:hover {
+    transform: none;
+  }
 }
 
 .layer-item-header {
@@ -3207,6 +3239,541 @@ input[type="number"]:focus { border-color: var(--accent); }
   text-align: center;
 }
 
+/* ── Camera Frame Edit Bar, Recovery Bar & In-App Confirm Modal ── */
+#autosave-recovery-bar {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 230;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 6px 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16);
+  font-size: 11px;
+  color: var(--text);
+  white-space: nowrap;
+}
+#autosave-recovery-bar.visible { display: flex; }
+#camera-frame-bar {
+  position: absolute;
+  bottom: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 215;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 6px 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  font-size: 11px;
+  color: var(--text);
+  white-space: nowrap;
+}
+#camera-frame-bar.visible { display: flex; }
+.cam-bar-btn {
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-hi);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+}
+.cam-bar-btn:hover { border-color: var(--accent); }
+.cam-bar-btn.primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+html[data-theme="dark"] .cam-bar-btn.primary { color: #111827; }
+.layer-cam-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  background: rgba(99, 102, 241, 0.15);
+  color: #6366f1;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  margin-left: 5px;
+  vertical-align: middle;
+}
+.cam-action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+.cam-action-btn {
+  padding: 5px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--border-hi);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  text-align: center;
+  font-family: inherit;
+  transition: border-color 0.14s, background 0.14s;
+}
+.cam-action-btn:hover { border-color: var(--accent); background: var(--surface-2); }
+.cam-action-btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+html[data-theme="dark"] .cam-action-btn.primary { color: #111827; }
+
+/* ── Left & Right Lateral Camera Docks around Canvas ── */
+#canvas-area {
+  gap: 12px;
+}
+.cam-side-dock {
+  width: 146px;
+  min-width: 146px;
+  max-height: calc(100% - 8px);
+  display: flex;
+  flex-direction: column;
+  background: var(--sidebar);
+  border: 1px solid var(--border-hi);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+  flex-shrink: 0;
+  z-index: 40;
+  transition: width 0.16s ease, opacity 0.16s ease;
+}
+html[data-theme="dark"] .cam-side-dock {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.34);
+}
+.cam-side-dock.collapsed {
+  width: 28px;
+  min-width: 28px;
+}
+.cam-side-dock.collapsed .cam-dock-body,
+.cam-side-dock.collapsed .cam-dock-title,
+.cam-side-dock.collapsed .cam-dock-time {
+  display: none;
+}
+.cam-side-dock.collapsed .cam-dock-head {
+  flex-direction: column;
+  justify-content: center;
+  padding: 8px 4px;
+  gap: 8px;
+}
+.cam-dock-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  padding: 7px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-1);
+  flex-shrink: 0;
+}
+.cam-dock-head-left {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+.cam-dock-icon {
+  color: #6366f1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.cam-dock-title {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cam-dock-time {
+  font-size: 9.5px;
+  font-weight: 600;
+  font-family: 'Space Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  color: #6366f1;
+  white-space: nowrap;
+}
+.cam-dock-fold-btn {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--muted-hi);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  transition: border-color 0.14s, color 0.14s;
+}
+.cam-dock-fold-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.cam-dock-body {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 8px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+}
+.cam-dock-body::-webkit-scrollbar { width: 4px; }
+.cam-dock-body::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 4px; }
+.cam-dock-sec-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+.cam-dock-val {
+  font-size: 9.5px;
+  font-weight: 700;
+  font-family: 'Space Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.cam-dock-mode-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+.cam-dock-chip-btn {
+  padding: 4px 5px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--muted-hi);
+  font-size: 9.5px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: inherit;
+  transition: border-color 0.14s, background 0.14s, color 0.14s;
+}
+.cam-dock-chip-btn:hover {
+  border-color: #6366f1;
+  color: var(--text);
+}
+.cam-dock-chip-btn.active {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: #6366f1;
+  color: #4f46e5;
+}
+html[data-theme="dark"] .cam-dock-chip-btn.active {
+  background: rgba(99, 102, 241, 0.28);
+  color: #e0e7ff;
+  border-color: #818cf8;
+}
+.cam-dock-slider {
+  width: 100%;
+  margin: 0;
+  height: 4px;
+  accent-color: #6366f1;
+  cursor: pointer;
+}
+.cam-dock-btn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+.cam-dock-action {
+  padding: 5px 5px;
+  border-radius: 6px;
+  border: 1px solid var(--border-hi);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 9.5px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: inherit;
+  transition: border-color 0.14s, background 0.14s, color 0.14s;
+}
+.cam-dock-action:hover {
+  border-color: #6366f1;
+  background: var(--surface-2);
+}
+.cam-dock-action.primary {
+  background: #4f46e5;
+  border-color: #4f46e5;
+  color: #ffffff;
+}
+.cam-dock-action.primary:hover {
+  background: #4338ca;
+}
+.cam-dock-check {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  font-size: 9.5px;
+  color: var(--muted-hi);
+  cursor: pointer;
+  padding-top: 5px;
+  border-top: 1px solid var(--border);
+}
+.cam-dock-check input {
+  accent-color: #6366f1;
+  cursor: pointer;
+}
+
+/* Right Dock: Presets Templates & Scene Camera Keyframes */
+.cam-preset-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+.cam-preset-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+  min-width: 0;
+  text-align: left;
+  font-family: inherit;
+  transition: border-color 0.14s, background 0.14s, transform 0.12s;
+}
+.cam-preset-btn:hover {
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.08);
+}
+.cam-preset-btn.active {
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.16);
+}
+.cam-preset-btn svg {
+  color: #6366f1;
+  flex-shrink: 0;
+}
+.cam-preset-lbl {
+  font-size: 9.5px;
+  font-weight: 600;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cam-kf-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 112px;
+  overflow-y: auto;
+  padding-top: 5px;
+  border-top: 1px solid var(--border);
+}
+.cam-kf-list::-webkit-scrollbar { width: 4px; }
+.cam-kf-list::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 4px; }
+.cam-kf-empty {
+  font-size: 9px;
+  color: var(--muted);
+  line-height: 1.35;
+  padding: 4px 2px;
+}
+.cam-kf-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 4px 5px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  font-size: 9px;
+  color: var(--text);
+  cursor: pointer;
+  min-width: 0;
+  transition: border-color 0.14s, background 0.14s;
+}
+.cam-kf-chip:hover { border-color: #6366f1; }
+.cam-kf-chip.active {
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.16);
+}
+.cam-kf-chip-t {
+  font-family: 'Space Mono', monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #6366f1;
+  flex-shrink: 0;
+}
+.cam-kf-chip-name {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+.cam-kf-chip-del {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1;
+  padding: 0 2px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.cam-kf-chip-del:hover { color: #ef4444; }
+@media (max-width: 980px) {
+  .cam-side-dock { display: none; }
+}
+
+/* ── Timeline Dedicated Camera Keyframe Track ── */
+.tl-track-header-camera {
+  height: 28px;
+  min-height: 28px;
+  background: rgba(99, 102, 241, 0.08);
+  border-bottom: 1px solid #252a38;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px 0 12px;
+  font-size: 10px;
+  color: #c7d2fe;
+}
+.tl-cam-add-btn {
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(99, 102, 241, 0.5);
+  background: rgba(99, 102, 241, 0.2);
+  color: #e0e7ff;
+  font-size: 9px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.tl-cam-add-btn:hover {
+  background: rgba(99, 102, 241, 0.38);
+  color: #ffffff;
+}
+.tl-lane-camera {
+  height: 28px;
+  min-height: 28px;
+  position: relative;
+  border-bottom: 1px solid #222632;
+  background: rgba(99, 102, 241, 0.04);
+  cursor: pointer;
+}
+.tl-cam-kf-marker {
+  position: absolute;
+  top: 4px;
+  height: 20px;
+  transform: translateX(-8px);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px 0 5px;
+  border-radius: 5px;
+  border: 1px solid rgba(129, 140, 248, 0.75);
+  background: #312e81;
+  color: #e0e7ff;
+  font-size: 9px;
+  font-weight: 600;
+  cursor: grab;
+  white-space: nowrap;
+  z-index: 4;
+  user-select: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+.tl-cam-kf-marker:hover,
+.tl-cam-kf-marker.active {
+  background: #4f46e5;
+  border-color: #c7d2fe;
+  color: #ffffff;
+  z-index: 6;
+}
+.tl-cam-kf-diamond {
+  width: 7px;
+  height: 7px;
+  background: #facc15;
+  transform: rotate(45deg);
+  flex-shrink: 0;
+}
+.app-confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99995;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(3px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.app-confirm-backdrop.active { display: flex; }
+.app-confirm-card {
+  width: min(380px, calc(100vw - 32px));
+  background: var(--panel);
+  border: 1px solid var(--border-hi);
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+  color: var(--text);
+}
+.app-confirm-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.app-confirm-msg {
+  font-size: 12px;
+  color: var(--muted-hi);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+.app-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 /* ═══════════════════════════════════════════
    SLICER MODAL
 ═══════════════════════════════════════════ */
@@ -3998,33 +4565,51 @@ input[type="number"]:focus { border-color: var(--accent); }
       </div>
     </div>
 
-    <!-- CARD: Camera & Zoom Styles -->
+    <!-- CARD: Camera & Zoom Styles (VideoScribe / InstaDoodle) -->
     <div class="sidebar-section-label" style="margin-top:8px;">Camera &amp; Zoom</div>
     <div class="card" id="card-camera-zoom">
       <div class="card-header" onclick="toggleCard(this)">
-        <div class="card-header-label">Camera &amp; Zoom Style</div>
+        <div class="card-header-label">Caméra &amp; Cadrage (VideoScribe)</div>
         <span class="card-chevron">▾</span>
       </div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:8px;">
-        <div class="section-sublabel" style="margin-bottom:2px;">Camera Mode Dropdown</div>
+        <div class="section-sublabel" style="margin-bottom:2px;">Mode Caméra du calque</div>
         <select id="camera-mode-select" onchange="selectCameraMode(this.value)" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--panel);color:var(--text);font-size:11px;font-weight:600;cursor:pointer;">
           <option value="static">Static (100% Full Canvas)</option>
           <option value="follow-hand">Follow Hand (Dynamic Zoom &amp; Pan)</option>
           <option value="pan-to-next">Pan to Next (Infinite Canvas)</option>
+          <option value="custom">Cadrage personnalisé (Set Camera)</option>
         </select>
-        <div class="anim-grid anim-grid-3" id="camera-mode-grid">
+        <div class="anim-grid anim-grid-2" id="camera-mode-grid">
           <div class="anim-opt selected" data-cam="static" onclick="selectCameraMode('static')" style="font-size:9.5px;padding:5px 4px;text-align:center;">Static</div>
           <div class="anim-opt" data-cam="follow-hand" onclick="selectCameraMode('follow-hand')" style="font-size:9.5px;padding:5px 4px;text-align:center;">Follow Hand</div>
           <div class="anim-opt" data-cam="pan-to-next" onclick="selectCameraMode('pan-to-next')" style="font-size:9.5px;padding:5px 4px;text-align:center;">Pan to Next</div>
+          <div class="anim-opt" data-cam="custom" onclick="toggleCameraEditMode(true)" style="font-size:9.5px;padding:5px 4px;text-align:center;">Set Camera</div>
         </div>
-        <div id="camera-zoom-opts" style="display:none;flex-direction:column;gap:4px;padding-top:4px;border-top:1px solid var(--border);">
+        <div class="cam-action-row">
+          <button type="button" class="cam-action-btn primary" id="btn-set-camera" onclick="toggleCameraEditMode()">Cadre sur canvas</button>
+          <button type="button" class="cam-action-btn" id="btn-fit-camera" onclick="autoFrameLayerCamera()">Cadrer l'élément</button>
+          <button type="button" class="cam-action-btn" id="btn-preview-camera" onclick="previewLayerCamera()">Aperçu caméra</button>
+          <button type="button" class="cam-action-btn" id="btn-clear-camera" onclick="clearLayerCamera()">Effacer caméra</button>
+        </div>
+        <div id="camera-zoom-opts" style="display:none;flex-direction:column;gap:6px;padding-top:6px;border-top:1px solid var(--border);">
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span class="section-sublabel" style="margin-bottom:0;">Zoom Magnification</span>
-            <span class="slider-val" id="camera-zoom-val">1.8x</span>
+            <span class="section-sublabel" style="margin-bottom:0;">Zoom caméra</span>
+            <span class="slider-val" id="camera-zoom-val">1.80x</span>
           </div>
-          <input type="range" id="camera-zoom-slider" min="1.3" max="2.6" step="0.1" value="1.8"
+          <input type="range" id="camera-zoom-slider" min="0.5" max="4.0" step="0.05" value="1.8"
             oninput="updateSliderFill(this);selectCameraZoom(+this.value)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;">
+            <span class="section-sublabel" style="margin-bottom:0;">Durée transition</span>
+            <span class="slider-val" id="camera-trans-val">0.7s</span>
+          </div>
+          <input type="range" id="camera-trans-slider" min="0.1" max="2.5" step="0.1" value="0.7"
+            oninput="updateSliderFill(this);selectCameraTransitionDur(+this.value)">
         </div>
+        <label style="display:flex;align-items:center;justify-content:space-between;font-size:10.5px;color:var(--muted-hi);cursor:pointer;padding-top:4px;border-top:1px solid var(--border);">
+          <span>Dézoomer à la fin de la scène</span>
+          <input type="checkbox" id="scene-cam-end-reset" checked onchange="setSceneEndCameraReset(this.checked)">
+        </label>
         <div id="camera-mode-hint" style="font-size:9.5px;color:var(--muted);line-height:1.45;padding:5px 7px;background:var(--panel);border-radius:6px;border:1px solid var(--border);">
           Standard locked camera view showing the entire whiteboard canvas.
         </div>
@@ -4475,7 +5060,13 @@ input[type="number"]:focus { border-color: var(--accent); }
       </div>
     </div>
 
-    <!-- Tool Toolbar (Crop / Slicer) -->
+    <div id="autosave-recovery-bar" role="status" aria-live="polite">
+      <span id="autosave-recovery-text">Brouillon auto-sauvegardé disponible</span>
+      <button type="button" class="cam-bar-btn primary" id="btn-restore-autosave">Restaurer</button>
+      <button type="button" class="cam-bar-btn" id="btn-dismiss-autosave">Ignorer</button>
+    </div>
+
+    <!-- Tool Toolbar (Crop / Slicer / Caméra) -->
     <div id="tool-toolbar">
       <button class="tool-btn" id="btn-crop-tool" onclick="activateCropTool()">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
@@ -4486,7 +5077,65 @@ input[type="number"]:focus { border-color: var(--accent); }
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
         Slicer
       </button>
+      <div class="tool-divider"></div>
+      <button class="tool-btn" id="btn-camera-tool" onclick="toggleCameraEditMode()" title="Définir et ajuster le cadre caméra sur le canvas">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        Caméra
+      </button>
+      <button class="tool-btn active" id="btn-cam-docks-toggle" onclick="toggleCameraDocks()" title="Afficher/Masquer les panneaux caméra latéraux">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><rect x="2" y="4" width="5" height="16" rx="1"/><rect x="17" y="4" width="5" height="16" rx="1"/><rect x="9" y="6" width="6" height="12" rx="1"/></svg>
+        Docks Cam
+      </button>
     </div>
+
+    <!-- LEFT CAMERA DOCK (Contrôles rapides Caméra) -->
+    <aside class="cam-side-dock" id="cam-dock-left" aria-label="Contrôles caméra rapides">
+      <div class="cam-dock-head">
+        <div class="cam-dock-head-left">
+          <span class="cam-dock-icon">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+          </span>
+          <span class="cam-dock-title">Caméra</span>
+        </div>
+        <button type="button" class="cam-dock-fold-btn" onclick="toggleCameraDocks()" title="Replier / Déplier">‹</button>
+      </div>
+      <div class="cam-dock-body">
+        <div class="cam-dock-sec-label"><span>Mode</span></div>
+        <div class="cam-dock-mode-grid" id="cam-dock-mode-grid">
+          <button type="button" class="cam-dock-chip-btn selected active" data-cam="static" onclick="selectCameraMode('static')" title="Plan fixe 100%">Static</button>
+          <button type="button" class="cam-dock-chip-btn" data-cam="follow-hand" onclick="selectCameraMode('follow-hand')" title="Suivre la main">Suivi</button>
+          <button type="button" class="cam-dock-chip-btn" data-cam="pan-to-next" onclick="selectCameraMode('pan-to-next')" title="Travelling auto entre calques">Pan</button>
+          <button type="button" class="cam-dock-chip-btn" data-cam="custom" onclick="toggleCameraEditMode(true)" title="Cadre personnalisé">Cadre</button>
+        </div>
+
+        <div class="cam-dock-sec-label" style="margin-top:2px;">
+          <span>Zoom</span>
+          <span class="cam-dock-val" id="cam-dock-zoom-val">1.00x</span>
+        </div>
+        <input type="range" class="cam-dock-slider" id="cam-dock-zoom-slider" min="0.5" max="4.0" step="0.05" value="1.8"
+          oninput="selectCameraZoom(+this.value)">
+
+        <div class="cam-dock-sec-label">
+          <span>Transition</span>
+          <span class="cam-dock-val" id="cam-dock-trans-val">0.7s</span>
+        </div>
+        <input type="range" class="cam-dock-slider" id="cam-dock-trans-slider" min="0.1" max="2.5" step="0.1" value="0.7"
+          oninput="selectCameraTransitionDur(+this.value)">
+
+        <div class="cam-dock-btn-grid" style="margin-top:2px;">
+          <button type="button" class="cam-dock-action primary" id="cam-dock-btn-edit" onclick="toggleCameraEditMode()" title="Déplacer/redimensionner le cadre caméra sur le canvas">Cadre</button>
+          <button type="button" class="cam-dock-action" onclick="autoFrameLayerCamera()" title="Cadrer automatiquement l'objet sélectionné">Cadrer</button>
+          <button type="button" class="cam-dock-action" onclick="captureCameraKeyframeAtPlayhead()" title="Ajouter un point caméra à la position actuelle de la timeline">+ Clé @ T</button>
+          <button type="button" class="cam-dock-action" onclick="previewLayerCamera()" title="Prévisualiser la caméra">Aperçu</button>
+        </div>
+
+        <label class="cam-dock-check" title="Revenir en plan large en fin de scène">
+          <span>Dézoom fin</span>
+          <input type="checkbox" id="cam-dock-end-reset" checked onchange="setSceneEndCameraReset(this.checked)">
+        </label>
+        <button type="button" class="cam-dock-action" onclick="clearLayerCamera()" title="Réinitialiser la caméra du calque ou point clé">Réinitialiser</button>
+      </div>
+    </aside>
 
     <div id="canvas-wrapper" class="mode-select">
       <canvas id="main-canvas"></canvas>
@@ -4506,6 +5155,40 @@ input[type="number"]:focus { border-color: var(--accent); }
       <canvas id="outline-overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;opacity:1;display:none;"></canvas>
     </div>
 
+    <!-- RIGHT CAMERA DOCK (Templates Presets & Timeline Keyframes) -->
+    <aside class="cam-side-dock" id="cam-dock-right" aria-label="Templates et clés caméra">
+      <div class="cam-dock-head">
+        <div class="cam-dock-head-left">
+          <span class="cam-dock-title">Presets</span>
+          <span class="cam-dock-time" id="cam-dock-time-badge">@ 0.0s</span>
+        </div>
+        <button type="button" class="cam-dock-fold-btn" onclick="toggleCameraDocks()" title="Replier / Déplier">›</button>
+      </div>
+      <div class="cam-dock-body">
+        <div class="cam-dock-sec-label">
+          <span>Appliquer @ T</span>
+          <span style="font-size:8.5px;opacity:0.75;">1 clic</span>
+        </div>
+        <div class="cam-preset-grid" id="cam-preset-grid"></div>
+        <div class="cam-dock-sec-label" style="margin-top:2px;">
+          <span>Clés scène</span>
+          <span id="cam-kf-count" style="font-size:9px;color:#6366f1;">0</span>
+        </div>
+        <div class="cam-kf-list" id="cam-dock-keyframes-list">
+          <div class="cam-kf-empty">Placez la tête de lecture et cliquez sur un preset ci-dessus.</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Camera Frame Edit Bar -->
+    <div id="camera-frame-bar">
+      <span id="camera-frame-label" style="font-weight:600;">Caméra · 1.80x</span>
+      <button type="button" class="cam-bar-btn" onclick="autoFrameLayerCamera()">Cadrer l'élément</button>
+      <button type="button" class="cam-bar-btn" onclick="previewLayerCamera()">Aperçu</button>
+      <button type="button" class="cam-bar-btn" onclick="clearLayerCamera()">Effacer</button>
+      <button type="button" class="cam-bar-btn primary" onclick="toggleCameraEditMode(false)">Terminer</button>
+    </div>
+
     <!-- Crop action bar -->
     <div class="crop-action-bar" id="crop-action-bar">
       <span class="crop-size-label" id="crop-size-label">— × —</span>
@@ -4513,6 +5196,17 @@ input[type="number"]:focus { border-color: var(--accent); }
       <button class="crop-reset-btn" onclick="resetCropRect()">Reset</button>
       <button class="crop-cancel-btn" onclick="cancelCrop()">Cancel</button>
       <button class="crop-confirm-btn" onclick="confirmCrop()">✓ Apply Crop</button>
+    </div>
+
+    <div class="app-confirm-backdrop" id="app-confirm-backdrop" role="dialog" aria-modal="true" aria-labelledby="app-confirm-title">
+      <div class="app-confirm-card">
+        <div class="app-confirm-title" id="app-confirm-title">Confirmation</div>
+        <div class="app-confirm-msg" id="app-confirm-msg"></div>
+        <div class="app-confirm-actions">
+          <button type="button" class="cam-bar-btn" id="app-confirm-cancel">Annuler</button>
+          <button type="button" class="cam-bar-btn primary" id="app-confirm-ok">Confirmer</button>
+        </div>
+      </div>
     </div>
     <div id="playbar">
       <button class="restart-btn" onclick="restartAnim()" title="Restart">
@@ -4692,6 +5386,13 @@ input[type="number"]:focus { border-color: var(--accent); }
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
         </div>
+        <div class="tl-track-header tl-track-header-camera">
+          <div class="tl-track-header-title">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+            <span>Caméra</span>
+          </div>
+          <button type="button" class="tl-cam-add-btn" onclick="captureCameraKeyframeAtPlayhead()" title="Ajouter un point clé caméra à l'instant actuel">+ Clé</button>
+        </div>
         <div id="tl-layer-headers-list" class="tl-layer-headers-list"></div>
         <div class="tl-track-header tl-track-header-audio">
           <div class="tl-track-header-title">
@@ -4717,6 +5418,9 @@ input[type="number"]:focus { border-color: var(--accent); }
 
           <!-- Main Scenes Track -->
           <div class="tl-lane tl-lane-scenes" id="tl-scenes-lane"></div>
+
+          <!-- Dedicated Camera Keyframes Track -->
+          <div class="tl-lane tl-lane-camera" id="tl-camera-lane" title="Cliquez pour déplacer la tête de lecture · Double-clic pour ajouter une clé caméra"></div>
 
           <!-- Collapsible Layer Sub-Tracks for Active Scene -->
           <div class="tl-layers-subtracks" id="tl-layers-subtracks"></div>
@@ -5197,16 +5901,63 @@ function saveProject(projectId = currentProjectId) {
   }
 }
 
-// Helper function to convert image to data URL
+// Helper function to convert image to data URL (cached per Image size to prevent main-thread stalls)
 function getImageDataURL(img) {
   if (!img) return null;
+  const w = img.naturalWidth || img.width || 0;
+  const h = img.naturalHeight || img.height || 0;
+  if (!w || !h) return null;
+  if (img._cachedPngDataUrl && img._cachedPngW === w && img._cachedPngH === h) {
+    return img._cachedPngDataUrl;
+  }
+  if (typeof img.src === 'string' && img.src.startsWith('data:image/png')) {
+    img._cachedPngDataUrl = img.src;
+    img._cachedPngW = w;
+    img._cachedPngH = h;
+    return img.src;
+  }
   const canvas = document.createElement('canvas');
-  canvas.width = img.width;
-  canvas.height = img.height;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(img, 0, 0);
-  return canvas.toDataURL('image/png');
+  canvas.width = w;
+  canvas.height = h;
+  const cctx = canvas.getContext('2d');
+  cctx.drawImage(img, 0, 0);
+  const url = canvas.toDataURL('image/png');
+  img._cachedPngDataUrl = url;
+  img._cachedPngW = w;
+  img._cachedPngH = h;
+  return url;
 }
+
+window.showAppConfirm = function showAppConfirm(opts = {}) {
+  const backdrop = document.getElementById('app-confirm-backdrop');
+  const titleEl = document.getElementById('app-confirm-title');
+  const msgEl = document.getElementById('app-confirm-msg');
+  const okBtn = document.getElementById('app-confirm-ok');
+  const cancelBtn = document.getElementById('app-confirm-cancel');
+  if (!backdrop || !okBtn || !cancelBtn) {
+    return Promise.resolve(true);
+  }
+  if (titleEl) titleEl.textContent = opts.title || 'Confirmation';
+  if (msgEl) msgEl.textContent = opts.message || '';
+  okBtn.textContent = opts.confirmLabel || 'Confirmer';
+  cancelBtn.textContent = opts.cancelLabel || 'Annuler';
+  backdrop.classList.add('active');
+  return new Promise(resolve => {
+    const cleanup = (result) => {
+      backdrop.classList.remove('active');
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      backdrop.removeEventListener('click', onBackdrop);
+      resolve(result);
+    };
+    const onOk = () => cleanup(true);
+    const onCancel = () => cleanup(false);
+    const onBackdrop = (ev) => { if (ev.target === backdrop) cleanup(false); };
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    backdrop.addEventListener('click', onBackdrop);
+  });
+};
 
 // Load project
 function loadProject(projectId) {
@@ -5527,11 +6278,17 @@ async function createNewProject() {
 }
 
 // Delete project
-function deleteProject(projectId, event) {
+async function deleteProject(projectId, event) {
   event.stopPropagation();
-  
-  if (!db || !confirm('Delete this project? This cannot be undone.')) return;
-  
+  if (!db) return;
+  const ok = await window.showAppConfirm({
+    title: 'Supprimer le projet',
+    message: 'Voulez-vous vraiment supprimer ce projet ? Cette action est irréversible.',
+    confirmLabel: 'Supprimer',
+    cancelLabel: 'Annuler',
+  });
+  if (!ok) return;
+
   try {
   const transaction = db.transaction(['projects'], 'readwrite');
   const objectStore = transaction.objectStore('projects');
@@ -6019,13 +6776,137 @@ function showToast(msg, anchorEl, durationMs) {
   setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 260); }, ms);
 }
 
-document.addEventListener('keydown', e => {
-  const tag = document.activeElement?.tagName;
-  const typing = tag === 'INPUT' || tag === 'TEXTAREA';
-  const mod = e.ctrlKey || e.metaKey;
+let _clipboardLayerData = null;
+let _nudgeUndoState = null;
 
-  // Escape — cancel text placement or close editor without committing
+function _flushPendingNudgeUndo() {
+  if (!_nudgeUndoState) return;
+  const { beforeSnap, label, timer } = _nudgeUndoState;
+  clearTimeout(timer);
+  _nudgeUndoState = null;
+  if (!beforeSnap || !window.TimelineStudio?.serializeProjectState) return;
+  const afterSnap = window.TimelineStudio.serializeProjectState(false);
+  window.CommandHistory?.pushCommand({
+    label: label || 'Nudge Element',
+    undo() { window.TimelineStudio.deserializeProjectState(beforeSnap); },
+    redo() { window.TimelineStudio.deserializeProjectState(afterSnap); },
+    captureRedo() { return { label: label || 'Nudge Element', redo() { window.TimelineStudio.deserializeProjectState(afterSnap); } }; },
+  });
+}
+
+function copySelectedLayerToClipboard() {
+  const layer = getSelectedLayer();
+  if (!layer) return false;
+  const dataUrl = typeof getImageDataURL === 'function' ? getImageDataURL(layer.img) : null;
+  _clipboardLayerData = {
+    name: layer.name,
+    imageDataURL: dataUrl || layer.img?.src || null,
+    origImageDataURL: layer._origImg ? getImageDataURL(layer._origImg) : null,
+    x: layer.x, y: layer.y, w: layer.w, h: layer.h,
+    baseW: layer.baseW ?? layer.w, baseH: layer.baseH ?? layer.h,
+    resizePct: layer.resizePct ?? 100,
+    opacity: layer.opacity ?? 1,
+    rotation: layer.rotation ?? 0,
+    trimPath: layer.trimPath ?? 100,
+    animStyle: layer.animStyle || state.animStyle || 'scanner',
+    hand: layer.hand || state.hand || 'custom1',
+    speed: layer.speed ?? 40,
+    handSpeed: layer.handSpeed ?? 6,
+    chunks: layer.chunks ?? 30,
+    specChunks: layer.specChunks ?? 35,
+    zigzag: layer.zigzag,
+    pushDir: layer.pushDir || 'bottom',
+    outAnim: layer.outAnim || 'none',
+    cameraMode: layer.cameraMode || 'static',
+    cameraZoom: layer.cameraZoom || 1.8,
+    camera: layer.camera ? JSON.parse(JSON.stringify(layer.camera)) : undefined,
+    hasPngAlpha: !!layer.hasPngAlpha,
+    outlineDetect: layer.outlineDetect,
+    outlineAlgorithm: layer.outlineAlgorithm,
+    outlineStrokeStyle: layer.outlineStrokeStyle,
+    colorStyle: layer.colorStyle,
+    outlineColor: layer.outlineColor,
+    outlineThickness: layer.outlineThickness,
+    textAnimDir: layer.textAnimDir,
+    textDrawStyle: layer.textDrawStyle,
+    vectorData: layer.vectorData ? JSON.parse(JSON.stringify(layer.vectorData)) : undefined,
+    svgMotion: layer.svgMotion ? JSON.parse(JSON.stringify(layer.svgMotion)) : undefined,
+    gsapEffect: layer.gsapEffect ? JSON.parse(JSON.stringify(layer.gsapEffect)) : undefined,
+    kind: layer.kind,
+    textProps: layer.textProps ? JSON.parse(JSON.stringify(layer.textProps)) : undefined,
+    _textContent: layer._textContent, _textFont: layer._textFont,
+    _textSize: layer._textSize, _textBold: layer._textBold,
+    _textItalic: layer._textItalic, _textAlign: layer._textAlign,
+    _textColor: layer._textColor, _textLineHeight: layer._textLineHeight,
+    _textSpacing: layer._textSpacing,
+  };
+  return true;
+}
+
+async function pasteLayerFromClipboard(offsetPx = 20) {
+  if (!_clipboardLayerData) return false;
+  const clip = JSON.parse(JSON.stringify(_clipboardLayerData));
+  if (!clip.imageDataURL) return false;
+  const img = await new Promise(resolve => {
+    const im = new Image();
+    im.onload = () => resolve(im);
+    im.onerror = () => resolve(null);
+    im.src = clip.imageDataURL;
+  });
+  if (!img) return false;
+  pushUndoSnapshot('Paste Layer');
+  const activeSc = window.TimelineStudio?.getActiveScene?.();
+  const scDur = activeSc ? Math.max(0.5, Number(activeSc.duration) || 5.0) : 5.0;
+  const id = ++_layerIdCounter;
+  window._layerIdCounter = _layerIdCounter;
+  const nx = Math.min(state.canvasW - 40, (clip.x || 0) + offsetPx);
+  const ny = Math.min(state.canvasH - 40, (clip.y || 0) + offsetPx);
+  const nextLayer = {
+    ...clip,
+    id,
+    name: `${clip.name} Copy`,
+    img,
+    x: nx,
+    y: ny,
+    inPoint: 0,
+    outPoint: scDur,
+    keyframes: [],
+    animOrder: null,
+    groupId: null,
+    visible: true,
+    camera: clip.camera ? {
+      ...clip.camera,
+      cx: clip.camera.cx + offsetPx,
+      cy: clip.camera.cy + offsetPx,
+    } : undefined,
+  };
+  if (nextLayer.svgMotion && window.SVGMotion?.prepare) {
+    try { await window.SVGMotion.prepare(nextLayer.svgMotion); } catch (_) { delete nextLayer.svgMotion; }
+  }
+  state.layers.push(nextLayer);
+  window.TimelineStudio?.saveWorkingStateToActiveScene?.();
+  renderLayerList();
+  selectLayer(id);
+  redrawLayersOnCanvas();
+  drawSelectionHandles();
+  scheduleAutoSave();
+  return true;
+}
+
+document.addEventListener('keydown', e => {
+  const el = document.activeElement;
+  const tag = el?.tagName;
+  const typing = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || !!el?.isContentEditable;
+  const mod = e.ctrlKey || e.metaKey;
+  const keyLow = (e.key || '').toLowerCase();
+
+  // Escape — exit camera edit, cancel text placement, or close editor
   if (e.key === 'Escape') {
+    if (typeof _cameraEdit !== 'undefined' && _cameraEdit?.active) {
+      toggleCameraEditMode(false);
+      e.preventDefault();
+      return;
+    }
     if (_ts.placing) { deactivateTextPlacement(); e.preventDefault(); return; }
     if (_ts.active)  { closeTextEditor(false);    e.preventDefault(); return; }
   }
@@ -6037,28 +6918,110 @@ document.addEventListener('keydown', e => {
     return;
   }
 
-  // Delete / Backspace — remove selected layer (no modifier, not typing)
+  // Delete / Backspace — remove selected layer or selected Stickman character
   if ((e.key === 'Delete' || e.key === 'Backspace') && !mod && !typing) {
     if (state.selectedLayerId) {
       e.preventDefault();
       removeLayer(state.selectedLayerId);
-      showToast('Layer deleted — Ctrl+Z to undo');
+      showToast('Calque supprimé — Ctrl+Z pour annuler');
+    } else if (typeof selectedStickmanTrackId !== 'undefined' && selectedStickmanTrackId && window.StickmanProduction?.deleteTrack) {
+      const sc = window.TimelineStudio?.getActiveScene?.();
+      if (sc) {
+        e.preventDefault();
+        pushUndoSnapshot('Delete Stickman Character');
+        window.StickmanProduction.deleteTrack(sc, selectedStickmanTrackId);
+        selectedStickmanTrackId = null;
+        renderActiveSceneImmediately();
+        drawSelectionHandles();
+        window.TimelineStudio?.renderTimeline?.();
+        scheduleAutoSave();
+        showToast('Personnage supprimé — Ctrl+Z pour annuler');
+      }
     }
     return;
   }
 
+  // Arrow key nudging (1px, Shift+Arrow = 10px)
+  if (!mod && !typing && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+    const step = e.shiftKey ? 10 : 1;
+    const dx = e.key === 'ArrowLeft' ? -step : (e.key === 'ArrowRight' ? step : 0);
+    const dy = e.key === 'ArrowUp' ? -step : (e.key === 'ArrowDown' ? step : 0);
+    const sel = getSelectedLayer();
+    const activeSc = window.TimelineStudio?.getActiveScene?.();
+    const stickman = !sel ? getActiveStickmanTrack(selectedStickmanTrackId, activeSc) : null;
+    if (sel || stickman) {
+      e.preventDefault();
+      _pauseAllPlaybackForCanvasEdit();
+      if (!_nudgeUndoState && window.TimelineStudio?.serializeProjectState) {
+        _nudgeUndoState = {
+          beforeSnap: window.TimelineStudio.serializeProjectState(false),
+          label: stickman ? 'Nudge Character' : 'Nudge Layer',
+          timer: setTimeout(_flushPendingNudgeUndo, 450),
+        };
+      } else if (_nudgeUndoState) {
+        clearTimeout(_nudgeUndoState.timer);
+        _nudgeUndoState.timer = setTimeout(_flushPendingNudgeUndo, 450);
+      }
+      if (stickman) {
+        stickman.transform ||= { x: 0, y: 0, scale: 1, rotation: 0 };
+        stickman.transform.x = (stickman.transform.x || 0) + dx;
+        stickman.transform.y = (stickman.transform.y || 0) + dy;
+        renderActiveSceneImmediately();
+      } else if (sel) {
+        const lt = activeSc ? _getSceneLocalTime(activeSc) : null;
+        const kfMode = _getKeyframeMoveMode(sel, lt);
+        const curBounds = getLayerCanvasBounds(sel, lt) || sel;
+        _applyInteractiveLayerEdit(sel, curBounds, dx, dy, null, false, kfMode);
+        redrawLayersOnCanvas();
+      }
+      drawSelectionHandles();
+      window.StudioUI?.updateTrackValues?.();
+      scheduleAutoSave();
+      return;
+    }
+  }
+
   // Modifier shortcuts (Ctrl/Cmd)
-  if (!mod) return;
-  if (typing) return;
-  if (e.key === 'z' && !e.shiftKey) {
+  if (!mod || typing) return;
+  if (keyLow === 'c' && !e.shiftKey) {
+    if (copySelectedLayerToClipboard()) {
+      e.preventDefault();
+      showToast('Calque copié (Ctrl+V pour coller)');
+    }
+    return;
+  }
+  if (keyLow === 'v' && !e.shiftKey) {
+    if (_clipboardLayerData) {
+      e.preventDefault();
+      pasteLayerFromClipboard(20).then(ok => {
+        if (ok) showToast('Calque collé');
+      });
+    }
+    return;
+  }
+  if (keyLow === 'd' && !e.shiftKey) {
+    if (copySelectedLayerToClipboard()) {
+      e.preventDefault();
+      pasteLayerFromClipboard(20).then(ok => {
+        if (ok) showToast('Calque dupliqué');
+      });
+    }
+    return;
+  }
+  if (keyLow === 'z' && !e.shiftKey) {
     e.preventDefault();
+    _flushPendingNudgeUndo();
     if (state.playing) {
-      showToast('Pause playback to undo', document.getElementById('btn-undo'));
+      showToast('Mettez la lecture en pause pour annuler', document.getElementById('btn-undo'));
     } else {
       undo();
     }
   }
-  if ((e.key === 'Z' && e.shiftKey) || e.key === 'y') { e.preventDefault(); redo(); }
+  if ((keyLow === 'z' && e.shiftKey) || (keyLow === 'y' && !e.shiftKey)) {
+    e.preventDefault();
+    _flushPendingNudgeUndo();
+    redo();
+  }
 });
 
 // Projects modal
@@ -6565,6 +7528,9 @@ window.addEventListener('load', () => {
 
   // Init slider fills for dynamically added sliders
   document.querySelectorAll('input[type="range"]').forEach(updateSliderFill);
+  if (typeof _renderCameraPresetsDock === 'function') _renderCameraPresetsDock();
+  if (typeof _renderCameraKeyframesDock === 'function') _renderCameraKeyframesDock();
+  if (typeof _updateCameraDockPlayheadTime === 'function') _updateCameraDockPlayheadTime();
 
   // Patch initCanvas to sync topbar after size changes
   const origInitCanvas = window.initCanvas;
@@ -6715,6 +7681,7 @@ window.addEventListener('load', () => {
      ANIMATION ENGINE (external module)
 ════════════════════════════════════════════════════════════════════════ -->
 <script src="studio-core.js"></script>
+<script src="camera-core.js"></script>
 <script src="stickman-core.js"></script>
 <script src="studio-assets.js"></script>
 <script src="vendor/anime.min.js"></script>
@@ -6871,8 +7838,21 @@ function fitCanvas() {
   const styles = getComputedStyle(canvasArea);
   const padX = parseFloat(styles.paddingLeft || '0') + parseFloat(styles.paddingRight || '0');
   const padY = parseFloat(styles.paddingTop || '0') + parseFloat(styles.paddingBottom || '0');
+  const dockLeft = document.getElementById('cam-dock-left');
+  const dockRight = document.getElementById('cam-dock-right');
+  let docksReserveW = 0;
+  let gapCount = 0;
+  if (dockLeft && getComputedStyle(dockLeft).display !== 'none') {
+    docksReserveW += dockLeft.offsetWidth || 146;
+    gapCount++;
+  }
+  if (dockRight && getComputedStyle(dockRight).display !== 'none') {
+    docksReserveW += dockRight.offsetWidth || 146;
+    gapCount++;
+  }
+  const flexGap = parseFloat(styles.columnGap || styles.gap || '12') || 12;
   const safeMargin = 24;
-  const availableW = Math.max(160, canvasArea.clientWidth - padX - safeMargin);
+  const availableW = Math.max(160, canvasArea.clientWidth - padX - docksReserveW - gapCount * flexGap - safeMargin);
   const availableH = Math.max(160, canvasArea.clientHeight - padY - safeMargin);
   const s = Math.min(availableW/state.canvasW, availableH/state.canvasH, 1);
   const sw=(state.canvasW*s)+'px', sh=(state.canvasH*s)+'px';
@@ -7493,10 +8473,12 @@ function _allLayersDone() {
       }
     };
 
+    const activeSc = window.TimelineStudio?.getActiveScene?.();
+    const endResetEnabled = activeSc?.camera?.endResetToFull !== false;
     const startScale = state._camScale || 1;
     const startCX = state._camCX ?? (state.canvasW / 2);
     const startCY = state._camCY ?? (state.canvasH / 2);
-    if (startScale > 1.03 || Math.hypot(startCX - state.canvasW / 2, startCY - state.canvasH / 2) > 8) {
+    if (endResetEnabled && (Math.abs(startScale - 1) > 0.03 || Math.hypot(startCX - state.canvasW / 2, startCY - state.canvasH / 2) > 8)) {
       // Smoothly zoom out from the dynamic camera view to full canvas (1.0x)
       const baseSnapCvs = document.createElement('canvas');
       baseSnapCvs.width = state.canvasW;
@@ -7628,6 +8610,14 @@ function renderLayerList() {
 
   setupLayerDrag();
   refreshLayerSliderVisuals(list);
+  if (!list.dataset.hoverLeaveBound) {
+    list.dataset.hoverLeaveBound = '1';
+    list.addEventListener('mouseleave', () => clearLayerHoverFromList());
+  }
+  const activeSc = window.TimelineStudio?.getActiveScene?.();
+  if (typeof _hoverCandidate !== 'undefined' && _hoverCandidate && !_hoverCandidate.fromList && _hoverCandidate.kind === 'layer' && (!_hoverCandidate.sceneId || !activeSc || _hoverCandidate.sceneId === activeSc.id)) {
+    syncLayerListHoverHighlight(_hoverCandidate.id);
+  }
 }
 
 function _buildLayerItem(layer) {
@@ -7653,7 +8643,7 @@ function _buildLayerItem(layer) {
       <button class="layer-eye-btn${isHidden ? ' hidden' : ''}" onclick="event.stopPropagation();toggleLayerVisibility(${layer.id})" title="Toggle visibility">${eyeIcon}</button>
       <img class="layer-thumb" src="${layer.img.src}" alt="">
       <div style="flex:1;min-width:0">
-        <div class="layer-name" title="${layer.name}">${layer.name}</div>
+        <div class="layer-name" title="${layer.name}">${layer.name}${layer.camera?.enabled ? '<span class="layer-cam-badge" title="Caméra personnalisée définie">CAM</span>' : ''}</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0" onclick="event.stopPropagation()">
         <span style="font-size:9px;color:var(--muted)">Order</span>
@@ -7722,6 +8712,9 @@ function _buildLayerItem(layer) {
       _clickTimer = setTimeout(() => { _clickTimer = null; }, 400);
     }
   });
+
+  item.addEventListener('mouseenter', () => hoverLayerFromList(layer.id));
+  item.addEventListener('mouseleave', () => clearLayerHoverFromList(layer.id));
 
   return item;
 }
@@ -7956,101 +8949,548 @@ function onDragEnd(e) {
   redrawLayersOnCanvas();
 }
 
-// ── Redraw all layers composited on canvas ──
-function redrawLayersOnCanvas() {
-  const activeProduction = window.TimelineStudio?.getActiveScene?.()?.production;
-  if (window.TimelineStudio?.getActiveScene() && (
-    state.layers?.some(l => l.gsapEffect || l.svgMotion) ||
-    activeProduction?.tracks?.some(track => track.type === 'character' && track.visible !== false)
-  )) {
-    const scene = TimelineStudio.getActiveScene();
-    TimelineStudio.renderSceneCompositeToContext(_mainCtx, scene, Math.max(0, state.playheadTime - TimelineStudio.getSceneStartOffset(scene.id)), false);
+// ── Smart Canvas Rendering & Selection State ──
+const _hitProbeCvs = document.createElement('canvas');
+_hitProbeCvs.width = 1;
+_hitProbeCvs.height = 1;
+const _hitProbeCtx = _hitProbeCvs.getContext('2d', { willReadFrequently: true });
+let _hoverCandidate = null; // { kind: 'layer'|'stickman', id, name, sceneId, bounds, fromList, isHidden }
+let _layerListHoveredId = null;
+
+function syncLayerListHoverHighlight(layerId = null) {
+  const nextId = (layerId !== null && layerId !== undefined) ? String(layerId) : null;
+  const list = typeof document !== 'undefined' ? document.getElementById('layer-list') : null;
+  if (!list) {
+    _layerListHoveredId = nextId;
     return;
   }
+  _layerListHoveredId = nextId;
+  list.querySelectorAll('.layer-item.canvas-hovered').forEach(el => {
+    if (!nextId || el.dataset.id !== nextId) el.classList.remove('canvas-hovered');
+  });
+  list.querySelectorAll('.layer-group.canvas-hovered').forEach(grpEl => {
+    grpEl.classList.remove('canvas-hovered');
+  });
+  if (!nextId) return;
+  const targetEl = list.querySelector(`.layer-item[data-id="${nextId}"]`);
+  if (targetEl) {
+    targetEl.classList.add('canvas-hovered');
+    const parentGrp = targetEl.closest('.layer-group.collapsed');
+    if (parentGrp) parentGrp.classList.add('canvas-hovered');
+  }
+}
+
+function setSmartHoverCandidate(candidate) {
+  const cur = _hoverCandidate;
+  const same = (!cur && !candidate) || (
+    cur && candidate &&
+    cur.kind === candidate.kind &&
+    cur.id === candidate.id &&
+    cur.sceneId === candidate.sceneId &&
+    !!cur.fromList === !!candidate.fromList
+  );
+  _hoverCandidate = candidate || null;
+  const activeScene = window.TimelineStudio?.getActiveScene?.();
+  const shouldHighlightList = Boolean(
+    candidate &&
+    candidate.kind === 'layer' &&
+    !candidate.fromList &&
+    (!candidate.sceneId || !activeScene || candidate.sceneId === activeScene.id)
+  );
+  syncLayerListHoverHighlight(shouldHighlightList ? candidate.id : null);
+  if (!same && typeof drawSelectionHandles === 'function') {
+    drawSelectionHandles();
+  }
+}
+
+function hoverLayerFromList(layerId) {
+  if (state.playing || state.recording || (typeof _interact !== 'undefined' && _interact)) return;
+  const layer = typeof getLayerById === 'function' ? getLayerById(layerId) : (state.layers || []).find(l => l.id === layerId);
+  if (!layer) return;
+  const activeScene = window.TimelineStudio?.getActiveScene?.();
+  const localTime = activeScene ? _getSceneLocalTime(activeScene) : null;
+  const bounds = (typeof getLayerCanvasBounds === 'function' ? getLayerCanvasBounds(layer, localTime) : null) || {
+    x: layer.x, y: layer.y, w: layer.w, h: layer.h, rotation: layer.rotation || 0,
+  };
+  setSmartHoverCandidate({
+    kind: 'layer',
+    id: layer.id,
+    name: layer.name || '',
+    sceneId: activeScene?.id || null,
+    bounds,
+    fromList: true,
+    isHidden: layer.visible === false,
+  });
+}
+
+function clearLayerHoverFromList(layerId = null) {
+  if (!_hoverCandidate || !_hoverCandidate.fromList) return;
+  if (layerId !== null && layerId !== undefined && _hoverCandidate.id !== layerId) return;
+  setSmartHoverCandidate(null);
+}
+
+function _recordRenderedScene(sceneId, localTime = 0, secondarySceneId = null) {
+  window._inkLastRendered = {
+    sceneId: sceneId || null,
+    secondarySceneId: secondarySceneId || null,
+    localTime: Number.isFinite(localTime) ? localTime : 0,
+    ts: Date.now(),
+  };
+}
+
+function _getSceneLocalTime(scene) {
+  if (!scene) return 0;
+  if (!window.TimelineStudio?.getSceneStartOffset) return 0;
+  const start = window.TimelineStudio.getSceneStartOffset(scene.id);
+  const dur = Math.max(0.5, Number(scene.duration) || 5.0);
+  const raw = (state.playheadTime || 0) - start;
+  if (raw < 0 || raw > dur) return Math.max(0, Math.min(dur, raw));
+  return raw;
+}
+
+function _isPlayheadInsideScene(scene) {
+  if (!scene || !window.TimelineStudio?.getSceneStartOffset) return true;
+  const start = window.TimelineStudio.getSceneStartOffset(scene.id);
+  const dur = Math.max(0.5, Number(scene.duration) || 5.0);
+  const t = state.playheadTime || 0;
+  return t >= start - 0.02 && t <= start + dur + 0.02;
+}
+
+function getLayerCanvasBounds(layer, localTime = null) {
+  if (!layer) return null;
+  if (localTime !== null && window.StudioCore?.evaluate && ((layer.keyframes && layer.keyframes.length > 0) || layer.rotation !== undefined)) {
+    const ev = window.StudioCore.evaluate(layer, localTime);
+    return {
+      x: ev.x,
+      y: ev.y,
+      w: Math.max(4, ev.w || layer.w || 20),
+      h: Math.max(4, ev.h || layer.h || 20),
+      rotation: ev.rotation || 0,
+      opacity: ev.opacity ?? 1,
+      resizePct: ev.resizePct ?? 100,
+    };
+  }
+  return {
+    x: layer.x,
+    y: layer.y,
+    w: Math.max(4, layer.w || 20),
+    h: Math.max(4, layer.h || 20),
+    rotation: layer.rotation || 0,
+    opacity: layer.opacity ?? 1,
+    resizePct: layer.resizePct ?? 100,
+  };
+}
+
+function _toLayerLocalPoint(px, py, bounds) {
+  const rot = bounds?.rotation || 0;
+  if (!rot) return { x: px, y: py };
+  const cx = bounds.x + bounds.w / 2;
+  const cy = bounds.y + bounds.h / 2;
+  const rad = (-rot * Math.PI) / 180;
+  const cos = Math.cos(rad);
+  const sin = Math.sin(rad);
+  const dx = px - cx;
+  const dy = py - cy;
+  return { x: cx + dx * cos - dy * sin, y: cy + dx * sin + dy * cos };
+}
+
+function _isPointInsideBounds(px, py, bounds) {
+  if (!bounds) return false;
+  const pt = _toLayerLocalPoint(px, py, bounds);
+  return pt.x >= bounds.x && pt.x <= bounds.x + bounds.w && pt.y >= bounds.y && pt.y <= bounds.y + bounds.h;
+}
+
+function _isPointOpaqueOnLayerImage(px, py, layer, bounds) {
+  if (!layer?.img || !bounds || bounds.w <= 0 || bounds.h <= 0) return true;
+  const img = layer.img;
+  const iw = img.naturalWidth || img.width || 0;
+  const ih = img.naturalHeight || img.height || 0;
+  if (!iw || !ih) return true;
+  const pt = _toLayerLocalPoint(px, py, bounds);
+  const u = (pt.x - bounds.x) / bounds.w;
+  const v = (pt.y - bounds.y) / bounds.h;
+  if (u < 0 || u > 1 || v < 0 || v > 1) return false;
+  const sx = Math.min(iw - 1, Math.max(0, Math.floor(u * iw)));
+  const sy = Math.min(ih - 1, Math.max(0, Math.floor(v * ih)));
+  try {
+    _hitProbeCtx.clearRect(0, 0, 1, 1);
+    _hitProbeCtx.drawImage(img, sx, sy, 1, 1, 0, 0, 1, 1);
+    const alpha = _hitProbeCtx.getImageData(0, 0, 1, 1).data[3];
+    return alpha >= 10;
+  } catch (_) {
+    return true;
+  }
+}
+
+// ── Redraw all layers composited on canvas ──
+function redrawLayersOnCanvas() {
+  const activeScene = window.TimelineStudio?.getActiveScene?.();
+  const activeProduction = activeScene?.production;
+  const localT = activeScene ? _getSceneLocalTime(activeScene) : 0;
+  if (activeScene && (
+    state.layers?.some(l => l.gsapEffect || l.svgMotion || l.rotation || (l.keyframes && l.keyframes.length > 0)) ||
+    activeProduction?.tracks?.some(track => track.type === 'character' && track.visible !== false)
+  )) {
+    window.TimelineStudio.renderSceneCompositeToContext(_mainCtx, activeScene, localT, false);
+    _recordRenderedScene(activeScene.id, localT, null);
+    return;
+  }
+  if (activeScene) _recordRenderedScene(activeScene.id, localT, null);
   // Early exit if no layers to draw
   if (!state.layers || state.layers.length === 0) {
     fillBg(ctx);
     return;
   }
-  
+
   // Batch canvas operations for better performance
   ctx.save();
   fillBg(ctx);
-  
+
   state.layers.forEach(layer => {
     if (layer.visible === false) return;
     if (!layer.img) return; // Skip if image not loaded
     // Hide the layer being edited — the overlay textarea is the live preview
     if (_ts.active && _ts.editingId !== null && layer.id === _ts.editingId) return;
-    
+
     ctx.save();
     ctx.globalAlpha = (layer.opacity !== undefined) ? layer.opacity : 1;
-    
+
     // Use faster rendering for small images
     if (layer.w < 100 && layer.h < 100) {
       ctx.imageSmoothingEnabled = false;
     }
-    
+
     if (window.StudioUI) StudioUI.drawLayer(ctx, layer, { ...layer, trimPath: layer.trimPath ?? 100 });
     else ctx.drawImage(layer.img, layer.x, layer.y, layer.w, layer.h);
     ctx.restore();
   });
-  
+
   ctx.restore();
 }
 
 // ── Selection handles on selectCanvas ──
 const HANDLE_R = 6;
 let selectedStickmanTrackId = null;
-function getActiveStickmanTrack(id = selectedStickmanTrackId) {
-  const scene = window.TimelineStudio?.getActiveScene?.();
+function getActiveStickmanTrack(id = selectedStickmanTrackId, sceneOverride = null) {
+  const scene = sceneOverride || window.TimelineStudio?.getActiveScene?.();
   return scene?.production?.tracks?.find(track => track.id === id && track.type === 'character') || null;
 }
-function getStickmanCanvasBounds(track) {
-  const scene = window.TimelineStudio?.getActiveScene?.();
-  const time = scene && window.TimelineStudio ? Math.max(0, state.playheadTime - window.TimelineStudio.getSceneStartOffset(scene.id)) : 0;
+function getStickmanCanvasBounds(track, sceneOverride = null, localTimeOverride = null) {
+  const scene = sceneOverride || window.TimelineStudio?.getActiveScene?.();
+  const time = localTimeOverride !== null
+    ? localTimeOverride
+    : (scene && window.TimelineStudio ? Math.max(0, state.playheadTime - window.TimelineStudio.getSceneStartOffset(scene.id)) : 0);
   return window.StickmanProduction?.getTrackBounds?.(scene, track, time);
 }
 function renderActiveSceneImmediately() {
   const scene = window.TimelineStudio?.getActiveScene?.();
   if (!scene || !window.TimelineStudio?.renderSceneCompositeToContext) return;
-  const time = Math.max(0, state.playheadTime - window.TimelineStudio.getSceneStartOffset(scene.id));
+  const time = _getSceneLocalTime(scene);
   window.TimelineStudio.renderSceneCompositeToContext(_mainCtx, scene, time, false);
+  _recordRenderedScene(scene.id, time, null);
 }
-function drawSelectionHandles() {
-  sctx.clearRect(0,0,state.canvasW,state.canvasH);
-  const layer = getSelectedLayer();
-  if ((!layer && !getActiveStickmanTrack()) || state.playing) return;
-  const stickman = !layer ? getActiveStickmanTrack() : null;
-  const bounds = stickman ? getStickmanCanvasBounds(stickman) : layer;
+function _drawSelectionBox(bounds, isHover = false, hoverLabel = '', haloOnly = false) {
   if (!bounds) return;
-  const {x,y,w,h} = bounds;
+  const { x, y, w, h, rotation = 0 } = bounds;
+  const cx = x + w / 2;
+  const cy = y + h / 2;
   sctx.save();
+  if (rotation) {
+    sctx.translate(cx, cy);
+    sctx.rotate((rotation * Math.PI) / 180);
+    sctx.translate(-cx, -cy);
+  }
+  if (isHover) {
+    if (haloOnly) {
+      sctx.strokeStyle = 'rgba(108, 99, 255, 0.34)';
+      sctx.lineWidth = 6;
+      sctx.strokeRect(x - 3, y - 3, w + 6, h + 6);
+    } else {
+      sctx.fillStyle = 'rgba(108, 99, 255, 0.08)';
+      sctx.fillRect(x, y, w, h);
+      sctx.strokeStyle = 'rgba(108, 99, 255, 0.85)';
+      sctx.lineWidth = 1.75;
+      sctx.setLineDash([5, 3]);
+      sctx.strokeRect(x, y, w, h);
+      sctx.setLineDash([]);
+    }
+    if (hoverLabel) {
+      sctx.save();
+      sctx.font = '600 11px "DM Sans", system-ui, sans-serif';
+      const maxChars = 28;
+      const text = hoverLabel.length > maxChars ? hoverLabel.slice(0, maxChars - 1) + '…' : hoverLabel;
+      const padX = 7;
+      const tagW = Math.ceil(sctx.measureText(text).width) + padX * 2;
+      const tagH = 20;
+      const tagX = Math.max(4, Math.min(state.canvasW - tagW - 4, x));
+      const tagY = y >= tagH + 6 ? y - tagH - 4 : Math.min(state.canvasH - tagH - 4, y + 4);
+      sctx.fillStyle = '#5b52eb';
+      sctx.beginPath();
+      if (typeof sctx.roundRect === 'function') sctx.roundRect(tagX, tagY, tagW, tagH, 5);
+      else sctx.rect(tagX, tagY, tagW, tagH);
+      sctx.fill();
+      sctx.fillStyle = '#ffffff';
+      sctx.textBaseline = 'middle';
+      sctx.fillText(text, tagX + padX, tagY + tagH / 2);
+      sctx.restore();
+    }
+    sctx.restore();
+    return;
+  }
   // Selection rect
-  sctx.strokeStyle='#6c63ff';
-  sctx.lineWidth=2;
-  sctx.setLineDash([5,3]);
-  sctx.strokeRect(x,y,w,h);
+  sctx.strokeStyle = '#6c63ff';
+  sctx.lineWidth = 2;
+  sctx.setLineDash([5, 3]);
+  sctx.strokeRect(x, y, w, h);
   sctx.setLineDash([]);
   // Corner handles
-  const corners = [[x,y],[x+w,y],[x+w,y+h],[x,y+h]];
-  corners.forEach(([cx2,cy2])=>{
-    sctx.fillStyle='#6c63ff';
-    sctx.beginPath(); sctx.arc(cx2,cy2,HANDLE_R,0,Math.PI*2); sctx.fill();
-    sctx.strokeStyle='#fff'; sctx.lineWidth=1.5; sctx.stroke();
+  const corners = [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
+  corners.forEach(([cx2, cy2]) => {
+    sctx.fillStyle = '#6c63ff';
+    sctx.beginPath(); sctx.arc(cx2, cy2, HANDLE_R, 0, Math.PI * 2); sctx.fill();
+    sctx.strokeStyle = '#fff'; sctx.lineWidth = 1.5; sctx.stroke();
   });
   // Edge midpoint handles
-  const mids = [[x+w/2,y],[x+w,y+h/2],[x+w/2,y+h],[x,y+h/2]];
-  mids.forEach(([cx2,cy2])=>{
-    sctx.fillStyle='#fff';
-    sctx.beginPath(); sctx.arc(cx2,cy2,4,0,Math.PI*2); sctx.fill();
-    sctx.strokeStyle='#6c63ff'; sctx.lineWidth=1.5; sctx.stroke();
+  const mids = [[x + w / 2, y], [x + w, y + h / 2], [x + w / 2, y + h], [x, y + h / 2]];
+  mids.forEach(([cx2, cy2]) => {
+    sctx.fillStyle = '#fff';
+    sctx.beginPath(); sctx.arc(cx2, cy2, 4, 0, Math.PI * 2); sctx.fill();
+    sctx.strokeStyle = '#6c63ff'; sctx.lineWidth = 1.5; sctx.stroke();
   });
   sctx.restore();
 }
+let _cameraEdit = { active: false, layerId: null, sceneId: null, timelineKfId: null, previewing: false };
+let _activeSnapGuides = [];
 
-// ── Canvas pointer interaction: move + resize ──
-let _interact = null; // {type:'move'|'resize', corner, startX, startY, origLayer}
+function _getActiveSceneLocalTimeSafe() {
+  const activeSc = window.TimelineStudio?.getActiveScene?.();
+  if (!activeSc) return 0;
+  const start = window.TimelineStudio?.getSceneStartOffset?.(activeSc.id) || 0;
+  return Math.max(0, Math.min(Number(activeSc.duration) || 5.0, (state.playheadTime || 0) - start));
+}
+
+function _getEditableCameraTarget() {
+  if (!window.CameraCore) return null;
+  const activeSc = window.TimelineStudio?.getActiveScene?.();
+  const kfs = Array.isArray(activeSc?.cameraKeyframes) ? activeSc.cameraKeyframes : [];
+  if (_cameraEdit.timelineKfId && kfs.length) {
+    const exactKf = kfs.find(k => k.id === _cameraEdit.timelineKfId);
+    if (exactKf) {
+      return {
+        kind: 'keyframe',
+        scene: activeSc,
+        kf: exactKf,
+        cam: {
+          enabled: true,
+          cx: exactKf.cx,
+          cy: exactKf.cy,
+          zoom: exactKf.zoom,
+          transitionDur: exactKf.transitionDur,
+          easing: exactKf.easing || 'ease-in-out',
+        },
+      };
+    }
+  }
+  const camLayer = getLayerById(_cameraEdit.layerId) || getSelectedLayer();
+  if (camLayer && (!kfs.length || camLayer.camera?.enabled)) {
+    return {
+      kind: 'layer',
+      layer: camLayer,
+      cam: window.CameraCore.normalizeLayerCamera(
+        camLayer.camera,
+        state.canvasW,
+        state.canvasH,
+        camLayer.cameraZoom || state.cameraZoom || 1.8
+      ),
+    };
+  }
+  if (kfs.length) {
+    const lt = _getActiveSceneLocalTimeSafe();
+    let best = kfs.find(k => Math.abs(k.time - lt) <= 0.2);
+    if (!best) {
+      for (let i = kfs.length - 1; i >= 0; i--) {
+        if (kfs[i].time <= lt + 0.05) { best = kfs[i]; break; }
+      }
+      if (!best) best = kfs[0];
+    }
+    if (best) {
+      return {
+        kind: 'keyframe',
+        scene: activeSc,
+        kf: best,
+        cam: {
+          enabled: true,
+          cx: best.cx,
+          cy: best.cy,
+          zoom: best.zoom,
+          transitionDur: best.transitionDur,
+          easing: best.easing || 'ease-in-out',
+        },
+      };
+    }
+  }
+  if (camLayer) {
+    return {
+      kind: 'layer',
+      layer: camLayer,
+      cam: window.CameraCore.normalizeLayerCamera(
+        camLayer.camera,
+        state.canvasW,
+        state.canvasH,
+        camLayer.cameraZoom || state.cameraZoom || 1.8
+      ),
+    };
+  }
+  return null;
+}
+
+function _drawCameraFrameOverlay(target) {
+  if (!_cameraEdit.active || !target || !window.CameraCore) return;
+  const W = state.canvasW, H = state.canvasH;
+  const cam = target.cam || window.CameraCore.normalizeLayerCamera(
+    target.layer?.camera || target.kf,
+    W,
+    H,
+    target.layer?.cameraZoom || state.cameraZoom || 1.8
+  );
+  const rect = window.CameraCore.getCameraFrameRect(cam, W, H);
+  sctx.save();
+  // Dim exterior of camera viewport frame cleanly (even-odd rule)
+  sctx.fillStyle = 'rgba(15, 23, 42, 0.34)';
+  sctx.beginPath();
+  sctx.rect(0, 0, W, H);
+  sctx.rect(rect.x, rect.y, rect.w, rect.h);
+  sctx.fill('evenodd');
+
+  // Crisp indigo frame border
+  sctx.strokeStyle = '#6366f1';
+  sctx.lineWidth = 2.5;
+  sctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+
+  // Subtle rule-of-thirds interior lines
+  sctx.strokeStyle = 'rgba(99, 102, 241, 0.35)';
+  sctx.lineWidth = 1;
+  sctx.setLineDash([4, 4]);
+  for (let i = 1; i < 3; i++) {
+    sctx.beginPath();
+    sctx.moveTo(rect.x + rect.w * (i / 3), rect.y);
+    sctx.lineTo(rect.x + rect.w * (i / 3), rect.y + rect.h);
+    sctx.stroke();
+    sctx.beginPath();
+    sctx.moveTo(rect.x, rect.y + rect.h * (i / 3));
+    sctx.lineTo(rect.x + rect.w, rect.y + rect.h * (i / 3));
+    sctx.stroke();
+  }
+  sctx.setLineDash([]);
+
+  // Center reticle
+  sctx.strokeStyle = '#6366f1';
+  sctx.lineWidth = 1.5;
+  sctx.beginPath();
+  sctx.moveTo(cam.cx - 8, cam.cy); sctx.lineTo(cam.cx + 8, cam.cy);
+  sctx.moveTo(cam.cx, cam.cy - 8); sctx.lineTo(cam.cx, cam.cy + 8);
+  sctx.stroke();
+
+  // Corner zoom handles
+  const corners = [
+    [rect.x, rect.y],
+    [rect.x + rect.w, rect.y],
+    [rect.x + rect.w, rect.y + rect.h],
+    [rect.x, rect.y + rect.h],
+  ];
+  corners.forEach(([hx, hy]) => {
+    sctx.fillStyle = '#ffffff';
+    sctx.beginPath(); sctx.arc(hx, hy, HANDLE_R + 1, 0, Math.PI * 2); sctx.fill();
+    sctx.strokeStyle = '#6366f1'; sctx.lineWidth = 2; sctx.stroke();
+  });
+
+  // Compact viewport label pill at top-left of camera frame
+  const tag = `CAMÉRA · ${cam.zoom.toFixed(2)}x`;
+  sctx.font = '600 11px Geist, sans-serif';
+  const tw = sctx.measureText(tag).width + 14;
+  const lx = Math.max(6, Math.min(W - tw - 6, rect.x + 8));
+  const ly = Math.max(6, Math.min(H - 28, rect.y + 8));
+  sctx.fillStyle = '#4f46e5';
+  sctx.beginPath();
+  if (typeof sctx.roundRect === 'function') sctx.roundRect(lx, ly, tw, 20, 5);
+  else sctx.rect(lx, ly, tw, 20);
+  sctx.fill();
+  sctx.fillStyle = '#ffffff';
+  sctx.textBaseline = 'middle';
+  sctx.fillText(tag, lx + 7, ly + 10.5);
+  sctx.restore();
+}
+
+function _drawMagneticGuidesOverlay() {
+  if (!_activeSnapGuides.length) return;
+  sctx.save();
+  sctx.strokeStyle = '#06b6d4';
+  sctx.lineWidth = 1.25;
+  sctx.setLineDash([4, 3]);
+  for (const g of _activeSnapGuides) {
+    sctx.beginPath();
+    if (g.axis === 'x') {
+      sctx.moveTo(g.pos, g.start ?? 0);
+      sctx.lineTo(g.pos, g.end ?? state.canvasH);
+    } else {
+      sctx.moveTo(g.start ?? 0, g.pos);
+      sctx.lineTo(g.end ?? state.canvasW, g.pos);
+    }
+    sctx.stroke();
+  }
+  sctx.setLineDash([]);
+  sctx.restore();
+}
+
+function _hitTestCameraCorner(px, py, rect) {
+  if (!rect) return null;
+  const corners = [
+    { type: 'nw', cx: rect.x, cy: rect.y },
+    { type: 'ne', cx: rect.x + rect.w, cy: rect.y },
+    { type: 'se', cx: rect.x + rect.w, cy: rect.y + rect.h },
+    { type: 'sw', cx: rect.x, cy: rect.y + rect.h },
+  ];
+  for (const c of corners) {
+    if (Math.hypot(px - c.cx, py - c.cy) <= HANDLE_R * 2.4) return c.type;
+  }
+  return null;
+}
+
+function drawSelectionHandles() {
+  sctx.clearRect(0, 0, state.canvasW, state.canvasH);
+  if (state.playing) {
+    if (_hoverCandidate || _layerListHoveredId !== null) {
+      _hoverCandidate = null;
+      syncLayerListHoverHighlight(null);
+    }
+    return;
+  }
+  const activeScene = window.TimelineStudio?.getActiveScene?.();
+  const localTime = activeScene ? _getSceneLocalTime(activeScene) : null;
+  const layer = getSelectedLayer();
+  const stickman = !layer ? getActiveStickmanTrack(selectedStickmanTrackId, activeScene) : null;
+  const bounds = stickman
+    ? getStickmanCanvasBounds(stickman, activeScene, localTime)
+    : (layer ? getLayerCanvasBounds(layer, localTime) : null);
+
+  if (_hoverCandidate && _hoverCandidate.sceneId === activeScene?.id) {
+    const hoverMatchesSelected = (_hoverCandidate.kind === 'layer' && layer && _hoverCandidate.id === layer.id)
+      || (_hoverCandidate.kind === 'stickman' && stickman && _hoverCandidate.id === stickman.id);
+    if (!hoverMatchesSelected || _hoverCandidate.fromList) {
+      const lbl = _hoverCandidate.isHidden ? `${_hoverCandidate.name || ''} (masqué)` : (_hoverCandidate.name || '');
+      _drawSelectionBox(_hoverCandidate.bounds, true, lbl.trim(), hoverMatchesSelected);
+    }
+  }
+  if (bounds) _drawSelectionBox(bounds, false);
+  if (_cameraEdit.active) {
+    const camTarget = _getEditableCameraTarget();
+    if (camTarget) _drawCameraFrameOverlay(camTarget);
+  }
+  _drawMagneticGuidesOverlay();
+}
+
+// ── Canvas pointer interaction: move + resize + camera frame + magnetic guides ──
+let _interact = null; // {type:'move'|'resize'|'stickman-move'|'stickman-resize'|'cam-move'|'cam-resize', ...}
 let _scale = 1; // canvas CSS scale
 
 function getCanvasScale() {
@@ -8062,49 +9502,276 @@ function toCanvasCoords(e) {
   const s = state.canvasW / rect.width;
   return { x: (e.clientX - rect.left) * s, y: (e.clientY - rect.top) * s };
 }
-function hitTestHandle(px, py, layer) {
-  const {x,y,w,h} = layer;
+function hitTestHandle(px, py, bounds) {
+  if (!bounds) return null;
+  const pt = _toLayerLocalPoint(px, py, bounds);
+  const { x, y, w, h } = bounds;
   const handles = [
-    {type:'nw', cx:x,   cy:y},
-    {type:'ne', cx:x+w, cy:y},
-    {type:'se', cx:x+w, cy:y+h},
-    {type:'sw', cx:x,   cy:y+h},
-    {type:'n',  cx:x+w/2, cy:y},
-    {type:'e',  cx:x+w,   cy:y+h/2},
-    {type:'s',  cx:x+w/2, cy:y+h},
-    {type:'w',  cx:x,     cy:y+h/2},
+    { type: 'nw', cx: x,         cy: y },
+    { type: 'ne', cx: x + w,     cy: y },
+    { type: 'se', cx: x + w,     cy: y + h },
+    { type: 'sw', cx: x,         cy: y + h },
+    { type: 'n',  cx: x + w / 2, cy: y },
+    { type: 'e',  cx: x + w,     cy: y + h / 2 },
+    { type: 's',  cx: x + w / 2, cy: y + h },
+    { type: 'w',  cx: x,         cy: y + h / 2 },
   ];
   for (const h2 of handles) {
-    if (Math.hypot(px-h2.cx, py-h2.cy) <= HANDLE_R*2) return h2.type;
+    if (Math.hypot(pt.x - h2.cx, pt.y - h2.cy) <= HANDLE_R * 2) return h2.type;
+  }
+  return null;
+}
+function _handleCursorForType(handleType) {
+  if (!handleType) return 'default';
+  if (handleType === 'nw' || handleType === 'se') return 'nwse-resize';
+  if (handleType === 'ne' || handleType === 'sw') return 'nesw-resize';
+  if (handleType === 'n' || handleType === 's') return 'ns-resize';
+  if (handleType === 'e' || handleType === 'w') return 'ew-resize';
+  return 'nwse-resize';
+}
+function hitTestStickmanTrack(px, py, sceneOverride = null, localTimeOverride = null) {
+  const scene = sceneOverride || window.TimelineStudio?.getActiveScene?.();
+  const tracks = scene?.production?.tracks || [];
+  for (let i = tracks.length - 1; i >= 0; i--) {
+    const track = tracks[i];
+    if (track.type !== 'character' || track.visible === false || track.locked) continue;
+    const bounds = getStickmanCanvasBounds(track, scene, localTimeOverride);
+    if (bounds && px >= bounds.x && px <= bounds.x + bounds.w && py >= bounds.y && py <= bounds.y + bounds.h) return track;
+  }
+  return null;
+}
+function _collectSceneHitsAtPoint(px, py, scene, localTime, allowTimingFallback = true) {
+  if (!scene) return [];
+  const candidates = [];
+  const tracks = scene.production?.tracks || [];
+  for (let i = tracks.length - 1; i >= 0; i--) {
+    const track = tracks[i];
+    if (track.type !== 'character' || track.visible === false || track.locked) continue;
+    const bounds = getStickmanCanvasBounds(track, scene, localTime);
+    if (bounds && px >= bounds.x && px <= bounds.x + bounds.w && py >= bounds.y && py <= bounds.y + bounds.h) {
+      candidates.push({ kind: 'stickman', item: track, scene, localTime, bounds, opaque: true });
+    }
+  }
+  const layers = scene.id === state.activeSceneId ? (state.layers || scene.layers || []) : (scene.layers || []);
+  const checkLayersPass = (enforceTiming) => {
+    const found = [];
+    for (let i = layers.length - 1; i >= 0; i--) {
+      const l = layers[i];
+      if (!l || l.visible === false) continue;
+      if (enforceTiming && localTime !== null && l.inPoint !== undefined) {
+        const scDur = Math.max(0.5, Number(scene.duration) || 5.0);
+        const inPt = l.inPoint ?? 0;
+        const outPt = l.outPoint ?? scDur;
+        if (localTime < inPt - 0.02 || localTime > outPt + 0.02) continue;
+      }
+      const bounds = getLayerCanvasBounds(l, localTime);
+      if (!bounds || (bounds.opacity !== undefined && bounds.opacity <= 0.02)) continue;
+      if (_isPointInsideBounds(px, py, bounds)) {
+        const opaque = _isPointOpaqueOnLayerImage(px, py, l, bounds);
+        found.push({ kind: 'layer', item: l, scene, localTime, bounds, opaque });
+      }
+    }
+    return found;
+  };
+  let layerHits = checkLayersPass(true);
+  if (layerHits.length === 0 && allowTimingFallback) {
+    layerHits = checkLayersPass(false);
+  }
+  return candidates.concat(layerHits);
+}
+function resolveSmartCanvasHit(px, py, options = {}) {
+  const scenes = state.scenes || [];
+  const activeScene = window.TimelineStudio?.getActiveScene?.();
+  if (!scenes.length) {
+    const hits = _collectSceneHitsAtPoint(px, py, { id: null, duration: 5, layers: state.layers || [] }, null, true);
+    const opaque = hits.filter(h => h.opaque);
+    const list = opaque.length ? opaque : hits;
+    return list[0] ? { ...list[0], allCandidates: list } : null;
+  }
+
+  // Build ordered unique candidate scenes matching what can actually be visible on canvas
+  const orderedEntries = [];
+  const seenIds = new Set();
+  const pushScene = (sc, customLocalTime = null, allowFallback = true) => {
+    if (!sc || seenIds.has(sc.id)) return;
+    seenIds.add(sc.id);
+    const lt = customLocalTime !== null ? customLocalTime : _getSceneLocalTime(sc);
+    orderedEntries.push({ scene: sc, localTime: lt, allowFallback });
+  };
+
+  const lr = window._inkLastRendered;
+  if (lr?.secondarySceneId) {
+    const secSc = scenes.find(s => s.id === lr.secondarySceneId);
+    if (secSc) pushScene(secSc, 0, true);
+  }
+  if (lr?.sceneId) {
+    const lrSc = scenes.find(s => s.id === lr.sceneId);
+    if (lrSc) pushScene(lrSc, lr.localTime ?? _getSceneLocalTime(lrSc), true);
+  }
+  if (window.TimelineStudio?.getSceneAtGlobalTime) {
+    const info = window.TimelineStudio.getSceneAtGlobalTime(state.playheadTime || 0);
+    if (info?.scene) {
+      pushScene(info.scene, info.localTime, true);
+      const nextSc = scenes[info.index + 1];
+      const tr = info.scene.transitionOut || { type: 'cut', duration: 0.6 };
+      const trDur = (tr.type !== 'cut' && nextSc) ? Math.min(tr.duration || 0.6, info.scene.duration * 0.5) : 0;
+      if (trDur > 0 && info.localTime >= info.scene.duration - trDur && nextSc) {
+        pushScene(nextSc, 0, true);
+      }
+    }
+  }
+  if (activeScene) pushScene(activeScene, _getSceneLocalTime(activeScene), true);
+
+  for (const entry of orderedEntries) {
+    const hits = _collectSceneHitsAtPoint(px, py, entry.scene, entry.localTime, entry.allowFallback);
+    if (!hits.length) continue;
+    const opaqueHits = hits.filter(h => h.opaque);
+    const pool = opaqueHits.length ? opaqueHits : hits;
+    let chosen = pool[0];
+    if (options.altCycle && pool.length > 1) {
+      const curIdx = pool.findIndex(h =>
+        (h.kind === 'layer' && h.item.id === state.selectedLayerId) ||
+        (h.kind === 'stickman' && h.item.id === selectedStickmanTrackId)
+      );
+      if (curIdx >= 0) chosen = pool[(curIdx + 1) % pool.length];
+    }
+    return { ...chosen, allCandidates: pool };
   }
   return null;
 }
 function hitTestLayer(px, py) {
-  // Check from top (last) to bottom (first)
-  for (let i = state.layers.length-1; i >= 0; i--) {
-    const l = state.layers[i];
-    if (px >= l.x && px <= l.x+l.w && py >= l.y && py <= l.y+l.h) return l;
+  const hit = resolveSmartCanvasHit(px, py);
+  return hit && hit.kind === 'layer' ? hit.item : null;
+}
+
+function _pauseAllPlaybackForCanvasEdit() {
+  let paused = false;
+  if (window.TimelineStudio?.isPreviewPlaying?.()) {
+    window.TimelineStudio.pausePreviewAll();
+    paused = true;
   }
-  function hitTestStickmanTrack(px, py) {
-    const scene = window.TimelineStudio?.getActiveScene?.();
-    const tracks = scene?.production?.tracks || [];
-    for (let i = tracks.length - 1; i >= 0; i--) {
-      const track = tracks[i];
-      if (track.type !== 'character' || track.visible === false) continue;
-      const bounds = getStickmanCanvasBounds(track);
-      if (bounds && px >= bounds.x && px <= bounds.x + bounds.w && py >= bounds.y && py <= bounds.y + bounds.h) return track;
+  if (state.playing) {
+    state.playing = false;
+    cancelAnimationFrame(state.animFrame);
+    if (typeof updatePlayIcons === 'function') updatePlayIcons();
+    paused = true;
+  }
+  window.StudioEffects?.stopPreview?.(false);
+  return paused;
+}
+
+function _getKeyframeMoveMode(layer, localTime) {
+  const kfs = layer?.keyframes || [];
+  const hasPosKf = kfs.some(k => Number.isFinite(k.x) || Number.isFinite(k.y));
+  const hasScaleKf = kfs.some(k => Number.isFinite(k.resizePct));
+  return { hasPosKf, hasScaleKf, localTime };
+}
+
+function _applyInteractiveLayerEdit(sel, boundsOrig, dx, dy, handle, shiftKey, kfMode) {
+  if (!handle) {
+    const nx = boundsOrig.x + dx;
+    const ny = boundsOrig.y + dy;
+    if (kfMode?.hasPosKf && window.StudioCore?.put && kfMode.localTime !== null) {
+      window.StudioCore.put(sel, 'x', +kfMode.localTime.toFixed(3), Math.round(nx * 10) / 10);
+      window.StudioCore.put(sel, 'y', +kfMode.localTime.toFixed(3), Math.round(ny * 10) / 10);
+    } else {
+      sel.x = nx;
+      sel.y = ny;
     }
+    return;
+  }
+  let nx = boundsOrig.x, ny = boundsOrig.y, nw = boundsOrig.w, nh = boundsOrig.h;
+  if (handle.includes('e')) nw = Math.max(20, boundsOrig.w + dx);
+  if (handle.includes('s')) nh = Math.max(20, boundsOrig.h + dy);
+  if (handle.includes('w')) { nx = boundsOrig.x + dx; nw = Math.max(20, boundsOrig.w - dx); }
+  if (handle.includes('n')) { ny = boundsOrig.y + dy; nh = Math.max(20, boundsOrig.h - dy); }
+  if (shiftKey) {
+    const ar = boundsOrig.w / Math.max(1, boundsOrig.h);
+    if (nw / nh > ar) { nh = nw / ar; } else { nw = nh * ar; }
+  }
+  if (kfMode?.hasScaleKf && window.StudioCore?.put && kfMode.localTime !== null && sel.baseW > 0) {
+    const nextPct = Math.max(10, Math.min(1000, (nw / sel.baseW) * 100));
+    window.StudioCore.put(sel, 'resizePct', +kfMode.localTime.toFixed(3), Math.round(nextPct * 10) / 10);
+    if (kfMode.hasPosKf) {
+      window.StudioCore.put(sel, 'x', +kfMode.localTime.toFixed(3), Math.round(nx * 10) / 10);
+      window.StudioCore.put(sel, 'y', +kfMode.localTime.toFixed(3), Math.round(ny * 10) / 10);
+    } else {
+      sel.x = nx;
+      sel.y = ny;
+    }
+  } else {
+    sel.x = nx; sel.y = ny; sel.w = nw; sel.h = nh;
+  }
+}
+
+function _captureBeforeSnapSafe() {
+  if (_undoRestoring) return null;
+  try {
+    return window.TimelineStudio?.serializeProjectState?.(false) || null;
+  } catch (_) {
     return null;
   }
-  return null;
+}
+
+function _pushUndoWithBeforeSnap(label, beforeSnap) {
+  if (_undoRestoring || !beforeSnap || !window.TimelineStudio?.serializeProjectState) return;
+  const afterSnap = window.TimelineStudio.serializeProjectState(false);
+  window.CommandHistory?.pushCommand({
+    label: label || 'Edit',
+    undo() { window.TimelineStudio.deserializeProjectState(beforeSnap); },
+    redo() { window.TimelineStudio.deserializeProjectState(afterSnap); },
+    captureRedo() {
+      return {
+        label: label || 'Edit',
+        redo() { window.TimelineStudio.deserializeProjectState(afterSnap); },
+      };
+    },
+  });
+}
+
+function _getSiblingRectsForSnap(excludeLayerId, scene, localTime) {
+  const list = state.layers || scene?.layers || [];
+  const out = [];
+  for (const l of list) {
+    if (!l || l.id === excludeLayerId || l.visible === false) continue;
+    const b = getLayerCanvasBounds(l, localTime);
+    if (b && b.w > 0 && b.h > 0) out.push(b);
+  }
+  return out;
 }
 
 const wrapper = document.getElementById('canvas-wrapper');
 selectCanvas.style.pointerEvents = 'auto';
 
+selectCanvas.addEventListener('wheel', e => {
+  if (!_cameraEdit.active || state.recording || state.playing) return;
+  const target = _getEditableCameraTarget();
+  if (!target || !window.CameraCore) return;
+  e.preventDefault();
+  _flushPendingNudgeUndo();
+  const cur = target.cam;
+  const delta = e.deltaY < 0 ? 0.1 : -0.1;
+  const nextZoom = window.CameraCore.clamp(Math.round((cur.zoom + delta) * 100) / 100, 0.5, 4.0);
+  if (nextZoom === cur.zoom) return;
+  const beforeSnap = _captureBeforeSnapSafe();
+  if (target.kind === 'keyframe') {
+    target.kf.zoom = nextZoom;
+  } else {
+    target.layer.camera = { ...cur, enabled: true, zoom: nextZoom };
+    target.layer.cameraMode = 'custom';
+    target.layer.cameraZoom = nextZoom;
+  }
+  _pushUndoWithBeforeSnap('Zoom Camera Frame', beforeSnap);
+  syncExtraVideoScribeControls(target.layer || getSelectedLayer());
+  if (target.kind === 'keyframe') window.TimelineStudio?.renderTimeline?.();
+  drawSelectionHandles();
+  scheduleAutoSave();
+}, { passive: false });
+
 selectCanvas.addEventListener('mousedown', e => {
-  if (state.playing) return;
-  const {x,y} = toCanvasCoords(e);
+  if (e.button !== 0 || state.recording) return;
+  _flushPendingNudgeUndo();
+  const { x, y } = toCanvasCoords(e);
 
   // ── Text placement mode: click to open editor ──
   if (_ts.placing) {
@@ -8118,108 +9785,369 @@ selectCanvas.addEventListener('mousedown', e => {
     return;
   }
 
+  // Pause active playback cleanly so user can immediately grab & move any visible object
+  _pauseAllPlaybackForCanvasEdit();
+
+  // ── Interactive Camera Frame Edit mode (VideoScribe / InstaDoodle style) ──
+  if (_cameraEdit.active && window.CameraCore) {
+    const target = _getEditableCameraTarget();
+    if (target) {
+      const curCam = target.cam;
+      const camRect = window.CameraCore.getCameraFrameRect(curCam, state.canvasW, state.canvasH);
+      const corner = _hitTestCameraCorner(x, y, camRect);
+      if (corner) {
+        _interact = {
+          type: 'cam-resize',
+          handle: corner,
+          targetKind: target.kind,
+          kfId: target.kf?.id || null,
+          layerId: target.layer?.id || null,
+          startX: x,
+          startY: y,
+          origCam: { ...curCam },
+          origRect: { ...camRect },
+          beforeSnap: _captureBeforeSnapSafe(),
+        };
+        return;
+      }
+      if (x >= camRect.x && x <= camRect.x + camRect.w && y >= camRect.y && y <= camRect.y + camRect.h) {
+        _interact = {
+          type: 'cam-move',
+          targetKind: target.kind,
+          kfId: target.kf?.id || null,
+          layerId: target.layer?.id || null,
+          startX: x,
+          startY: y,
+          origCam: { ...curCam },
+          origRect: { ...camRect },
+          beforeSnap: _captureBeforeSnapSafe(),
+        };
+        return;
+      }
+    }
+  }
+
+  const activeScene = window.TimelineStudio?.getActiveScene?.();
+  const localTime = activeScene ? _getSceneLocalTime(activeScene) : null;
   const sel = getSelectedLayer();
 
-  // Check handle hit first
-  const selectedStickman = !sel ? getActiveStickmanTrack() : null;
+  // 1) Check handles of currently selected object first (resize always has priority)
+  const selectedStickman = !sel ? getActiveStickmanTrack(selectedStickmanTrackId, activeScene) : null;
   if (selectedStickman) {
-    const bounds = getStickmanCanvasBounds(selectedStickman);
+    const bounds = getStickmanCanvasBounds(selectedStickman, activeScene, localTime);
     const handle = bounds ? hitTestHandle(x, y, bounds) : null;
     if (handle) {
-      _interact = { type: 'stickman-resize', handle, startX: x, startY: y, orig: { ...(selectedStickman.transform || { x: 0, y: 0, scale: 1, rotation: 0 }) }, bounds };
-      return;
-    }
-    if (bounds && x >= bounds.x && x <= bounds.x + bounds.w && y >= bounds.y && y <= bounds.y + bounds.h) {
-      _interact = { type: 'stickman-move', startX: x, startY: y, orig: { ...(selectedStickman.transform || { x: 0, y: 0, scale: 1, rotation: 0 }) } };
+      _interact = {
+        type: 'stickman-resize',
+        handle,
+        startX: x,
+        startY: y,
+        orig: { ...(selectedStickman.transform || { x: 0, y: 0, scale: 1, rotation: 0 }) },
+        bounds,
+        beforeSnap: _captureBeforeSnapSafe(),
+      };
       return;
     }
   } else if (sel) {
-    const handle = hitTestHandle(x,y,sel);
+    const selBounds = getLayerCanvasBounds(sel, localTime);
+    const handle = hitTestHandle(x, y, selBounds);
     if (handle) {
-      _interact = {type:'resize', handle, startX:x, startY:y,
-        orig:{x:sel.x,y:sel.y,w:sel.w,h:sel.h}};
-      return;
-    }
-    if (x>=sel.x&&x<=sel.x+sel.w&&y>=sel.y&&y<=sel.y+sel.h) {
-      _interact = {type:'move', startX:x, startY:y, orig:{x:sel.x,y:sel.y,w:sel.w,h:sel.h}};
+      const kfMode = _getKeyframeMoveMode(sel, localTime);
+      _interact = {
+        type: 'resize',
+        handle,
+        startX: x,
+        startY: y,
+        orig: { x: sel.x, y: sel.y, w: sel.w, h: sel.h },
+        boundsOrig: selBounds,
+        kfMode,
+        beforeSnap: _captureBeforeSnapSafe(),
+      };
       return;
     }
   }
-  // Click to select a different layer
-  const stickmanHit = hitTestStickmanTrack(x, y);
-  const hit = hitTestLayer(x,y);
-  if (stickmanHit) { selectedStickmanTrackId = stickmanHit.id; state.selectedLayerId = null; renderLayerList(); drawSelectionHandles(); }
-  else if (hit) { selectedStickmanTrackId = null; selectLayer(hit.id); }
-  else { state.selectedLayerId = null; renderLayerList(); drawSelectionHandles(); }
+
+  // 2) Smart hit-test across visible objects & scenes (topmost opaque object wins)
+  const hit = resolveSmartCanvasHit(x, y, { altCycle: e.altKey });
+  if (hit) {
+    if (hit.scene && hit.scene.id && hit.scene.id !== state.activeSceneId && window.TimelineStudio?.switchToSceneForCanvasHit) {
+      window.TimelineStudio.switchToSceneForCanvasHit(hit.scene.id, hit.localTime);
+    }
+    const targetScene = window.TimelineStudio?.getActiveScene?.() || hit.scene;
+    const targetLocalTime = targetScene ? _getSceneLocalTime(targetScene) : hit.localTime;
+    if (hit.kind === 'stickman') {
+      selectedStickmanTrackId = hit.item.id;
+      state.selectedLayerId = null;
+      setSmartHoverCandidate(null);
+      renderLayerList();
+      drawSelectionHandles();
+      _interact = {
+        type: 'stickman-move',
+        startX: x,
+        startY: y,
+        orig: { ...(hit.item.transform || { x: 0, y: 0, scale: 1, rotation: 0 }) },
+        boundsOrig: getStickmanCanvasBounds(hit.item, targetScene, targetLocalTime),
+        beforeSnap: _captureBeforeSnapSafe(),
+      };
+      return;
+    }
+
+    selectedStickmanTrackId = null;
+    setSmartHoverCandidate(null);
+    if (state.selectedLayerId !== hit.item.id) {
+      selectLayer(hit.item.id);
+    } else {
+      drawSelectionHandles();
+    }
+    const liveSel = getLayerById(hit.item.id) || hit.item;
+    const selBounds = getLayerCanvasBounds(liveSel, targetLocalTime);
+    const kfMode = _getKeyframeMoveMode(liveSel, targetLocalTime);
+    _interact = {
+      type: 'move',
+      startX: x,
+      startY: y,
+      orig: { x: liveSel.x, y: liveSel.y, w: liveSel.w, h: liveSel.h },
+      boundsOrig: selBounds,
+      kfMode,
+      beforeSnap: _captureBeforeSnapSafe(),
+    };
+    return;
+  }
+
+  // 3) Clicked empty canvas background -> deselect cleanly
+  selectedStickmanTrackId = null;
+  state.selectedLayerId = null;
+  setSmartHoverCandidate(null);
+  renderLayerList();
+  drawSelectionHandles();
+  if (typeof syncSidebarToLayer === 'function') syncSidebarToLayer(null);
 });
 
 selectCanvas.addEventListener('mousemove', e => {
   if (state.playing) return;
-  const {x,y} = toCanvasCoords(e);
+  const { x, y } = toCanvasCoords(e);
+  const activeScene = window.TimelineStudio?.getActiveScene?.();
+  const localTime = activeScene ? _getSceneLocalTime(activeScene) : null;
   const sel = getSelectedLayer();
-  const stickman = !sel ? getActiveStickmanTrack() : null;
+  const stickman = !sel ? getActiveStickmanTrack(selectedStickmanTrackId, activeScene) : null;
+
   if (!_interact) {
-    // Cursor feedback
+    if (_ts.placing) {
+      selectCanvas.style.cursor = 'text';
+      return;
+    }
+    if (_cameraEdit.active && window.CameraCore) {
+      const target = _getEditableCameraTarget();
+      if (target) {
+        const curCam = target.cam;
+        const camRect = window.CameraCore.getCameraFrameRect(curCam, state.canvasW, state.canvasH);
+        const corner = _hitTestCameraCorner(x, y, camRect);
+        if (corner) {
+          selectCanvas.style.cursor = _handleCursorForType(corner);
+          return;
+        }
+        if (x >= camRect.x && x <= camRect.x + camRect.w && y >= camRect.y && y <= camRect.y + camRect.h) {
+          selectCanvas.style.cursor = 'move';
+          return;
+        }
+      }
+    }
+    // Check resize handles first for cursor feedback
     if (stickman) {
-      const bounds = getStickmanCanvasBounds(stickman);
+      const bounds = getStickmanCanvasBounds(stickman, activeScene, localTime);
       const handle = bounds ? hitTestHandle(x, y, bounds) : null;
-      selectCanvas.style.cursor = handle ? 'nwse-resize' : (bounds && x >= bounds.x && x <= bounds.x + bounds.w && y >= bounds.y && y <= bounds.y + bounds.h ? 'move' : 'default');
+      if (handle) {
+        selectCanvas.style.cursor = _handleCursorForType(handle);
+        if (_hoverCandidate) setSmartHoverCandidate(null);
+        return;
+      }
     } else if (sel) {
-      const handle = hitTestHandle(x,y,sel);
-      selectCanvas.style.cursor = handle ? 'nwse-resize' : (x>=sel.x&&x<=sel.x+sel.w&&y>=sel.y&&y<=sel.y+sel.h ? 'move' : 'default');
-    } else { selectCanvas.style.cursor = 'default'; }
+      const bounds = getLayerCanvasBounds(sel, localTime);
+      const handle = hitTestHandle(x, y, bounds);
+      if (handle) {
+        selectCanvas.style.cursor = _handleCursorForType(handle);
+        setSmartHoverCandidate({
+          kind: 'layer',
+          id: sel.id,
+          name: sel.name || '',
+          sceneId: activeScene?.id || null,
+          bounds,
+          fromList: false,
+        });
+        return;
+      }
+    }
+
+    const hoverHit = resolveSmartCanvasHit(x, y);
+    if (hoverHit) {
+      const isAlreadySelected = (hoverHit.kind === 'layer' && sel && hoverHit.item.id === sel.id && hoverHit.scene?.id === activeScene?.id)
+        || (hoverHit.kind === 'stickman' && stickman && hoverHit.item.id === stickman.id && hoverHit.scene?.id === activeScene?.id);
+      selectCanvas.style.cursor = isAlreadySelected ? 'move' : 'grab';
+      setSmartHoverCandidate({
+        kind: hoverHit.kind,
+        id: hoverHit.item.id,
+        name: hoverHit.item.name || hoverHit.item.label || '',
+        sceneId: hoverHit.scene?.id || null,
+        bounds: hoverHit.bounds,
+        fromList: false,
+      });
+    } else {
+      selectCanvas.style.cursor = 'default';
+      if (_hoverCandidate) {
+        setSmartHoverCandidate(null);
+      }
+    }
     return;
   }
-  if (!sel && !stickman) return;
+
   const dx = x - _interact.startX, dy = y - _interact.startY;
+  if (_interact.type === 'cam-move' || _interact.type === 'cam-resize') {
+    const activeSc = window.TimelineStudio?.getActiveScene?.();
+    const kfTarget = _interact.targetKind === 'keyframe'
+      ? (activeSc?.cameraKeyframes || []).find(k => k.id === _interact.kfId)
+      : null;
+    const camLayer = kfTarget ? null : (getLayerById(_interact.layerId) || sel);
+    if ((!kfTarget && !camLayer) || !window.CameraCore) return;
+    let nextPose;
+    if (_interact.type === 'cam-move') {
+      selectCanvas.style.cursor = 'grabbing';
+      nextPose = {
+        cx: _interact.origCam.cx + dx,
+        cy: _interact.origCam.cy + dy,
+        zoom: _interact.origCam.zoom,
+      };
+    } else {
+      selectCanvas.style.cursor = _handleCursorForType(_interact.handle);
+      const r0 = _interact.origRect;
+      const sxSign = _interact.handle.includes('w') ? -1 : 1;
+      const sySign = _interact.handle.includes('n') ? -1 : 1;
+      const ar = state.canvasW / state.canvasH;
+      const targetW = Math.max(state.canvasW / 4.0, Math.min(state.canvasW / 0.5, r0.w + dx * sxSign));
+      const targetHByY = Math.max(state.canvasH / 4.0, Math.min(state.canvasH / 0.5, r0.h + dy * sySign));
+      const chosenW = Math.abs(dx) >= Math.abs(dy * ar) ? targetW : targetHByY * ar;
+      const chosenH = chosenW / ar;
+      const nextRect = {
+        x: _interact.handle.includes('w') ? (r0.x + r0.w - chosenW) : r0.x,
+        y: _interact.handle.includes('n') ? (r0.y + r0.h - chosenH) : r0.y,
+        w: chosenW,
+        h: chosenH,
+      };
+      nextPose = window.CameraCore.cameraFromFrameRect(nextRect, state.canvasW, state.canvasH);
+    }
+    if (kfTarget) {
+      kfTarget.cx = nextPose.cx;
+      kfTarget.cy = nextPose.cy;
+      kfTarget.zoom = nextPose.zoom;
+      kfTarget.presetId = 'custom';
+      syncExtraVideoScribeControls(getSelectedLayer());
+    } else if (camLayer) {
+      camLayer.camera = { ..._interact.origCam, enabled: true, ...nextPose };
+      camLayer.cameraZoom = nextPose.zoom;
+      camLayer.cameraMode = 'custom';
+      syncExtraVideoScribeControls(camLayer);
+    }
+    drawSelectionHandles();
+    return;
+  }
+
+  if (!sel && !stickman) return;
+  selectCanvas.style.cursor = _interact.type === 'resize' || _interact.type === 'stickman-resize'
+    ? _handleCursorForType(_interact.handle)
+    : 'grabbing';
+
   if (_interact.type === 'stickman-move' || _interact.type === 'stickman-resize') {
     const transform = stickman.transform ||= { x: 0, y: 0, scale: 1, rotation: 0 };
     if (_interact.type === 'stickman-move') {
-      transform.x = _interact.orig.x + dx;
-      transform.y = _interact.orig.y + dy;
+      let ndx = dx, ndy = dy;
+      if (state.projectSettings.magneticSnap !== false && !e.altKey && _interact.boundsOrig && window.CameraCore?.computeMagneticSnap) {
+        const siblings = _getSiblingRectsForSnap(-1, activeScene, localTime);
+        const snap = window.CameraCore.computeMagneticSnap(
+          { ..._interact.boundsOrig, x: _interact.boundsOrig.x + dx, y: _interact.boundsOrig.y + dy },
+          siblings,
+          state.canvasW,
+          state.canvasH,
+          8
+        );
+        ndx = snap.x - _interact.boundsOrig.x;
+        ndy = snap.y - _interact.boundsOrig.y;
+        _activeSnapGuides = snap.guides;
+      } else {
+        _activeSnapGuides = [];
+      }
+      transform.x = _interact.orig.x + ndx;
+      transform.y = _interact.orig.y + ndy;
     } else {
+      _activeSnapGuides = [];
       const bounds = _interact.bounds;
       const radialStart = Math.max(1, Math.hypot(_interact.startX - (bounds.x + bounds.w / 2), _interact.startY - (bounds.y + bounds.h / 2)));
       const radialNow = Math.hypot(x - (bounds.x + bounds.w / 2), y - (bounds.y + bounds.h / 2));
       transform.scale = Math.max(.1, _interact.orig.scale * radialNow / radialStart);
     }
     renderActiveSceneImmediately();
-  } else if (_interact.type === 'move') {
-    sel.x = _interact.orig.x + dx;
-    sel.y = _interact.orig.y + dy;
-  } else {
-    // Resize
-    const o = _interact.orig;
-    let nx=o.x, ny=o.y, nw=o.w, nh=o.h;
-    const h2 = _interact.handle;
-    if (h2.includes('e')) nw = Math.max(20, o.w + dx);
-    if (h2.includes('s')) nh = Math.max(20, o.h + dy);
-    if (h2.includes('w')) { nx = o.x+dx; nw = Math.max(20, o.w-dx); }
-    if (h2.includes('n')) { ny = o.y+dy; nh = Math.max(20, o.h-dy); }
-    // Shift = constrain to original aspect ratio
-    if (e.shiftKey) {
-      const ar = o.w / o.h;
-      if (nw / nh > ar) { nh = nw / ar; } else { nw = nh * ar; }
-    }
-    sel.x=nx; sel.y=ny; sel.w=nw; sel.h=nh;
+    drawSelectionHandles();
+    return;
   }
-  if (!stickman) redrawLayersOnCanvas();
+
+  let effDx = dx, effDy = dy;
+  if (_interact.type === 'move' && state.projectSettings.magneticSnap !== false && !e.altKey && window.CameraCore?.computeMagneticSnap) {
+    const b0 = _interact.boundsOrig || _interact.orig;
+    const siblings = _getSiblingRectsForSnap(sel.id, activeScene, localTime);
+    const snap = window.CameraCore.computeMagneticSnap(
+      { x: b0.x + dx, y: b0.y + dy, w: b0.w, h: b0.h },
+      siblings,
+      state.canvasW,
+      state.canvasH,
+      8
+    );
+    effDx = snap.x - b0.x;
+    effDy = snap.y - b0.y;
+    _activeSnapGuides = snap.guides;
+  } else {
+    _activeSnapGuides = [];
+  }
+
+  _applyInteractiveLayerEdit(
+    sel,
+    _interact.boundsOrig || _interact.orig,
+    effDx,
+    effDy,
+    _interact.type === 'resize' ? _interact.handle : null,
+    e.shiftKey,
+    _interact.kfMode
+  );
+  redrawLayersOnCanvas();
   drawSelectionHandles();
+  if (window.StudioUI) StudioUI.updateTrackValues();
   // Update input fields in layer settings
-  ['x','y','w','h'].forEach(p=>{
+  const liveBounds = getLayerCanvasBounds(sel, localTime);
+  ['x', 'y', 'w', 'h'].forEach(p => {
     const inp = document.querySelector(`#ls-${sel.id} input[onchange*="'${p}'"]`);
-    if(inp) inp.value = Math.round(sel[p]);
+    if (inp && liveBounds) inp.value = Math.round(liveBounds[p]);
   });
+});
+
+selectCanvas.addEventListener('mouseleave', () => {
+  if (!_interact && _hoverCandidate && !_hoverCandidate.fromList) {
+    selectCanvas.style.cursor = 'default';
+    setSmartHoverCandidate(null);
+  }
 });
 
 // Double-click a text layer on canvas to re-edit it
 selectCanvas.addEventListener('dblclick', e => {
-  if (state.playing || _ts.placing) return;
-  const {x,y} = toCanvasCoords(e);
-  const hit = hitTestLayer(x, y);
-  if (hit && hit.kind === 'text') {
-    switchTab('text');
-    openTextEditor(hit.x, hit.y, hit);
+  if (_ts.placing || state.recording) return;
+  _pauseAllPlaybackForCanvasEdit();
+  const { x, y } = toCanvasCoords(e);
+  const hit = resolveSmartCanvasHit(x, y);
+  if (hit && hit.kind === 'layer') {
+    if (hit.scene && hit.scene.id && hit.scene.id !== state.activeSceneId && window.TimelineStudio?.switchToSceneForCanvasHit) {
+      window.TimelineStudio.switchToSceneForCanvasHit(hit.scene.id, hit.localTime);
+    }
+    const targetLayer = getLayerById(hit.item.id) || hit.item;
+    if (targetLayer.kind === 'text') {
+      switchTab('text');
+      openTextEditor(targetLayer.x, targetLayer.y, targetLayer);
+    }
   }
 });
 
@@ -8229,24 +10157,59 @@ document.addEventListener('mouseup', () => {
   const stickman = !sel ? getActiveStickmanTrack() : null;
   const wasInteract = _interact.type;
   const orig = _interact.orig;
+  const kfMode = _interact.kfMode;
+  const beforeSnap = _interact.beforeSnap;
+  const origCam = _interact.origCam;
+  const interactLayerId = _interact.layerId;
   _interact = null;
-  if (sel) {
-    // Only push snapshot if position/size actually changed
-    const changed = wasInteract === 'stickman-resize' || wasInteract === 'stickman-move'
-      ? true
-      : wasInteract === 'resize'
-      ? (sel.x !== orig.x || sel.y !== orig.y || sel.w !== orig.w || sel.h !== orig.h)
-      : (sel.x !== orig.x || sel.y !== orig.y);
-    if (changed) pushUndoSnapshot();
-    if (wasInteract === 'stickman-resize' || wasInteract === 'stickman-move') {
-      window.TimelineStudio?.renderTimeline?.();
+  _activeSnapGuides = [];
+  selectCanvas.style.cursor = 'default';
+  if (wasInteract === 'cam-move' || wasInteract === 'cam-resize') {
+    const activeSc = window.TimelineStudio?.getActiveScene?.();
+    const kfTarget = _interact?.targetKind === 'keyframe'
+      ? (activeSc?.cameraKeyframes || []).find(k => k.id === _interact.kfId)
+      : null;
+    const camLayer = kfTarget ? null : (getLayerById(interactLayerId) || sel);
+    const camChanged = kfTarget
+      ? (kfTarget.cx !== origCam?.cx || kfTarget.cy !== origCam?.cy || kfTarget.zoom !== origCam?.zoom)
+      : (camLayer && origCam && (
+          camLayer.camera?.cx !== origCam.cx ||
+          camLayer.camera?.cy !== origCam.cy ||
+          camLayer.camera?.zoom !== origCam.zoom ||
+          !origCam.enabled
+        ));
+    if (camChanged) {
+      _pushUndoWithBeforeSnap(wasInteract === 'cam-resize' ? 'Zoom Camera' : 'Pan Camera', beforeSnap);
+      renderLayerList();
+      if (kfTarget) window.TimelineStudio?.renderTimeline?.();
       scheduleAutoSave();
-    } else if (wasInteract === 'resize') {
-      syncLayerResizeFromCurrentSize(sel);
+    }
+    drawSelectionHandles();
+    return;
+  }
+  if (stickman && (wasInteract === 'stickman-resize' || wasInteract === 'stickman-move')) {
+    const tr = stickman.transform || {};
+    const changed = tr.x !== orig.x || tr.y !== orig.y || tr.scale !== orig.scale;
+    if (changed) _pushUndoWithBeforeSnap(wasInteract === 'stickman-resize' ? 'Resize Character' : 'Move Character', beforeSnap);
+    window.TimelineStudio?.renderTimeline?.();
+    drawSelectionHandles();
+    scheduleAutoSave();
+  } else if (sel) {
+    const changed = wasInteract === 'resize'
+      ? (sel.x !== orig.x || sel.y !== orig.y || sel.w !== orig.w || sel.h !== orig.h || kfMode?.hasScaleKf)
+      : (sel.x !== orig.x || sel.y !== orig.y || kfMode?.hasPosKf);
+    if (changed) {
+      _pushUndoWithBeforeSnap(wasInteract === 'resize' ? 'Resize Layer' : 'Move Layer', beforeSnap);
+    }
+    if (wasInteract === 'resize') {
+      if (!kfMode?.hasScaleKf) syncLayerResizeFromCurrentSize(sel);
       renderLayerList();
       drawSelectionHandles();
+      if (kfMode?.hasPosKf || kfMode?.hasScaleKf) window.TimelineStudio?.renderTimeline?.();
       scheduleAutoSave();
     } else {
+      drawSelectionHandles();
+      if (kfMode?.hasPosKf) window.TimelineStudio?.renderTimeline?.();
       scheduleAutoSave();
     }
   }
@@ -9216,11 +11179,264 @@ function _fillGapsCanvas(src) {
 
 const _OUTLINE_ANIM_MODES = new Set(['outlinefill','illustfill','outlineonly','spec-text']);
 
+
 const _CAMERA_MODE_HINTS = {
-  'static':      'Standard locked camera view showing the entire whiteboard canvas.',
-  'follow-hand': 'Dynamic Camera: zooms in tightly and pans automatically to follow the pen tip while drawing, then zooms out to reveal the full picture.',
-  'pan-to-next': 'Infinite Canvas Pan: smoothly pans across the whiteboard to frame each new element in sequence, then zooms out at the end.',
+  'static':      'Vue globale standard montrant l’ensemble du tableau blanc.',
+  'follow-hand': 'Caméra dynamique qui zoome et suit la pointe du crayon pendant le dessin.',
+  'pan-to-next': 'Travelling automatique entre chaque élément de la scène avant un dézoom final.',
+  'custom':      'Cadrage personnalisé (VideoScribe / InstaDoodle) : utilisez les poignées ou la molette sur le canvas pour cadrer exactement cet élément.',
 };
+
+function _presetMiniSvg(presetId) {
+  const box = (x, y, w, h) => `<rect x="1.5" y="1.5" width="19" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-opacity="0.32" stroke-width="1"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="1.3"/>`;
+  switch (presetId) {
+    case 'wide':        return `<svg width="20" height="13" viewBox="0 0 22 14">${box(2.5, 2.5, 17, 9)}</svg>`;
+    case 'focus-layer': return `<svg width="20" height="13" viewBox="0 0 22 14">${box(5.5, 3.2, 11, 7.6)}<circle cx="11" cy="7" r="1.3" fill="currentColor"/></svg>`;
+    case 'zoom-soft':   return `<svg width="20" height="13" viewBox="0 0 22 14">${box(4.5, 3, 13, 8)}</svg>`;
+    case 'closeup':     return `<svg width="20" height="13" viewBox="0 0 22 14">${box(6.5, 4, 9, 6)}</svg>`;
+    case 'macro':       return `<svg width="20" height="13" viewBox="0 0 22 14">${box(8, 4.8, 6, 4.4)}</svg>`;
+    case 'corner-nw':   return `<svg width="20" height="13" viewBox="0 0 22 14">${box(2.5, 2.2, 8.5, 5.2)}</svg>`;
+    case 'corner-ne':   return `<svg width="20" height="13" viewBox="0 0 22 14">${box(11, 2.2, 8.5, 5.2)}</svg>`;
+    case 'corner-sw':   return `<svg width="20" height="13" viewBox="0 0 22 14">${box(2.5, 6.6, 8.5, 5.2)}</svg>`;
+    case 'corner-se':   return `<svg width="20" height="13" viewBox="0 0 22 14">${box(11, 6.6, 8.5, 5.2)}</svg>`;
+    case 'push-in':     return `<svg width="20" height="13" viewBox="0 0 22 14">${box(6.5, 4, 9, 6)}<path d="M2 2l3.5 2.5M20 2l-3.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`;
+    case 'pan-lr':      return `<svg width="20" height="13" viewBox="0 0 22 14">${box(3, 3.5, 7, 7)}<path d="M11.5 7h7m0 0-2-2m2 2-2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    case 'reset-out':   return `<svg width="20" height="13" viewBox="0 0 22 14">${box(2.5, 2.5, 17, 9)}<path d="M7.5 5.5L5 3.5M14.5 8.5L17 10.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>`;
+    default:            return `<svg width="20" height="13" viewBox="0 0 22 14">${box(4.5, 3, 13, 8)}</svg>`;
+  }
+}
+
+function _renderCameraPresetsDock() {
+  const grid = document.getElementById('cam-preset-grid');
+  if (!grid || !window.CameraCore?.CAMERA_PRESETS) return;
+  grid.innerHTML = window.CameraCore.CAMERA_PRESETS.map(p => `
+    <button type="button" class="cam-preset-btn" data-preset="${p.id}" onclick="applyCameraPresetAtPlayhead('${p.id}')" title="${p.desc}">
+      ${_presetMiniSvg(p.id)}
+      <span class="cam-preset-lbl">${p.label}</span>
+    </button>
+  `).join('');
+}
+
+function _updateCameraDockPlayheadTime() {
+  const badge = document.getElementById('cam-dock-time-badge');
+  if (badge) badge.textContent = `@ ${_getActiveSceneLocalTimeSafe().toFixed(1)}s`;
+}
+
+function _findActiveTimelineKeyframeAtPlayhead(scene) {
+  const kfs = scene?.cameraKeyframes || [];
+  if (!kfs.length) return null;
+  if (_cameraEdit.timelineKfId) {
+    const m = kfs.find(k => k.id === _cameraEdit.timelineKfId);
+    if (m) return m;
+  }
+  const lt = _getActiveSceneLocalTimeSafe();
+  return kfs.find(k => Math.abs(k.time - lt) <= 0.2) || null;
+}
+
+function _renderCameraKeyframesDock() {
+  const listEl = document.getElementById('cam-dock-keyframes-list');
+  const countEl = document.getElementById('cam-kf-count');
+  if (!listEl) return;
+  const sc = window.TimelineStudio?.getActiveScene?.();
+  const kfs = Array.isArray(sc?.cameraKeyframes) ? sc.cameraKeyframes : [];
+  if (countEl) countEl.textContent = String(kfs.length);
+
+  // Highlight matching preset button at playhead
+  const activeKf = _findActiveTimelineKeyframeAtPlayhead(sc);
+  document.querySelectorAll('#cam-preset-grid .cam-preset-btn').forEach(btn => {
+    btn.classList.toggle('active', !!(activeKf && btn.dataset.preset === activeKf.presetId));
+  });
+
+  if (!kfs.length) {
+    listEl.innerHTML = `<div class="cam-kf-empty">Placez la tête de lecture et cliquez sur un preset ci-dessus.</div>`;
+    return;
+  }
+
+  const lt = _getActiveSceneLocalTimeSafe();
+  listEl.innerHTML = '';
+  kfs.forEach(kf => {
+    const isNear = Math.abs(kf.time - lt) <= 0.16 || _cameraEdit.timelineKfId === kf.id;
+    const row = document.createElement('div');
+    row.className = 'cam-kf-chip' + (isNear ? ' active' : '');
+    row.title = `${kf.label} · Zoom ${Number(kf.zoom || 1).toFixed(2)}× (${kf.transitionDur}s)`;
+    row.innerHTML = `
+      <span class="cam-kf-chip-t">${Number(kf.time).toFixed(1)}s</span>
+      <span class="cam-kf-chip-name">${kf.label} (${Number(kf.zoom || 1).toFixed(1)}×)</span>
+      <button type="button" class="cam-kf-chip-del" title="Supprimer cette clé">✕</button>
+    `;
+    row.addEventListener('click', (ev) => {
+      if (ev.target.closest('.cam-kf-chip-del')) return;
+      jumpToCameraKeyframe(kf.id);
+    });
+    row.querySelector('.cam-kf-chip-del').addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      deleteCameraKeyframe(kf.id);
+    });
+    listEl.appendChild(row);
+  });
+}
+
+function toggleCameraDocks(forceCollapsed = null) {
+  const left = document.getElementById('cam-dock-left');
+  const right = document.getElementById('cam-dock-right');
+  const btn = document.getElementById('btn-cam-docks-toggle');
+  const nextCollapsed = typeof forceCollapsed === 'boolean'
+    ? forceCollapsed
+    : !(left?.classList.contains('collapsed') && right?.classList.contains('collapsed'));
+  [left, right].forEach((el, idx) => {
+    if (!el) return;
+    el.classList.toggle('collapsed', nextCollapsed);
+    const fold = el.querySelector('.cam-dock-fold-btn');
+    if (fold) fold.textContent = idx === 0 ? (nextCollapsed ? '›' : '‹') : (nextCollapsed ? '‹' : '›');
+  });
+  if (btn) btn.classList.toggle('active', !nextCollapsed);
+  if (typeof fitCanvas === 'function') {
+    fitCanvas();
+    setTimeout(fitCanvas, 180);
+  }
+}
+
+function applyCameraPresetAtPlayhead(presetId) {
+  const sc = window.TimelineStudio?.getActiveScene?.();
+  if (!sc || !window.CameraCore) return;
+  _pauseAllPlaybackForCanvasEdit();
+  const lt = _getActiveSceneLocalTimeSafe();
+  const trSlider = document.getElementById('camera-trans-slider');
+  const trDur = Number(trSlider?.value) || 0.7;
+  const shots = window.CameraCore.buildCameraShotsFromPreset(presetId, {
+    canvasW: state.canvasW,
+    canvasH: state.canvasH,
+    sceneDuration: sc.duration,
+    localTime: lt,
+    layer: getSelectedLayer(),
+    transitionDur: trDur,
+  });
+  if (!shots.length) return;
+
+  pushUndoSnapshot(`Preset Caméra (${shots[0].label})`);
+  if (!Array.isArray(sc.cameraKeyframes)) sc.cameraKeyframes = [];
+  let primaryId = null;
+
+  shots.forEach((shot, idx) => {
+    const existing = sc.cameraKeyframes.find(k => Math.abs(k.time - shot.time) <= 0.12);
+    if (existing) {
+      Object.assign(existing, {
+        presetId: shot.presetId,
+        label: shot.label,
+        cx: shot.cx,
+        cy: shot.cy,
+        zoom: shot.zoom,
+        transitionDur: shot.transitionDur,
+        easing: shot.easing,
+      });
+      if (idx === 0) primaryId = existing.id;
+    } else {
+      const id = 'camkf-' + Date.now().toString(36) + '-' + idx + '-' + Math.random().toString(36).slice(2, 5);
+      sc.cameraKeyframes.push({ id, ...shot });
+      if (idx === 0) primaryId = id;
+    }
+  });
+
+  sc.cameraKeyframes = window.CameraCore.normalizeSceneCameraKeyframes(
+    sc.cameraKeyframes,
+    sc.duration,
+    state.canvasW,
+    state.canvasH
+  );
+  _cameraEdit = { active: false, layerId: null, sceneId: sc.id, timelineKfId: primaryId, previewing: false };
+  renderActiveSceneImmediately();
+  syncExtraVideoScribeControls(getSelectedLayer());
+  window.TimelineStudio?.renderTimeline?.();
+  drawSelectionHandles();
+  scheduleAutoSave();
+  showToast(`Caméra « ${shots[0].label} » appliquée à ${lt.toFixed(1)}s`);
+}
+
+function captureCameraKeyframeAtPlayhead() {
+  const sc = window.TimelineStudio?.getActiveScene?.();
+  if (!sc || !window.CameraCore) return;
+  _pauseAllPlaybackForCanvasEdit();
+  const lt = _getActiveSceneLocalTimeSafe();
+  const ordered = (sc.layers || []).filter(l => l && l.visible !== false);
+  const sel = getSelectedLayer();
+  let pose;
+  if (_cameraEdit.active) {
+    const t = _getEditableCameraTarget();
+    if (t?.cam) pose = t.cam;
+  }
+  if (!pose) {
+    pose = window.CameraCore.evaluateSceneCameraAtTime(
+      sc, lt, ordered, state.canvasW, state.canvasH,
+      { defaultCameraMode: state.cameraMode, defaultCameraZoom: state.cameraZoom }
+    );
+  }
+  if ((!pose || !pose.active) && sel) {
+    pose = window.CameraCore.computeAutoFrameForLayer(sel, state.canvasW, state.canvasH, 1.38);
+  }
+  const zoom = window.CameraCore.clamp(Number(pose?.zoom) || state.cameraZoom || 1.5, 0.5, 4.0);
+  const cx = Number.isFinite(Number(pose?.cx)) ? Number(pose.cx) : state.canvasW / 2;
+  const cy = Number.isFinite(Number(pose?.cy)) ? Number(pose.cy) : state.canvasH / 2;
+  const trDur = Number(document.getElementById('camera-trans-slider')?.value) || 0.7;
+
+  pushUndoSnapshot('Ajouter Clé Caméra');
+  if (!Array.isArray(sc.cameraKeyframes)) sc.cameraKeyframes = [];
+  const existing = sc.cameraKeyframes.find(k => Math.abs(k.time - lt) <= 0.12);
+  let targetId;
+  if (existing) {
+    existing.cx = cx;
+    existing.cy = cy;
+    existing.zoom = zoom;
+    existing.transitionDur = trDur;
+    targetId = existing.id;
+  } else {
+    targetId = 'camkf-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 5);
+    sc.cameraKeyframes.push({
+      id: targetId,
+      time: Number(lt.toFixed(2)),
+      presetId: 'custom',
+      label: sel?.name ? `Plan · ${sel.name}` : `Plan ${zoom.toFixed(1)}×`,
+      cx,
+      cy,
+      zoom,
+      transitionDur: trDur,
+      easing: 'ease-in-out',
+    });
+  }
+  sc.cameraKeyframes = window.CameraCore.normalizeSceneCameraKeyframes(sc.cameraKeyframes, sc.duration, state.canvasW, state.canvasH);
+  _cameraEdit.timelineKfId = targetId;
+  renderActiveSceneImmediately();
+  syncExtraVideoScribeControls(sel);
+  window.TimelineStudio?.renderTimeline?.();
+  drawSelectionHandles();
+  scheduleAutoSave();
+  showToast(`Clé caméra ajoutée à ${lt.toFixed(1)}s`);
+}
+
+function jumpToCameraKeyframe(kfId) {
+  const sc = window.TimelineStudio?.getActiveScene?.();
+  if (!sc || !Array.isArray(sc.cameraKeyframes)) return;
+  const kf = sc.cameraKeyframes.find(k => k.id === kfId);
+  if (!kf) return;
+  const scStart = window.TimelineStudio?.getSceneStartOffset?.(sc.id) || 0;
+  _cameraEdit.timelineKfId = kf.id;
+  window.TimelineStudio?.seekToGlobalTime?.(scStart + kf.time, false);
+  syncExtraVideoScribeControls(getSelectedLayer());
+}
+
+function deleteCameraKeyframe(kfId) {
+  const sc = window.TimelineStudio?.getActiveScene?.();
+  if (!sc || !Array.isArray(sc.cameraKeyframes)) return;
+  const idx = sc.cameraKeyframes.findIndex(k => k.id === kfId);
+  if (idx === -1) return;
+  pushUndoSnapshot('Supprimer Clé Caméra');
+  sc.cameraKeyframes.splice(idx, 1);
+  if (_cameraEdit.timelineKfId === kfId) _cameraEdit.timelineKfId = null;
+  renderActiveSceneImmediately();
+  syncExtraVideoScribeControls(getSelectedLayer());
+  window.TimelineStudio?.renderTimeline?.();
+  drawSelectionHandles();
+  scheduleAutoSave();
+}
 
 function syncExtraVideoScribeControls(layer) {
   const anim = (layer && layer.animStyle) || state.animStyle || 'chunkjump';
@@ -9235,24 +11451,71 @@ function syncExtraVideoScribeControls(layer) {
   const outSel = document.getElementById('layer-out-anim-select');
   if (outSel) outSel.value = outAnim;
 
-  const camMode = (layer && layer.cameraMode) || state.cameraMode || 'static';
-  const camZoom = (layer && layer.cameraZoom) || state.cameraZoom || 1.8;
+  const activeSc = window.TimelineStudio?.getActiveScene?.();
+  const activeKf = _findActiveTimelineKeyframeAtPlayhead(activeSc);
+  const hasCustomCam = !!(activeKf || (layer && layer.camera?.enabled));
+  const camMode = hasCustomCam ? 'custom' : ((layer && layer.cameraMode) || state.cameraMode || 'static');
+  const camZoom = activeKf
+    ? (activeKf.zoom || 1.0)
+    : ((layer && layer.camera?.enabled) ? (layer.camera.zoom || 1.8) : ((layer && layer.cameraZoom) || state.cameraZoom || 1.8));
+  const camTransDur = activeKf
+    ? (activeKf.transitionDur || 0.7)
+    : ((layer && layer.camera?.enabled) ? (layer.camera.transitionDur || 0.7) : 0.7);
+
   const camSel = document.getElementById('camera-mode-select');
   if (camSel) camSel.value = camMode;
   document.querySelectorAll('#camera-mode-grid .anim-opt').forEach(el => {
     el.classList.toggle('selected', el.dataset.cam === camMode);
   });
+  document.querySelectorAll('#cam-dock-mode-grid .cam-dock-chip-btn').forEach(el => {
+    el.classList.toggle('active', el.dataset.cam === camMode);
+  });
+
   const camOpts = document.getElementById('camera-zoom-opts');
   if (camOpts) camOpts.style.display = camMode === 'static' ? 'none' : 'flex';
+
   const camSlider = document.getElementById('camera-zoom-slider');
   const camVal = document.getElementById('camera-zoom-val');
-  if (camSlider) {
-    camSlider.value = camZoom;
-    updateSliderFill(camSlider);
-  }
-  if (camVal) camVal.textContent = Number(camZoom).toFixed(1) + 'x';
+  const dockZoomSlider = document.getElementById('cam-dock-zoom-slider');
+  const dockZoomVal = document.getElementById('cam-dock-zoom-val');
+  [camSlider, dockZoomSlider].forEach(sl => {
+    if (sl) { sl.value = camZoom; updateSliderFill(sl); }
+  });
+  if (camVal) camVal.textContent = Number(camZoom).toFixed(2) + 'x';
+  if (dockZoomVal) dockZoomVal.textContent = Number(camZoom).toFixed(2) + 'x';
+
+  const trSlider = document.getElementById('camera-trans-slider');
+  const trVal = document.getElementById('camera-trans-val');
+  const dockTrSlider = document.getElementById('cam-dock-trans-slider');
+  const dockTrVal = document.getElementById('cam-dock-trans-val');
+  [trSlider, dockTrSlider].forEach(sl => {
+    if (sl) { sl.value = camTransDur; updateSliderFill(sl); }
+  });
+  if (trVal) trVal.textContent = Number(camTransDur).toFixed(1) + 's';
+  if (dockTrVal) dockTrVal.textContent = Number(camTransDur).toFixed(1) + 's';
+
+  const endResetChecked = activeSc?.camera?.endResetToFull !== false;
+  const endResetEl = document.getElementById('scene-cam-end-reset');
+  const dockEndResetEl = document.getElementById('cam-dock-end-reset');
+  if (endResetEl) endResetEl.checked = endResetChecked;
+  if (dockEndResetEl) dockEndResetEl.checked = endResetChecked;
+
+  const camBar = document.getElementById('camera-frame-bar');
+  const camBarLbl = document.getElementById('camera-frame-label');
+  const camToolBtn = document.getElementById('btn-camera-tool');
+  const setCamBtn = document.getElementById('btn-set-camera');
+  const dockEditBtn = document.getElementById('cam-dock-btn-edit');
+  if (camBar) camBar.classList.toggle('visible', !!_cameraEdit.active);
+  if (camBarLbl) camBarLbl.textContent = `Caméra · ${Number(camZoom).toFixed(2)}x`;
+  if (camToolBtn) camToolBtn.classList.toggle('active', !!_cameraEdit.active);
+  if (setCamBtn) setCamBtn.textContent = _cameraEdit.active ? 'Terminer cadre' : 'Cadre sur canvas';
+  if (dockEditBtn) dockEditBtn.textContent = _cameraEdit.active ? 'Terminer' : 'Cadre';
+
   const camHint = document.getElementById('camera-mode-hint');
   if (camHint) camHint.textContent = _CAMERA_MODE_HINTS[camMode] || _CAMERA_MODE_HINTS.static;
+
+  _updateCameraDockPlayheadTime();
+  _renderCameraKeyframesDock();
 }
 
 function selectAnimFromDropdown(anim) {
@@ -9282,20 +11545,211 @@ function selectLayerOutAnim(outAnim) {
 }
 
 function selectCameraMode(mode) {
-  pushUndoSnapshot();
+  pushUndoSnapshot('Change Camera Mode');
   state.cameraMode = mode || 'static';
-  getTargetLayersForSetting().forEach(l => { l.cameraMode = state.cameraMode; });
+  getTargetLayersForSetting().forEach(l => {
+    l.cameraMode = state.cameraMode;
+    if (state.cameraMode !== 'custom' && l.camera) {
+      l.camera.enabled = false;
+    } else if (state.cameraMode === 'custom') {
+      const auto = window.CameraCore?.computeAutoFrameForLayer?.(l, state.canvasW, state.canvasH, 1.38)
+        || { cx: l.x + l.w / 2, cy: l.y + l.h / 2, zoom: l.cameraZoom || 1.8 };
+      l.camera = window.CameraCore?.normalizeLayerCamera?.({ ...(l.camera || {}), ...auto, enabled: true }, state.canvasW, state.canvasH)
+        || { ...auto, enabled: true, transitionDur: 0.7, easing: 'ease-in-out' };
+    }
+  });
+  if (state.cameraMode !== 'custom' && _cameraEdit.active) {
+    _cameraEdit.active = false;
+  }
   syncExtraVideoScribeControls(getSelectedLayer());
+  renderLayerList();
+  if (!_cameraEdit.active) renderActiveSceneImmediately();
+  drawSelectionHandles();
   scheduleAutoSave();
 }
 
 function selectCameraZoom(zoom) {
-  const z = Math.max(1.2, Math.min(2.8, Number(zoom) || 1.8));
+  const z = Math.max(0.5, Math.min(4.0, Number(zoom) || 1.8));
   state.cameraZoom = z;
-  getTargetLayersForSetting().forEach(l => { l.cameraZoom = z; });
-  const camVal = document.getElementById('camera-zoom-val');
-  if (camVal) camVal.textContent = z.toFixed(1) + 'x';
+  const activeSc = window.TimelineStudio?.getActiveScene?.();
+  const activeKf = _findActiveTimelineKeyframeAtPlayhead(activeSc);
+  if (activeKf) {
+    activeKf.zoom = z;
+  } else {
+    getTargetLayersForSetting().forEach(l => {
+      l.cameraZoom = z;
+      if (l.camera?.enabled) {
+        l.camera.zoom = z;
+      }
+    });
+  }
+  syncExtraVideoScribeControls(getSelectedLayer());
+  if (!_cameraEdit.active) renderActiveSceneImmediately();
+  if (activeKf) window.TimelineStudio?.renderTimeline?.();
+  drawSelectionHandles();
   scheduleAutoSave();
+}
+
+function selectCameraTransitionDur(dur) {
+  const d = Math.max(0.1, Math.min(2.5, Number(dur) || 0.7));
+  const activeSc = window.TimelineStudio?.getActiveScene?.();
+  const activeKf = _findActiveTimelineKeyframeAtPlayhead(activeSc);
+  if (activeKf) {
+    activeKf.transitionDur = d;
+  } else {
+    getTargetLayersForSetting().forEach(l => {
+      l.camera = window.CameraCore?.normalizeLayerCamera?.({ ...(l.camera || {}), transitionDur: d }, state.canvasW, state.canvasH)
+        || { enabled: false, cx: state.canvasW / 2, cy: state.canvasH / 2, zoom: 1.8, transitionDur: d, easing: 'ease-in-out' };
+    });
+  }
+  syncExtraVideoScribeControls(getSelectedLayer());
+  scheduleAutoSave();
+}
+
+function setSceneEndCameraReset(enabled) {
+  const sc = window.TimelineStudio?.getActiveScene?.();
+  if (!sc) return;
+  pushUndoSnapshot('Toggle Scene End Camera Reset');
+  sc.camera = window.CameraCore?.normalizeSceneCamera?.({ ...(sc.camera || {}), endResetToFull: !!enabled })
+    || { defaultZoom: 1.0, endResetToFull: !!enabled, transitionDur: 0.7 };
+  syncExtraVideoScribeControls(getSelectedLayer());
+  if (!_cameraEdit.active) renderActiveSceneImmediately();
+  scheduleAutoSave();
+}
+
+function toggleCameraEditMode(forceState = null) {
+  const layer = getSelectedLayer();
+  const activeSc = window.TimelineStudio?.getActiveScene?.();
+  const nextActive = typeof forceState === 'boolean' ? forceState : !_cameraEdit.active;
+  if (nextActive) {
+    let kf = _findActiveTimelineKeyframeAtPlayhead(activeSc);
+    if (!layer && !kf) {
+      if (activeSc && Array.isArray(activeSc.cameraKeyframes) && activeSc.cameraKeyframes.length) {
+        kf = activeSc.cameraKeyframes[0];
+      } else if (activeSc) {
+        captureCameraKeyframeAtPlayhead();
+        kf = _findActiveTimelineKeyframeAtPlayhead(activeSc);
+      }
+    }
+    if (!layer && !kf) {
+      showToast('Sélectionnez un calque ou ajoutez une clé caméra');
+      return;
+    }
+    _pauseAllPlaybackForCanvasEdit();
+    if (layer && !kf && !layer.camera?.enabled) {
+      pushUndoSnapshot('Set Camera Frame');
+      const auto = window.CameraCore?.computeAutoFrameForLayer?.(layer, state.canvasW, state.canvasH, 1.38)
+        || { cx: layer.x + layer.w / 2, cy: layer.y + layer.h / 2, zoom: layer.cameraZoom || 1.8 };
+      layer.camera = window.CameraCore?.normalizeLayerCamera?.({ ...(layer.camera || {}), ...auto, enabled: true }, state.canvasW, state.canvasH)
+        || { ...auto, enabled: true, transitionDur: 0.7, easing: 'ease-in-out' };
+      layer.cameraMode = 'custom';
+      layer.cameraZoom = layer.camera.zoom;
+      renderLayerList();
+      scheduleAutoSave();
+    }
+    _cameraEdit = {
+      active: true,
+      layerId: (!kf && layer) ? layer.id : null,
+      sceneId: state.activeSceneId,
+      timelineKfId: kf ? kf.id : null,
+      previewing: false,
+    };
+    redrawLayersOnCanvas();
+  } else {
+    const keepKf = _cameraEdit.timelineKfId;
+    _cameraEdit = { active: false, layerId: null, sceneId: null, timelineKfId: keepKf, previewing: false };
+    renderActiveSceneImmediately();
+  }
+  syncExtraVideoScribeControls(getSelectedLayer());
+  drawSelectionHandles();
+}
+
+function autoFrameLayerCamera() {
+  const layer = getSelectedLayer();
+  if (!layer || !window.CameraCore) {
+    showToast('Sélectionnez d’abord un calque');
+    return;
+  }
+  pushUndoSnapshot('Auto-Frame Camera');
+  const auto = window.CameraCore.computeAutoFrameForLayer(layer, state.canvasW, state.canvasH, 1.38);
+  const activeSc = window.TimelineStudio?.getActiveScene?.();
+  const activeKf = _findActiveTimelineKeyframeAtPlayhead(activeSc);
+  if (activeKf) {
+    activeKf.cx = auto.cx;
+    activeKf.cy = auto.cy;
+    activeKf.zoom = auto.zoom;
+    activeKf.presetId = 'focus-layer';
+    activeKf.label = layer.name ? `Focus · ${layer.name}` : 'Focus Calque';
+    _cameraEdit = { active: true, layerId: null, sceneId: state.activeSceneId, timelineKfId: activeKf.id, previewing: false };
+  } else {
+    layer.camera = window.CameraCore.normalizeLayerCamera({ ...(layer.camera || {}), ...auto, enabled: true }, state.canvasW, state.canvasH);
+    layer.cameraMode = 'custom';
+    layer.cameraZoom = layer.camera.zoom;
+    _cameraEdit = { active: true, layerId: layer.id, sceneId: state.activeSceneId, timelineKfId: null, previewing: false };
+  }
+  redrawLayersOnCanvas();
+  syncExtraVideoScribeControls(layer);
+  renderLayerList();
+  window.TimelineStudio?.renderTimeline?.();
+  drawSelectionHandles();
+  scheduleAutoSave();
+  showToast(`Caméra cadrée sur « ${layer.name} » (${auto.zoom.toFixed(2)}x)`);
+}
+
+function clearLayerCamera() {
+  const activeSc = window.TimelineStudio?.getActiveScene?.();
+  const activeKf = _findActiveTimelineKeyframeAtPlayhead(activeSc);
+  if (activeKf) {
+    deleteCameraKeyframe(activeKf.id);
+    return;
+  }
+  const targets = getTargetLayersForSetting();
+  if (!targets.length) return;
+  pushUndoSnapshot('Clear Camera');
+  targets.forEach(l => {
+    l.camera = { ...(l.camera || {}), enabled: false };
+    if (l.cameraMode === 'custom') l.cameraMode = 'static';
+  });
+  _cameraEdit = { active: false, layerId: null, sceneId: null, timelineKfId: null, previewing: false };
+  syncExtraVideoScribeControls(getSelectedLayer());
+  renderLayerList();
+  renderActiveSceneImmediately();
+  drawSelectionHandles();
+  scheduleAutoSave();
+  showToast('Cadrage caméra effacé');
+}
+
+function previewLayerCamera() {
+  const sc = window.TimelineStudio?.getActiveScene?.();
+  const layer = getSelectedLayer();
+  if (!sc) return;
+  const activeKf = _findActiveTimelineKeyframeAtPlayhead(sc);
+  if (!layer && !activeKf && !(sc.cameraKeyframes?.length)) {
+    showToast('Ajoutez une clé caméra ou sélectionnez un calque');
+    return;
+  }
+  _pauseAllPlaybackForCanvasEdit();
+  const wasEditing = _cameraEdit.active;
+  _cameraEdit.active = false;
+  const targetTime = activeKf
+    ? activeKf.time
+    : (layer ? Math.max(0.05, Math.min(sc.duration - 0.05, (layer.inPoint ?? 0) + 0.75)) : _getActiveSceneLocalTimeSafe());
+  if (window.TimelineStudio?.renderSceneCompositeToContext) {
+    if (!activeKf && layer && !layer.camera?.enabled && layer.cameraMode === 'static' && window.CameraCore) {
+      const auto = window.CameraCore.computeAutoFrameForLayer(layer, state.canvasW, state.canvasH, 1.38);
+      layer.camera = window.CameraCore.normalizeLayerCamera({ ...auto, enabled: true }, state.canvasW, state.canvasH);
+      layer.cameraMode = 'custom';
+      syncExtraVideoScribeControls(layer);
+    }
+    window.TimelineStudio.renderSceneCompositeToContext(_mainCtx, sc, targetTime, false);
+    sctx.clearRect(0, 0, state.canvasW, state.canvasH);
+    showToast('Aperçu du cadrage caméra (cliquez ou appuyez sur Échap pour éditer)');
+  }
+  if (wasEditing) {
+    setTimeout(() => {
+      if (!state.playing) drawSelectionHandles();
+    }, 1200);
+  }
 }
 
 function selectAnim(el) {
@@ -10490,7 +12944,8 @@ window._applyDynamicCameraFrame = function(isSettling = false) {
   const H = state.canvasH;
   const activeSlot = (state._activeSlots || []).find(s => !s.done) || state._activeSlots?.[0] || null;
   const activeLayer = activeSlot?.layer || null;
-  const camMode = activeLayer?.cameraMode || state.cameraMode || 'static';
+  const hasCustomCam = !!(activeLayer && activeLayer.camera?.enabled);
+  const camMode = hasCustomCam ? 'custom' : (activeLayer?.cameraMode || state.cameraMode || 'static');
   if (camMode === 'static' && !isSettling) {
     state._camScale = 1;
     state._camCX = W / 2;
@@ -10504,7 +12959,12 @@ window._applyDynamicCameraFrame = function(isSettling = false) {
     let targetCX = W / 2;
     let targetCY = H / 2;
 
-    if (camMode === 'follow-hand') {
+    if (hasCustomCam && window.CameraCore) {
+      const nc = window.CameraCore.normalizeLayerCamera(activeLayer.camera, W, H, maxZoom);
+      targetScale = nc.zoom;
+      targetCX = nc.cx;
+      targetCY = nc.cy;
+    } else if (camMode === 'follow-hand') {
       targetScale = maxZoom;
       const handFresh = state._lastHandTipTs && (performance.now() - state._lastHandTipTs < 240);
       if (handFresh && state._lastHandTipX != null && state._lastHandTipY != null) {
@@ -10529,11 +12989,11 @@ window._applyDynamicCameraFrame = function(isSettling = false) {
     if (state._camCX == null) state._camCX = W / 2;
     if (state._camCY == null) state._camCY = H / 2;
 
-    const posLerp = camMode === 'follow-hand' ? 0.14 : 0.10;
-    const zoomLerp = 0.09;
+    const transFactor = hasCustomCam ? Math.max(0.06, Math.min(0.24, 0.12 / Math.max(0.35, activeLayer.camera?.transitionDur || 0.7))) : (camMode === 'follow-hand' ? 0.14 : 0.10);
+    const zoomLerp = hasCustomCam ? transFactor : 0.09;
     state._camScale += (targetScale - state._camScale) * zoomLerp;
-    state._camCX += (targetCX - state._camCX) * posLerp;
-    state._camCY += (targetCY - state._camCY) * posLerp;
+    state._camCX += (targetCX - state._camCX) * transFactor;
+    state._camCY += (targetCY - state._camCY) * transFactor;
   }
 
   const scale = state._camScale || 1;
@@ -11196,16 +13656,19 @@ function stopRecord() { closeExportBanner(); }
 function _updateToolToolbar() {
   const layer = getSelectedLayer();
   const toolbar = document.getElementById('tool-toolbar');
-  const btnCrop  = document.getElementById('btn-crop-layer');
-  const btnSlice = document.getElementById('btn-slice-layer');
+  const btnCrop  = document.getElementById('btn-crop-tool') || document.getElementById('btn-crop-layer');
+  const btnSlice = document.getElementById('btn-slicer-tool') || document.getElementById('btn-slice-layer');
+  const btnCam   = document.getElementById('btn-camera-tool');
   if (layer) {
     toolbar.classList.add('visible');
     if (btnCrop)  btnCrop.style.display  = 'flex';
     if (btnSlice) btnSlice.style.display = 'flex';
+    if (btnCam)   btnCam.style.display   = 'flex';
   } else {
     toolbar.classList.toggle('visible', !!document.getElementById('studio-pen-tool'));
     if (btnCrop)  btnCrop.style.display  = 'none';
     if (btnSlice) btnSlice.style.display = 'none';
+    if (btnCam)   btnCam.style.display   = 'none';
   }
 }
 
@@ -13610,6 +16073,9 @@ const TimelineStudio = (() => {
   function applySceneToWorkingState(scene) {
     if (!scene) return;
     if (window.StudioUI) StudioUI.closeEditors();
+    if (typeof selectedStickmanTrackId !== 'undefined') selectedStickmanTrackId = null;
+    if (typeof setSmartHoverCandidate === 'function') setSmartHoverCandidate(null);
+    else if (typeof _hoverCandidate !== 'undefined') _hoverCandidate = null;
     state.activeSceneId = scene.id;
     scene.layers.forEach(l => _ensureLayerTimingAndKeyframes(l, scene.duration));
     state.layers = scene.layers;
@@ -13634,10 +16100,14 @@ const TimelineStudio = (() => {
       trToolbarSel.value = scene.transitionOut?.type || 'cut';
     }
 
+    if (typeof _cameraEdit !== 'undefined' && _cameraEdit.sceneId && _cameraEdit.sceneId !== scene.id) {
+      _cameraEdit = { active: false, layerId: null, sceneId: null, timelineKfId: null, previewing: false };
+    }
     renderLayerList();
     redrawLayersOnCanvas();
     drawSelectionHandles();
     if (typeof syncSidebarToLayer === 'function') syncSidebarToLayer(state.selectedLayerId);
+    if (typeof syncExtraVideoScribeControls === 'function') syncExtraVideoScribeControls(getSelectedLayer());
     if (typeof _updateToolToolbar === 'function') _updateToolToolbar();
     updateSceneThumbnail(scene);
   }
@@ -13745,6 +16215,8 @@ const TimelineStudio = (() => {
         selectedLayerId: sc.selectedLayerId,
         groups: JSON.parse(JSON.stringify(sc.groups || [])),
         transitionOut: JSON.parse(JSON.stringify(sc.transitionOut || { type: 'cut', duration: 0.6 })),
+        camera: sc.camera ? JSON.parse(JSON.stringify(sc.camera)) : undefined,
+        cameraKeyframes: Array.isArray(sc.cameraKeyframes) ? JSON.parse(JSON.stringify(sc.cameraKeyframes)) : [],
         thumbnailDataUrl: sc.thumbnailDataUrl || null,
         production: sc.production ? JSON.parse(JSON.stringify(sc.production)) : undefined,
         layers: (sc.layers || []).map((layer, idx) => ({
@@ -13787,6 +16259,7 @@ const TimelineStudio = (() => {
           outAnim: layer.outAnim || 'none',
           cameraMode: layer.cameraMode || 'static',
           cameraZoom: layer.cameraZoom || 1.8,
+          camera: layer.camera ? JSON.parse(JSON.stringify(layer.camera)) : undefined,
           rotation: layer.rotation ?? 0,
           trimPath: layer.trimPath ?? 100,
           vectorData: layer.vectorData ? JSON.parse(JSON.stringify(layer.vectorData)) : undefined,
@@ -13903,6 +16376,9 @@ const TimelineStudio = (() => {
           outAnim: ld.outAnim || 'none',
           cameraMode: ld.cameraMode || 'static',
           cameraZoom: ld.cameraZoom || 1.8,
+          camera: ld.camera
+            ? (window.CameraCore?.normalizeLayerCamera?.(ld.camera, state.canvasW, state.canvasH, ld.cameraZoom || 1.8) || JSON.parse(JSON.stringify(ld.camera)))
+            : undefined,
           rotation: ld.rotation ?? 0,
           trimPath: ld.trimPath ?? 100,
           vectorData,
@@ -13926,6 +16402,10 @@ const TimelineStudio = (() => {
         selectedLayerId: scData.selectedLayerId ?? (hydratedLayers[0]?.id ?? null),
         groups: scData.groups || [],
         transitionOut: scData.transitionOut || { type: 'cut', duration: 0.6 },
+        camera: scData.camera
+          ? (window.CameraCore?.normalizeSceneCamera?.(scData.camera) || JSON.parse(JSON.stringify(scData.camera)))
+          : undefined,
+        cameraKeyframes: window.CameraCore?.normalizeSceneCameraKeyframes?.(scData.cameraKeyframes, dur, state.canvasW, state.canvasH) || [],
         thumbnailDataUrl: scData.thumbnailDataUrl || null,
         production: scData.production ? JSON.parse(JSON.stringify(scData.production)) : undefined,
         layers: hydratedLayers.filter(l => l.img),
@@ -13944,8 +16424,12 @@ const TimelineStudio = (() => {
         };
       }
 
+      if (typeof _cameraEdit !== 'undefined') {
+        _cameraEdit = { active: false, layerId: null, sceneId: null, timelineKfId: null, previewing: false };
+      }
       state.scenes.forEach(updateSceneThumbnail);
       applySceneToWorkingState(getActiveScene());
+      if (typeof syncExtraVideoScribeControls === 'function') syncExtraVideoScribeControls(getSelectedLayer());
       syncProjectSettingsUI();
       renderTimeline();
       _undoRestoring = false;
@@ -13978,12 +16462,13 @@ const TimelineStudio = (() => {
   window.clearUndoHistory = () => CommandHistory.clear();
 
   // ── 30-Second Auto-Save to localStorage (+ IndexedDB sync) ──
-  function autoSaveToLocalStorage() {
+  function autoSaveToLocalStorage(syncedToDb = false) {
     try {
       const payload = serializeProjectState(true);
       localStorage.setItem(AUTOSAVE_LS_KEY, JSON.stringify({
         savedAt: new Date().toISOString(),
         projectId: currentProjectId,
+        syncedToDb: !!syncedToDb,
         state: payload,
       }));
       const footer = document.getElementById('ps-autosave-status');
@@ -14003,12 +16488,13 @@ const TimelineStudio = (() => {
         localStorage.setItem(AUTOSAVE_LS_KEY, JSON.stringify({
           savedAt: new Date().toISOString(),
           projectId: currentProjectId,
+          syncedToDb: !!syncedToDb,
           state: slim,
         }));
       } catch (_) {}
     }
   }
-  setInterval(autoSaveToLocalStorage, 30000);
+  setInterval(() => autoSaveToLocalStorage(false), 30000);
 
   // ── Scene Timing Helpers ──
   function getTotalProjectDuration() {
@@ -14111,11 +16597,29 @@ const TimelineStudio = (() => {
     saveWorkingStateToActiveScene();
     const target = state.scenes.find(s => s.id === sceneId);
     if (!target) return;
-    applySceneToWorkingState(target);
-    if (movePlayhead) {
-      state.playheadTime = getSceneStartOffset(target.id);
+    const targetStart = getSceneStartOffset(target.id);
+    const targetEnd = targetStart + Math.max(0.5, Number(target.duration) || 5.0);
+    if (movePlayhead || state.playheadTime < targetStart || state.playheadTime > targetEnd) {
+      state.playheadTime = targetStart;
     }
+    applySceneToWorkingState(target);
     renderTimeline();
+  }
+
+  function switchToSceneForCanvasHit(sceneId, localTime = null) {
+    if (!sceneId) return false;
+    const target = state.scenes.find(s => s.id === sceneId);
+    if (!target) return false;
+    saveWorkingStateToActiveScene();
+    const targetStart = getSceneStartOffset(target.id);
+    const targetDur = Math.max(0.5, Number(target.duration) || 5.0);
+    if (state.playheadTime < targetStart || state.playheadTime > targetStart + targetDur) {
+      const lt = Number.isFinite(localTime) ? Math.max(0, Math.min(targetDur, localTime)) : 0;
+      state.playheadTime = targetStart + lt;
+    }
+    applySceneToWorkingState(target);
+    if (!state.recording) renderTimeline();
+    return true;
   }
 
   function addScene() {
@@ -14143,6 +16647,7 @@ const TimelineStudio = (() => {
       ...l,
       id: (++window._layerIdCounter) + Date.now() + idx,
       keyframes: JSON.parse(JSON.stringify(l.keyframes || [])),
+      camera: l.camera ? JSON.parse(JSON.stringify(l.camera)) : undefined,
       textProps: l.textProps ? JSON.parse(JSON.stringify(l.textProps)) : undefined,
     }));
     const copy = {
@@ -14154,6 +16659,10 @@ const TimelineStudio = (() => {
       groups: JSON.parse(JSON.stringify(src.groups || [])),
       selectedLayerId: clonedLayers[0]?.id ?? null,
       thumbnailDataUrl: src.thumbnailDataUrl,
+      camera: src.camera ? JSON.parse(JSON.stringify(src.camera)) : undefined,
+      cameraKeyframes: Array.isArray(src.cameraKeyframes)
+        ? src.cameraKeyframes.map((k, kIdx) => ({ ...JSON.parse(JSON.stringify(k)), id: `camkf-dup-${Date.now().toString(36)}-${kIdx}` }))
+        : [],
       transitionOut: JSON.parse(JSON.stringify(src.transitionOut || { type: 'cut', duration: 0.6 })),
     };
     state.scenes.splice(curIdx + 1, 0, copy);
@@ -14570,6 +17079,20 @@ const TimelineStudio = (() => {
       (l.inPoint ?? 0) <= 0.05 && Math.abs((l.outPoint ?? scDur) - scDur) <= 0.15
     );
 
+    const camEval = window.CameraCore?.evaluateSceneCameraAtTime?.(
+      scene,
+      localTime,
+      orderedLayers,
+      state.canvasW,
+      state.canvasH,
+      { defaultCameraMode: state.cameraMode, defaultCameraZoom: state.cameraZoom }
+    );
+    if (camEval?.active) {
+      targetCtx.translate(state.canvasW / 2, state.canvasH / 2);
+      targetCtx.scale(camEval.zoom, camEval.zoom);
+      targetCtx.translate(-camEval.cx, -camEval.cy);
+    }
+
     let activeHand = null;
 
     orderedLayers.forEach((layer, idx) => {
@@ -14647,10 +17170,10 @@ const TimelineStudio = (() => {
       drawHand(targetCtx, activeHand.tipX, activeHand.tipY, activeHand.dir, activeHand.style);
     }
 
-    targetCtx.restore();
     if (window.StickmanProduction?.renderAt) {
       window.StickmanProduction.renderAt(scene, localTime, targetCtx);
     }
+    targetCtx.restore();
     state.canvasBg = prevBg;
     state._slotMode = prevSlot;
     state.bgCanvas = prevBgCvs;
@@ -14884,10 +17407,16 @@ const TimelineStudio = (() => {
       renderSceneCompositeToContext(nextCvs.getContext('2d'), nextScene, 0, false);
 
       _renderTransitionFrame(targetCtx, tr, p, fromCvs, nextCvs, sc, nextScene);
+      if (targetCtx === _mainCtx && typeof _recordRenderedScene === 'function') {
+        _recordRenderedScene(sc.id, localT, nextScene.id);
+      }
       return;
     }
 
     renderSceneCompositeToContext(targetCtx, sc, localT, progressiveReveal);
+    if (targetCtx === _mainCtx && typeof _recordRenderedScene === 'function') {
+      _recordRenderedScene(sc.id, localT, null);
+    }
   }
 
   function seekToGlobalTime(newTime, progressive = false) {
@@ -14904,11 +17433,22 @@ const TimelineStudio = (() => {
     const total = Math.max(0.5, getTotalProjectDuration());
     state.playheadTime = Math.max(0, Math.min(total, newTime));
     const info = getSceneAtGlobalTime(state.playheadTime);
-    if (info.scene && info.scene.id !== state.activeSceneId) {
+    const sceneChanged = Boolean(info.scene && info.scene.id !== state.activeSceneId);
+    if (sceneChanged) {
       saveWorkingStateToActiveScene();
       applySceneToWorkingState(info.scene);
+      if (typeof syncExtraVideoScribeControls === 'function') syncExtraVideoScribeControls(getSelectedLayer());
+    }
+    if (_audioEl && state.audioTrack?.dataUrl && !_previewPlaying) {
+      try {
+        const dur = Number.isFinite(_audioEl.duration) && _audioEl.duration > 0 ? _audioEl.duration : 9999;
+        _audioEl.currentTime = Math.max(0, Math.min(dur, state.playheadTime));
+      } catch (_) {}
     }
     renderProjectAtGlobalTime(state.playheadTime, ctx, progressive);
+    if (sceneChanged && !state.recording) {
+      renderTimeline();
+    }
     if (!_previewPlaying) {
       drawSelectionHandles();
     } else {
@@ -15304,6 +17844,22 @@ const TimelineStudio = (() => {
     if (tc) {
       tc.textContent = `${formatTimecode(state.playheadTime)} / ${formatTimecode(getTotalProjectDuration())}`;
     }
+    if (typeof _updateCameraDockPlayheadTime === 'function') {
+      _updateCameraDockPlayheadTime();
+    }
+    const camMarkers = document.querySelectorAll('#tl-camera-lane .tl-cam-kf-marker');
+    if (camMarkers.length) {
+      const ph = Number(state.playheadTime) || 0;
+      const selKfId = typeof _cameraEdit !== 'undefined' ? _cameraEdit.timelineKfId : null;
+      camMarkers.forEach(m => {
+        const gTime = (Number(m.dataset.scStart) || 0) + (Number(m.dataset.localTime) || 0);
+        const active = (selKfId && m.dataset.kfId === selKfId) || Math.abs(ph - gTime) <= 0.16;
+        m.classList.toggle('active', active);
+      });
+    }
+    if (!_previewPlaying && !state.playing && typeof syncExtraVideoScribeControls === 'function') {
+      syncExtraVideoScribeControls(getSelectedLayer());
+    }
   }
 
   function setZoom(pxPerSec) {
@@ -15678,6 +18234,74 @@ const TimelineStudio = (() => {
       });
     }
 
+    // 2.5 Render Dedicated Camera Track Keyframes across all scenes
+    const cameraLane = document.getElementById('tl-camera-lane');
+    if (cameraLane) {
+      cameraLane.innerHTML = '';
+      let camAccOffset = 0;
+      state.scenes.forEach(sc => {
+        const scOffset = camAccOffset;
+        const scDur = Math.max(0.5, Number(sc.duration) || 5.0);
+        const kfs = Array.isArray(sc.cameraKeyframes) ? sc.cameraKeyframes : [];
+        kfs.forEach(kf => {
+          const leftPx = Math.round((scOffset + kf.time) * state.timelineZoom);
+          const marker = document.createElement('div');
+          const isActiveKf = (typeof _cameraEdit !== 'undefined' && _cameraEdit.timelineKfId === kf.id)
+            || (sc.id === state.activeSceneId && Math.abs(((state.playheadTime || 0) - scOffset) - kf.time) <= 0.16);
+          marker.className = 'tl-cam-kf-marker' + (isActiveKf ? ' active' : '');
+          marker.dataset.kfId = kf.id;
+          marker.dataset.scStart = String(scOffset);
+          marker.dataset.localTime = String(kf.time);
+          marker.style.left = leftPx + 'px';
+          marker.title = `${kf.label || 'Caméra'} @ ${kf.time.toFixed(1)}s (${Number(kf.zoom || 1).toFixed(2)}×) — Glisser pour déplacer · Shift+Clic pour supprimer`;
+          marker.innerHTML = `<span class="tl-cam-kf-diamond"></span><span>${Number(kf.zoom || 1).toFixed(1)}×</span>`;
+
+          marker.addEventListener('mousedown', (e) => {
+            if (e.button !== 0) return;
+            e.stopPropagation();
+            if (e.shiftKey) {
+              if (sc.id !== state.activeSceneId) selectScene(sc.id, false);
+              if (typeof deleteCameraKeyframe === 'function') deleteCameraKeyframe(kf.id);
+              return;
+            }
+            if (sc.id !== state.activeSceneId) selectScene(sc.id, false);
+            if (typeof _cameraEdit !== 'undefined') _cameraEdit.timelineKfId = kf.id;
+            const startX = e.clientX;
+            const origTime = kf.time;
+            let moved = false;
+            const beforeSnap = typeof _captureBeforeSnapSafe === 'function' ? _captureBeforeSnapSafe() : null;
+            const onMove = (me) => {
+              const dt = (me.clientX - startX) / state.timelineZoom;
+              if (Math.abs(me.clientX - startX) > 3) moved = true;
+              const rawGlobal = scOffset + Math.max(0, Math.min(scDur, origTime + dt));
+              const snappedLocal = snapTime(rawGlobal) - scOffset;
+              kf.time = Number(Math.max(0, Math.min(scDur, snappedLocal)).toFixed(2));
+              marker.style.left = Math.round((scOffset + kf.time) * state.timelineZoom) + 'px';
+              marker.title = `${kf.label || 'Caméra'} @ ${kf.time.toFixed(1)}s (${Number(kf.zoom || 1).toFixed(2)}×)`;
+            };
+            const onUp = () => {
+              window.removeEventListener('mousemove', onMove);
+              window.removeEventListener('mouseup', onUp);
+              if (moved) {
+                sc.cameraKeyframes = window.CameraCore?.normalizeSceneCameraKeyframes?.(sc.cameraKeyframes, scDur, state.canvasW, state.canvasH) || sc.cameraKeyframes;
+                if (beforeSnap && typeof _pushUndoWithBeforeSnap === 'function') {
+                  _pushUndoWithBeforeSnap('Move Camera Keyframe', beforeSnap);
+                }
+                scheduleAutoSave();
+              }
+              seekToGlobalTime(scOffset + kf.time, false);
+              renderTimeline();
+            };
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onUp);
+          });
+
+          cameraLane.appendChild(marker);
+        });
+        camAccOffset += scDur;
+      });
+    }
+
     // 3. Render Dedicated Audio Track & Waveform
     audioLane.innerHTML = '';
     if (state.audioTrack) {
@@ -15759,6 +18383,18 @@ const TimelineStudio = (() => {
 
     if (rulerWrap) rulerWrap.addEventListener('mousedown', startScrub);
     if (phHead) phHead.addEventListener('mousedown', startScrub);
+    const camLane = document.getElementById('tl-camera-lane');
+    if (camLane) {
+      camLane.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.tl-cam-kf-marker')) return;
+        startScrub(e);
+      });
+      camLane.addEventListener('dblclick', (e) => {
+        if (e.target.closest('.tl-cam-kf-marker')) return;
+        scrubFromClientX(e.clientX);
+        if (typeof captureCameraKeyframeAtPlayhead === 'function') captureCameraKeyframeAtPlayhead();
+      });
+    }
 
     // Global click to close popovers
     document.addEventListener('click', () => closePopovers());
@@ -16743,7 +19379,7 @@ const TimelineStudio = (() => {
     // Hook IndexedDB saveProject & loadProject to persist multi-scene state seamlessly
     const origSaveProject = window.saveProject;
     window.saveProject = function(projectId = currentProjectId) {
-      autoSaveToLocalStorage();
+      autoSaveToLocalStorage(false);
       if (!db || !projectId) {
         if (typeof origSaveProject === 'function') origSaveProject(projectId);
         return;
@@ -16766,6 +19402,7 @@ const TimelineStudio = (() => {
               selectedLayerId: activeSc ? activeSc.selectedLayerId : null,
             };
             store.put(project);
+            autoSaveToLocalStorage(true);
             if (typeof checkStorageUsage === 'function') checkStorageUsage();
             if (typeof showSaveIndicator === 'function') showSaveIndicator();
           }
@@ -16812,13 +19449,52 @@ const TimelineStudio = (() => {
       }
     };
 
+    function checkAutoSaveRecovery() {
+      const bar = document.getElementById('autosave-recovery-bar');
+      const txt = document.getElementById('autosave-recovery-text');
+      const btnRestore = document.getElementById('btn-restore-autosave');
+      const btnDismiss = document.getElementById('btn-dismiss-autosave');
+      if (!bar || !btnRestore || !btnDismiss) return;
+      try {
+        const raw = localStorage.getItem(AUTOSAVE_LS_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (!parsed || !parsed.state || !Array.isArray(parsed.state.scenes)) return;
+        if (parsed.syncedToDb) return;
+        const totalLayers = parsed.state.scenes.reduce((acc, s) => acc + ((s.layers || []).length), 0);
+        if (totalLayers === 0) return;
+        const dismissKey = `inkplainer_autosave_dismissed_${parsed.savedAt || ''}`;
+        if (sessionStorage.getItem(dismissKey) === '1') return;
+
+        const when = parsed.savedAt ? new Date(parsed.savedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+        if (txt) {
+          txt.textContent = `Brouillon auto-sauvegardé (${totalLayers} calque${totalLayers > 1 ? 's' : ''}${when ? ` · ${when}` : ''}) disponible`;
+        }
+        bar.classList.add('visible');
+        btnRestore.onclick = () => {
+          bar.classList.remove('visible');
+          sessionStorage.setItem(dismissKey, '1');
+          pushUndoSnapshot('Restore Auto-Save Draft');
+          deserializeProjectState(parsed.state, () => {
+            showToast('Brouillon auto-sauvegardé restauré');
+          });
+        };
+        btnDismiss.onclick = () => {
+          bar.classList.remove('visible');
+          sessionStorage.setItem(dismissKey, '1');
+        };
+      } catch (_) {}
+    }
+
     applySceneToWorkingState(getActiveScene());
     renderTimeline();
+    setTimeout(checkAutoSaveRecovery, 900);
   }
 
   return {
     init,
     selectScene,
+    switchToSceneForCanvasHit,
     addScene,
     duplicateScene,
     deleteScene,
@@ -16851,12 +19527,14 @@ const TimelineStudio = (() => {
     renderTimeline,
     seekToGlobalTime,
     autoSaveToLocalStorage,
+    checkAutoSaveRecovery,
     serializeProjectState,
     deserializeProjectState,
     saveWorkingStateToActiveScene,
     applySceneToWorkingState,
     getActiveScene,
     getSceneStartOffset,
+    getSceneAtGlobalTime,
     evaluateLayerAtTime,
     renderSceneCompositeToContext,
     renderProjectAtGlobalTime,

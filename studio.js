@@ -826,7 +826,15 @@ const StudioUI = (() => {
         card.append(el('div', 'studio-card-name', entry.name), el('div', 'studio-card-meta',
           `${entry.scene.layers.length} layers · ${entry.scene.duration.toFixed(1)}s · ${new Date(entry.savedAt).toLocaleDateString()}`));
         const remove = button('Delete template', async () => {
-          if (!confirm(`Delete “${entry.name}” from local templates? Your project will not be changed.`)) return;
+          const ok = await (window.showAppConfirm
+            ? window.showAppConfirm({
+                title: 'Supprimer le modèle',
+                message: `Supprimer « ${entry.name} » des modèles locaux ? Votre projet ne sera pas modifié.`,
+                confirmLabel: 'Supprimer',
+                cancelLabel: 'Annuler',
+              })
+            : true);
+          if (!ok) return;
           try { await templatesStore('readwrite', store => store.delete(entry.id)); renderSavedTemplates(); }
           catch (error) { errorMessage(error, 'Could not delete template'); }
         }, 'studio-template-delete');
@@ -1251,9 +1259,19 @@ const StudioUI = (() => {
     toolbar.classList.add('visible');
     new ResizeObserver(() => { if (pen) drawPen(); }).observe(document.getElementById('canvas-wrapper'));
   }
-  function startPen() {
+  async function startPen() {
     if (state.recording) return;
-    if (pen && pen.nodes.length && !confirm('Discard the unfinished path?')) return;
+    if (pen && pen.nodes.length) {
+      const ok = await (window.showAppConfirm
+        ? window.showAppConfirm({
+            title: 'Abandonner le tracé',
+            message: 'Voulez-vous abandonner le tracé vectoriel en cours ?',
+            confirmLabel: 'Abandonner',
+            cancelLabel: 'Continuer',
+          })
+        : true);
+      if (!ok || !pen) return;
+    }
     window.StudioEffects?.stopPreview();
     TimelineStudio.pausePreviewAll();
     closeTextEditor(true);
