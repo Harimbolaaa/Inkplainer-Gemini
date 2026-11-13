@@ -5728,6 +5728,7 @@ function updateLastSaveTime(isoString) {
 
 // Auto-save mechanism
 function scheduleAutoSave() {
+  if (state.recording) return;
   if (autoSaveTimer) clearTimeout(autoSaveTimer);
   autoSaveTimer = setTimeout(() => {
     saveProject();
@@ -10152,6 +10153,7 @@ function setupStyle() {
 
 function setProgress(ratio) {
   state._animProgress = Math.min(ratio, 1);
+  if (state.recording) return;
   const pct=Math.round(state._animProgress*100);
   document.getElementById('progress-fill').style.width=pct+'%';
   document.getElementById('time-display').textContent=pct+'%';
@@ -14954,9 +14956,11 @@ const TimelineStudio = (() => {
       sctx.clearRect(0, 0, state.canvasW, state.canvasH);
       if (_motionSingle) renderSceneCompositeToContext(ctx, sc, t, false);
       else renderProjectAtGlobalTime(state.playheadTime, ctx, false);
-      updatePlayheadDOM();
-      StudioUI.updateTrackValues();
-      setProgress(t / sc.duration);
+      if (!state.recording) {
+        updatePlayheadDOM();
+        StudioUI.updateTrackValues();
+        setProgress(t / sc.duration);
+      }
       _motionResume = { sceneIdx, time: t };
       if (t < sc.duration) _previewRaf = requestAnimationFrame(tick);
       else {
@@ -14983,6 +14987,7 @@ const TimelineStudio = (() => {
   }
 
   function _autoScrollTimelineToPlayhead() {
+    if (state.recording) return;
     const scrollArea = document.getElementById('tl-scroll-area');
     if (!scrollArea) return;
     const px = state.playheadTime * state.timelineZoom;
@@ -14993,6 +14998,7 @@ const TimelineStudio = (() => {
   }
 
   function _startPreviewPlayheadTracker(sceneIdx) {
+    if (state.recording) return;
     if (_previewRaf) cancelAnimationFrame(_previewRaf);
     const sc = state.scenes[sceneIdx];
     if (!sc) return;
@@ -15088,13 +15094,15 @@ const TimelineStudio = (() => {
     applySceneToWorkingState(sc);
     sctx.clearRect(0, 0, state.canvasW, state.canvasH);
     hctx.clearRect(0, 0, state.canvasW, state.canvasH);
-    renderTimeline();
+    if (!state.recording) renderTimeline();
 
     const scStart = getSceneStartOffset(sc.id);
     const scDur = Math.max(0.5, Number(sc.duration) || 5.0);
     state.playheadTime = scStart;
-    updatePlayheadDOM();
-    _autoScrollTimelineToPlayhead();
+    if (!state.recording) {
+      updatePlayheadDOM();
+      _autoScrollTimelineToPlayhead();
+    }
 
     if (window.StudioUI && StudioUI.hasMotion(sc.layers)) {
       const resume = _motionResume?.sceneIdx === sceneIdx ? _motionResume.time : initialTime;
@@ -15106,8 +15114,10 @@ const TimelineStudio = (() => {
     const advanceToNextScene = () => {
       if (!_previewPlaying) return;
       state.playheadTime = scStart + scDur;
-      updatePlayheadDOM();
-      updateSceneThumbnail(sc);
+      if (!state.recording) {
+        updatePlayheadDOM();
+        updateSceneThumbnail(sc);
+      }
       const nextScene = state.scenes[sceneIdx + 1];
       if (!nextScene) {
         _playSceneInPreview(sceneIdx + 1);
@@ -15981,8 +15991,390 @@ const TimelineStudio = (() => {
       state.recording = false;
       state.mediaRecorder = null;
       _exportController = null;
+      if (typeof renderTimeline === 'function') renderTimeline();
+      if (typeof updatePlayheadDOM === 'function') updatePlayheadDOM();
       window.StudioEffects?.syncSelection();
     }
+  }
+
+  function _createPagedStreamTarget(StreamTargetClass) {
+    const PAGE_SIZE = 4 * 1024 * 1024;
+    const pages = new Map();
+    let maxEnd = 0;
+    const target = new StreamTargetClass({
+      chunked: false,
+      onData: (data, position) => {
+        let offset = 0;
+        let pos = position;
+        while (offset < data.byteLength) {
+          const pageIdx = Math.floor(pos / PAGE_SIZE);
+          const pageOff = pos % PAGE_SIZE;
+          let page = pages.get(pageIdx);
+          if (!page) {
+            page = new Uint8Array(PAGE_SIZE);
+            pages.set(pageIdx, page);
+          }
+          const n = Math.min(PAGE_SIZE - pageOff, data.byteLength - offset);
+          page.set(data.subarray(offset, offset + n), pageOff);
+          offset += n;
+          pos += n;
+        }
+        if (pos > maxEnd) maxEnd = pos;
+      },
+    });
+    target.toBlob = (mimeType) => {
+      const parts = [];
+      const totalPages = Math.ceil(maxEnd / PAGE_SIZE);
+      for (let i = 0; i < totalPages; i++) {
+        const page = pages.get(i) || new Uint8Array(PAGE_SIZE);
+        const len = i === totalPages - 1 ? (maxEnd - i * PAGE_SIZE) : PAGE_SIZE;
+        parts.push(page.subarray(0, len));
+      }
+      pages.clear();
+      return new Blob(parts, { type: mimeType });
+    };
+    return target;
+  }
+
+  function _createVirtualExportClock() {
+    const origPerfNow = performance.now.bind(performance);
+    const origDateNow = Date.now.bind(Date);
+    const origRAF = window.requestAnimationFrame.bind(window);
+    const origCAF = window.cancelAnimationFrame.bind(window);
+    const origSetTimeout = window.setTimeout.bind(window);
+    const origClearTimeout = window.clearTimeout.bind(window);
+
+    let virtualPerfNow = origPerfNow();
+    const basePerf = virtualPerfNow;
+    const baseDate = origDateNow();
+    let nextId = 1;
+    const rafQueue = new Map();
+    const timerQueue = new Map();
+    let installed = false;
+
+    const install = () => {
+      if (installed) return;
+      installed = true;
+      performance.now = () => virtualPerfNow;
+      Date.now = () => Math.round(baseDate + (virtualPerfNow - basePerf));
+      window.requestAnimationFrame = (cb) => {
+        const id = nextId++;
+        rafQueue.set(id, cb);
+        return id;
+      };
+      window.cancelAnimationFrame = (id) => {
+        rafQueue.delete(id);
+      };
+      window.setTimeout = (fn, delay = 0, ...args) => {
+        const id = nextId++;
+        const ms = Math.max(0, Number(delay) || 0);
+        timerQueue.set(id, {
+          fn: typeof fn === 'function' ? () => fn(...args) : () => {},
+          fireAt: virtualPerfNow + ms,
+        });
+        return id;
+      };
+      window.clearTimeout = (id) => {
+        timerQueue.delete(id);
+      };
+    };
+
+    const tick = (stepMs) => {
+      virtualPerfNow += stepMs;
+      let safety = 0;
+      while (safety++ < 64) {
+        let earliestId = null;
+        let earliestTimer = null;
+        for (const [id, t] of timerQueue.entries()) {
+          if (t.fireAt <= virtualPerfNow && (!earliestTimer || t.fireAt < earliestTimer.fireAt)) {
+            earliestId = id;
+            earliestTimer = t;
+          }
+        }
+        if (!earliestTimer) break;
+        timerQueue.delete(earliestId);
+        earliestTimer.fn();
+      }
+      if (rafQueue.size > 0) {
+        const callbacks = [...rafQueue.values()];
+        rafQueue.clear();
+        for (const cb of callbacks) {
+          cb(virtualPerfNow);
+        }
+      }
+    };
+
+    const restore = () => {
+      if (!installed) return;
+      installed = false;
+      performance.now = origPerfNow;
+      Date.now = origDateNow;
+      window.requestAnimationFrame = origRAF;
+      window.cancelAnimationFrame = origCAF;
+      window.setTimeout = origSetTimeout;
+      window.clearTimeout = origClearTimeout;
+      rafQueue.clear();
+      timerQueue.clear();
+    };
+
+    return {
+      install,
+      tick,
+      restore,
+      hasPending: () => rafQueue.size > 0 || timerQueue.size > 0,
+      realNow: origPerfNow,
+      realSetTimeout: origSetTimeout,
+    };
+  }
+
+  async function _selectVideoEncoderConfig(format, W, H, fps, bitrate) {
+    const candidates = [];
+    if (format === 'mp4') {
+      const isHighRes = W > 1280 || H > 720;
+      const codecs = isHighRes ? ['avc1.640033', 'avc1.4d0033', 'avc1.420033'] : ['avc1.42001f', 'avc1.4d001f', 'avc1.64001f'];
+      for (const codec of codecs) {
+        candidates.push({
+          muxerCodec: 'avc',
+          config: { codec, width: W, height: H, bitrate, framerate: fps, latencyMode: 'realtime' },
+        });
+        candidates.push({
+          muxerCodec: 'avc',
+          config: { codec, width: W, height: H, bitrate, framerate: fps, latencyMode: 'quality' },
+        });
+        candidates.push({
+          muxerCodec: 'avc',
+          config: { codec, width: W, height: H, bitrate, framerate: fps, latencyMode: 'quality', hardwareAcceleration: 'prefer-software' },
+        });
+      }
+    } else {
+      const vpCandidates = [
+        { muxerCodec: 'V_VP8', codec: 'vp8' },
+        { muxerCodec: 'V_VP9', codec: 'vp09.00.10.08' },
+      ];
+      for (const c of vpCandidates) {
+        candidates.push({
+          muxerCodec: c.muxerCodec,
+          config: { codec: c.codec, width: W, height: H, bitrate, framerate: fps, latencyMode: 'realtime' },
+        });
+        candidates.push({
+          muxerCodec: c.muxerCodec,
+          config: { codec: c.codec, width: W, height: H, bitrate, framerate: fps, latencyMode: 'quality' },
+        });
+      }
+    }
+    for (const candidate of candidates) {
+      try {
+        const sup = await VideoEncoder.isConfigSupported(candidate.config);
+        if (sup?.supported) return candidate;
+      } catch (_) {}
+    }
+    return null;
+  }
+
+  async function _prepareOfflineAudioEncoder(audioTrack, format, onChunk, cleanups) {
+    if (!audioTrack?.dataUrl || typeof AudioEncoder === 'undefined' || typeof AudioData === 'undefined') {
+      return null;
+    }
+    try {
+      const resp = await fetch(audioTrack.dataUrl);
+      const arrBuf = await resp.arrayBuffer();
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const actx = new AudioCtx();
+      let decoded;
+      try {
+        decoded = await actx.decodeAudioData(arrBuf);
+      } finally {
+        await actx.close().catch(() => {});
+      }
+      const targetRate = 48000;
+      const targetCh = Math.min(2, Math.max(1, decoded.numberOfChannels || 2));
+      const codecOrder = format === 'mp4'
+        ? [
+            { encCodec: 'mp4a.40.2', muxCodec: 'aac' },
+            { encCodec: 'opus', muxCodec: 'opus' },
+          ]
+        : [
+            { encCodec: 'opus', muxCodec: 'A_OPUS' },
+          ];
+      let chosen = null;
+      for (const c of codecOrder) {
+        try {
+          const sup = await AudioEncoder.isConfigSupported({
+            codec: c.encCodec,
+            sampleRate: targetRate,
+            numberOfChannels: targetCh,
+            bitrate: 128000,
+          });
+          if (sup?.supported) { chosen = c; break; }
+        } catch (_) {}
+      }
+      if (!chosen) return null;
+
+      // Resample offline to 48kHz & apply track volume in one fast pass
+      const totalSamples = Math.max(1, Math.ceil(decoded.duration * targetRate));
+      const offline = new OfflineAudioContext(targetCh, totalSamples, targetRate);
+      const src = offline.createBufferSource();
+      src.buffer = decoded;
+      const gain = offline.createGain();
+      gain.gain.value = audioTrack.volume ?? 0.85;
+      src.connect(gain);
+      gain.connect(offline.destination);
+      src.start(0);
+      const rendered = await offline.startRendering();
+
+      const encoder = new AudioEncoder({
+        output: (chunk, meta) => onChunk(chunk, meta),
+        error: (err) => console.warn('Offline AudioEncoder error:', err),
+      });
+      cleanups.push(() => { if (encoder.state !== 'closed') encoder.close(); });
+      encoder.configure({
+        codec: chosen.encCodec,
+        sampleRate: targetRate,
+        numberOfChannels: targetCh,
+        bitrate: 128000,
+      });
+
+      const channelArrays = [];
+      for (let ch = 0; ch < targetCh; ch++) {
+        channelArrays.push(rendered.getChannelData(Math.min(ch, rendered.numberOfChannels - 1)));
+      }
+      let sampleOffset = 0;
+      const CHUNK_SAMPLES = 4096;
+
+      const feedUpTo = (targetUs) => {
+        if (encoder.state !== 'configured') return;
+        while (Math.round((sampleOffset / targetRate) * 1_000_000) < targetUs) {
+          const n = CHUNK_SAMPLES;
+          const planar = new Float32Array(n * targetCh);
+          if (sampleOffset < rendered.length) {
+            const avail = Math.min(n, rendered.length - sampleOffset);
+            for (let ch = 0; ch < targetCh; ch++) {
+              planar.set(channelArrays[ch].subarray(sampleOffset, sampleOffset + avail), ch * n);
+            }
+          }
+          const tsUs = Math.round((sampleOffset / targetRate) * 1_000_000);
+          const ad = new AudioData({
+            format: 'f32-planar',
+            sampleRate: targetRate,
+            numberOfFrames: n,
+            numberOfChannels: targetCh,
+            timestamp: tsUs,
+            data: planar,
+          });
+          encoder.encode(ad);
+          ad.close();
+          sampleOffset += n;
+        }
+      };
+
+      const finish = async (finalUs) => {
+        feedUpTo(finalUs);
+        if (encoder.state === 'configured') {
+          await encoder.flush();
+          encoder.close();
+        }
+      };
+
+      return {
+        muxerAudio: {
+          codec: chosen.muxCodec,
+          numberOfChannels: targetCh,
+          sampleRate: targetRate,
+        },
+        feedUpTo,
+        finish,
+      };
+    } catch (err) {
+      console.warn('Offline audio prep skipped:', err);
+      return null;
+    }
+  }
+
+  function _formatSpeedStatus(label, virtualSec, realElapsedSec, prog) {
+    const speed = realElapsedSec > 0.25 ? (virtualSec / realElapsedSec) : 0;
+    const speedTag = speed >= 1.2 ? ` · ${speed.toFixed(1)}x speed` : '';
+    const pct = Math.round(prog * 100);
+    return `Turbo ${label}: Scene ${(_previewSceneIdx || 0) + 1}/${state.scenes.length} (${pct}%${speedTag})…`;
+  }
+
+  async function _runVirtualClockExport({ fps, onCaptureFrame, onProgress, waitForBackpressure, signal, cleanups }) {
+    const vClock = _createVirtualExportClock();
+    cleanups.push(() => vClock.restore());
+
+    const slotStepMs = 1000 / 60;
+    const frameIntervalMs = 1000 / fps;
+    const frameDurationUs = Math.round(1_000_000 / fps);
+    let exportFinished = false;
+    let idleTicks = 0;
+    let elapsedVirtualMs = 0;
+    let nextCaptureMs = 0;
+    let frameIndex = 0;
+    const realStart = vClock.realNow();
+    let lastYieldReal = realStart;
+    let lastUiReal = realStart;
+
+    vClock.install();
+    state.recording = true;
+
+    _startLiveMultiSceneExportRun(() => {
+      exportFinished = true;
+    });
+
+    // Capture initial frame once setup settles (or immediately if already ready)
+    if (vClock.hasPending() && (!state._activeSlots || state._activeSlots.length === 0)) {
+      vClock.tick(0);
+    }
+    await onCaptureFrame(frameIndex, 0);
+    frameIndex++;
+    nextCaptureMs = frameIntervalMs;
+
+    while (!exportFinished) {
+      signal.throwIfAborted();
+      const isSlotAnimating = !!(state._activeSlots && state._activeSlots.length > 0);
+      const stepMs = isSlotAnimating ? slotStepMs : frameIntervalMs;
+      vClock.tick(stepMs);
+      elapsedVirtualMs += stepMs;
+
+      if (!vClock.hasPending() && !exportFinished) {
+        if (++idleTicks > 10) break;
+      } else {
+        idleTicks = 0;
+      }
+
+      while (elapsedVirtualMs >= nextCaptureMs && !exportFinished) {
+        const tsUs = frameIndex * frameDurationUs;
+        await onCaptureFrame(frameIndex, tsUs);
+        frameIndex++;
+        nextCaptureMs += frameIntervalMs;
+
+        if (waitForBackpressure) {
+          await waitForBackpressure(vClock.realSetTimeout);
+          signal.throwIfAborted();
+        }
+      }
+
+      const nowReal = vClock.realNow();
+      if (nowReal - lastUiReal >= 100) {
+        lastUiReal = nowReal;
+        const prog = _getExportMultiSceneProgress();
+        onProgress(prog, elapsedVirtualMs / 1000, (nowReal - realStart) / 1000);
+      }
+      if (nowReal - lastYieldReal >= 14) {
+        await new Promise(resolve => vClock.realSetTimeout(resolve, 0));
+        lastYieldReal = vClock.realNow();
+      }
+    }
+
+    // Ensure final completed frame is captured cleanly
+    await onCaptureFrame(frameIndex, frameIndex * frameDurationUs);
+    frameIndex++;
+
+    state.recording = false;
+    vClock.restore();
+    return {
+      frameCount: frameIndex,
+      totalDurationUs: frameIndex * frameDurationUs,
+    };
   }
 
   async function _exportSequentialProjectBody(progressText, progressBar, signal, cleanups) {
@@ -16015,177 +16407,146 @@ const TimelineStudio = (() => {
       const gCtx = gCvs.getContext('2d', { willReadFrequently: true });
       const frames = [];
 
-      await new Promise((resolve, reject) => {
-        signal.addEventListener('abort', () => reject(signal.reason), { once: true });
-        state.recording = true;
-
-        const intervalMs = 1000 / gifFps;
-        let lastFrameTime = performance.now();
-        let syncRaf = null;
-        let finishTimer = null;
-        cleanups.push(() => {
-          if (syncRaf) cancelAnimationFrame(syncRaf);
-          if (finishTimer) clearTimeout(finishTimer);
-        });
-
-        const syncLoop = () => {
-          if (!state.recording) return;
-          const now = performance.now();
-          if (now - lastFrameTime >= intervalMs * 0.85) {
-            lastFrameTime = now;
-            _compositeLiveCanvasesToTarget(gCtx, gw, gh);
-            frames.push(new Uint8ClampedArray(gCtx.getImageData(0, 0, gw, gh).data));
-            const prog = _getExportMultiSceneProgress();
-            progressBar.style.width = `${Math.round(prog * 90)}%`;
-            progressText.textContent = `Recording GIF Scene ${(_previewSceneIdx || 0) + 1}/${state.scenes.length} (${Math.round(prog * 100)}%)…`;
-          }
-          syncRaf = requestAnimationFrame(syncLoop);
-        };
-        syncRaf = requestAnimationFrame(syncLoop);
-
-        _startLiveMultiSceneExportRun(() => {
-          progressText.textContent = 'Encoding Animated GIF…';
-          progressBar.style.width = '94%';
-          finishTimer = setTimeout(() => {
-            state.recording = false;
-            if (syncRaf) cancelAnimationFrame(syncRaf);
-            try {
-              if (signal.aborted) { reject(signal.reason); return; }
-              const blob = _encodeGIF89a(frames, gw, gh, gifFps);
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              const ts = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-              a.href = url;
-              a.download = `inkplainer-${ts}.gif`;
-              a.click();
-              setTimeout(() => URL.revokeObjectURL(url), 1500);
-              progressBar.style.width = '100%';
-              resolve();
-            } catch (gifErr) {
-              reject(gifErr);
-            }
-          }, 400);
-        });
+      await _runVirtualClockExport({
+        fps: gifFps,
+        signal,
+        cleanups,
+        onCaptureFrame: async () => {
+          _compositeLiveCanvasesToTarget(gCtx, gw, gh);
+          frames.push(new Uint8ClampedArray(gCtx.getImageData(0, 0, gw, gh).data));
+        },
+        onProgress: (prog, vSec, rSec) => {
+          progressBar.style.width = `${Math.round(prog * 90)}%`;
+          progressText.textContent = _formatSpeedStatus('GIF', vSec, rSec, prog);
+        },
       });
+
+      progressText.textContent = 'Encoding Animated GIF…';
+      progressBar.style.width = '95%';
+      await new Promise(r => setTimeout(r, 10));
+      signal.throwIfAborted();
+      const blob = _encodeGIF89a(frames, gw, gh, gifFps);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const ts = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+      a.href = url;
+      a.download = `inkplainer-${ts}.gif`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+      progressBar.style.width = '100%';
       return;
     }
 
-    if (fmt === 'mp4' && typeof VideoEncoder !== 'undefined') {
-      const mod = await import('./vendor/mp4-muxer.mjs');
+    if ((fmt === 'mp4' || fmt === 'webm') && typeof VideoEncoder !== 'undefined') {
+      const isMp4 = fmt === 'mp4';
+      const mod = await import(isMp4 ? './vendor/mp4-muxer.mjs' : './vendor/webm-muxer.mjs');
       signal.throwIfAborted();
       const Muxer = mod.Muxer || mod.default?.Muxer;
+      const StreamTarget = mod.StreamTarget || mod.default?.StreamTarget;
       const ArrayBufferTarget = mod.ArrayBufferTarget || mod.default?.ArrayBufferTarget;
       const W = state.canvasW % 2 === 0 ? state.canvasW : state.canvasW + 1;
       const H = state.canvasH % 2 === 0 ? state.canvasH : state.canvasH + 1;
-      const target = new ArrayBufferTarget();
-      const muxer = new Muxer({
-        target,
-        video: { codec: 'avc', width: W, height: H },
-        fastStart: 'in-memory',
-      });
-      const isHighRes = W > 1280 || H > 720;
-      let encoderConfig = {
-        codec: isHighRes ? 'avc1.640033' : 'avc1.42001f',
-        width: W,
-        height: H,
-        bitrate,
-        framerate: fps,
-        latencyMode: 'quality',
-        ...(isHighRes ? { hardwareAcceleration: 'prefer-software' } : {}),
-      };
-      try {
-        const sup = await VideoEncoder.isConfigSupported(encoderConfig);
-        if (!sup.supported) throw new Error('H.264 encoding is unavailable. Please export WebM instead.');
-      } catch (error) {
-        if (error.message?.includes('H.264')) throw error;
-      }
-      signal.throwIfAborted();
 
-      const encoder = new VideoEncoder({
-        output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
-        error: (e) => { if (_exportController) _exportController.abort(e); },
-      });
-      cleanups.push(() => { if (encoder.state !== 'closed') encoder.close(); });
-      encoder.configure(encoderConfig);
+      const selectedVideo = await _selectVideoEncoderConfig(fmt, W, H, fps, bitrate);
+      if (!selectedVideo) {
+        if (isMp4) throw new Error('H.264 encoding is unavailable. Please export WebM instead.');
+        // Fall through to MediaRecorder fallback for WebM if VideoEncoder has no VP8/VP9 support
+      } else {
+        signal.throwIfAborted();
+        const target = StreamTarget ? _createPagedStreamTarget(StreamTarget) : new ArrayBufferTarget();
+        let muxer = null;
 
-      const recCvs = document.createElement('canvas');
-      recCvs.width = W; recCvs.height = H;
-      const rctx = recCvs.getContext('2d');
+        const audioRunner = await _prepareOfflineAudioEncoder(
+          state.audioTrack,
+          fmt,
+          (chunk, meta) => { if (muxer) muxer.addAudioChunk(chunk, meta); },
+          cleanups
+        );
+        signal.throwIfAborted();
 
-      await new Promise((resolve, reject) => {
-        signal.addEventListener('abort', () => reject(signal.reason), { once: true });
-        state.recording = true;
+        const totalEstSec = getTotalProjectDuration();
+        const muxerOptions = isMp4
+          ? {
+              target,
+              video: { codec: selectedVideo.muxerCodec, width: W, height: H },
+              ...(audioRunner ? { audio: audioRunner.muxerAudio } : {}),
+              fastStart: totalEstSec > 180 ? false : 'in-memory',
+            }
+          : {
+              target,
+              video: { codec: selectedVideo.muxerCodec, width: W, height: H, frameRate: fps },
+              ...(audioRunner ? { audio: audioRunner.muxerAudio } : {}),
+            };
+        muxer = new Muxer(muxerOptions);
 
-        let frameIndex = 0;
-        const frameDuration = Math.round(1_000_000 / fps);
-        const intervalMs = 1000 / fps;
-        let lastFrameTime = performance.now();
-        let syncRaf = null;
-        let finishTimer = null;
-        cleanups.push(() => {
-          if (syncRaf) cancelAnimationFrame(syncRaf);
-          if (finishTimer) clearTimeout(finishTimer);
+        const encoder = new VideoEncoder({
+          output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
+          error: (e) => { if (_exportController) _exportController.abort(e); },
         });
+        cleanups.push(() => { if (encoder.state !== 'closed') encoder.close(); });
+        encoder.configure(selectedVideo.config);
 
-        const syncLoop = () => {
-          if (!state.recording) return;
-          const now = performance.now();
-          if (now - lastFrameTime >= intervalMs * 0.85) {
-            lastFrameTime = now;
+        const recCvs = document.createElement('canvas');
+        recCvs.width = W; recCvs.height = H;
+        const rctx = recCvs.getContext('2d', { alpha: false });
+        const frameDurationUs = Math.round(1_000_000 / fps);
+        const label = isMp4 ? 'MP4' : 'WebM';
+
+        const result = await _runVirtualClockExport({
+          fps,
+          signal,
+          cleanups,
+          onCaptureFrame: async (idx, tsUs) => {
             _compositeLiveCanvasesToTarget(rctx, W, H);
             if (encoder.state === 'configured') {
-              try {
-                const vf = new VideoFrame(recCvs, {
-                  timestamp: frameIndex * frameDuration,
-                  duration: frameDuration,
-                });
-                encoder.encode(vf, { keyFrame: frameIndex % (fps * 2) === 0 });
-                vf.close();
-                frameIndex++;
-              } catch (encErr) {
-                console.warn('Frame encode error:', encErr);
-              }
+              const vf = new VideoFrame(recCvs, {
+                timestamp: tsUs,
+                duration: frameDurationUs,
+              });
+              encoder.encode(vf, { keyFrame: idx % (fps * 2) === 0 });
+              vf.close();
             }
-            const prog = _getExportMultiSceneProgress();
+            if (audioRunner) audioRunner.feedUpTo(tsUs + frameDurationUs);
+          },
+          waitForBackpressure: async (realSetTimeout) => {
+            while (encoder.encodeQueueSize > 10 && !signal.aborted) {
+              await new Promise(resolve => realSetTimeout(resolve, 4));
+            }
+          },
+          onProgress: (prog, vSec, rSec) => {
             progressBar.style.width = `${Math.round(prog * 94)}%`;
-            progressText.textContent = `Recording MP4 Scene ${(_previewSceneIdx || 0) + 1}/${state.scenes.length} (${Math.round(prog * 100)}%)…`;
-          }
-          syncRaf = requestAnimationFrame(syncLoop);
-        };
-        syncRaf = requestAnimationFrame(syncLoop);
-
-        _startLiveMultiSceneExportRun(() => {
-          progressBar.style.width = '96%';
-          progressText.textContent = 'Finalizing MP4…';
-          finishTimer = setTimeout(async () => {
-            state.recording = false;
-            if (syncRaf) cancelAnimationFrame(syncRaf);
-            try {
-              if (encoder.state === 'configured') {
-                await encoder.flush();
-                encoder.close();
-              }
-              muxer.finalize();
-              const blob = new Blob([target.buffer], { type: 'video/mp4' });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              const ts = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-              a.href = url;
-              a.download = `inkplainer-${ts}.mp4`;
-              a.click();
-              setTimeout(() => URL.revokeObjectURL(url), 1500);
-              progressBar.style.width = '100%';
-              resolve();
-            } catch (finalizeErr) {
-              reject(finalizeErr);
-            }
-          }, 600);
+            progressText.textContent = _formatSpeedStatus(label, vSec, rSec, prog);
+          },
         });
-      });
-      return;
+
+        progressBar.style.width = '96%';
+        progressText.textContent = `Finalizing ${label}…`;
+        if (encoder.state === 'configured') {
+          await encoder.flush();
+          encoder.close();
+        }
+        if (audioRunner) {
+          await audioRunner.finish(result.totalDurationUs);
+        }
+        signal.throwIfAborted();
+        muxer.finalize();
+        const mimeType = isMp4 ? 'video/mp4' : 'video/webm';
+        const blob = typeof target.toBlob === 'function'
+          ? target.toBlob(mimeType)
+          : new Blob([target.buffer], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const ts = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+        a.href = url;
+        a.download = `inkplainer-${ts}.${fmt}`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
+        progressBar.style.width = '100%';
+        return;
+      }
     }
 
-    // WebM Sequential Recording (all projects, with or without audio)
+    // Fallback WebM MediaRecorder path (only when VideoEncoder is unavailable)
     await new Promise(async (resolve, reject) => {
       try {
         const recCvs = document.createElement('canvas');

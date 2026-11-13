@@ -1,0 +1,42 @@
+[
+  {
+    "name": "animejs",
+    "version": "3.2.2",
+    "license": "MIT",
+    "source": "https://registry.npmjs.org/animejs/-/animejs-3.2.2.tgz",
+    "sha256": {
+      "anime.min.js": "b5ce1be3c3f530f192e0f2571d1942846096d66119cbada34bfdc912c4873f35",
+      "anime.LICENSE.md": "f825f5c75974fda9ae806de442770f3d7686cf86245e78fa0c3c39913184af95"
+    }
+  },
+  {
+    "name": "@svgdotjs/svg.js",
+    "version": "3.2.5",
+    "license": "MIT",
+    "source": "https://registry.npmjs.org/@svgdotjs/svg.js/-/svg.js-3.2.5.tgz",
+    "sha256": {
+      "svg.min.js": "8463c986bb2155ce5f03039fef82ac33816646054534681f268063ae8c546bf2",
+      "svgjs.LICENSE.txt": "455113977c98c54dad8598e092b99aad6be0ed8c5c4a0722154acf4b21df4730"
+    }
+  },
+  {
+    "name": "dompurify",
+    "version": "3.4.17",
+    "license": "(MPL-2.0 OR Apache-2.0)",
+    "source": "https://registry.npmjs.org/dompurify/-/dompurify-3.4.17.tgz",
+    "sha256": {
+      "purify.min.js": "cd37898f9782adf54820c413191b5691803f0f137c799d6edcfd38523b4c2c31",
+      "dompurify.LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    }
+  },
+  {
+    "name": "gifenc",
+    "version": "1.0.3",
+    "license": "MIT",
+    "source": "https://registry.npmjs.org/gifenc/-/gifenc-1.0.3.tgz",
+    "sha256": {
+      "gifenc.mjs": "217761244379253ba5815510d3048a4fb1f4c4dbe9fb51a5cfbfe26f34eec093",
+      "gifenc.LICENSE.md": "47bc590c39d8ccccfc544875a9faebf44bafa828ef20315b396b5d0629f0cfd6"
+    }
+  }
+]

@@ -1,0 +1,109 @@
+#stickman-launch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid rgba(26, 26, 26, .18);
+  border-radius: 8px;
+  background: #fff7ed;
+  color: #9a3412;
+  font: 600 12px 'Geist', 'DM Sans', sans-serif;
+  cursor: pointer;
+}
+#stickman-launch:hover { background: #ffedd5; border-color: #fb923c; }
+#stickman-workspace-launch {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
+  border: 1px solid #7c3aed; border-radius: 8px; background: #2e1065;
+  color: #ede9fe; font: 600 12px 'Geist', 'DM Sans', sans-serif; cursor: pointer;
+}
+#stickman-workspace-launch:hover { background: #4c1d95; border-color: #a78bfa; }
+#stickman-studio-dialog {
+  width: min(1180px, calc(100vw - 32px));
+  height: min(820px, calc(100vh - 32px));
+  padding: 0;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  background: #111827;
+  color: #e5e7eb;
+  box-shadow: 0 24px 80px rgba(0,0,0,.5);
+  overflow: hidden;
+}
+#stickman-studio-dialog::backdrop { background: rgba(15, 23, 42, .62); backdrop-filter: blur(3px); }
+.stickman-shell { height: 100%; min-height: 0; display: grid; grid-template-rows: 52px auto minmax(0, 1fr) 38px; }
+.stickman-head { display:flex; align-items:center; gap:12px; padding:0 16px; border-bottom:1px solid #273449; background:#172033; }
+.stickman-brand { font:700 18px 'Caveat', cursive; color:#fed7aa; margin-right:auto; }
+.stickman-context { color:#94a3b8; font-size:10px; }
+.stickman-head button, .stickman-actions button { border:1px solid #3b4a61; border-radius:6px; background:#202c40; color:#dbeafe; padding:6px 10px; cursor:pointer; font-size:11px; }
+.stickman-head button:hover, .stickman-actions button:hover { border-color:#fb923c; color:#fff; }
+.stickman-work { min-height:0; overflow:hidden; display:grid; grid-template-columns: 190px minmax(0,1fr) 230px; }
+.stickman-library, .stickman-inspector { min-height:0; overflow:auto; padding:12px; background:#151e2f; }
+.stickman-library { border-right:1px solid #273449; }
+.stickman-inspector { border-left:1px solid #273449; }
+.stickman-section-title { margin:2px 0 9px; color:#94a3b8; font-size:10px; text-transform:uppercase; letter-spacing:.12em; }
+.stickman-character-list { display:flex; flex-direction:column; gap:6px; }
+.stickman-character-item { display:flex; align-items:center; gap:7px; padding:8px; border:1px solid #2e3b52; border-radius:7px; background:#1b2639; color:#e2e8f0; cursor:pointer; text-align:left; }
+.stickman-character-item.active { border-color:#fb923c; background:#30251d; }
+.stickman-character-dot { width:12px; height:12px; border-radius:50%; border:2px solid #fff; flex:none; }
+.stickman-add { width:100%; margin-top:8px; }
+.stickman-stage { min-width:0; min-height:0; display:flex; flex-direction:column; background:#0b1220; }
+.stickman-canvas-wrap { flex:1; min-height:0; display:flex; align-items:center; justify-content:center; padding:16px; overflow:hidden; }
+#stickman-canvas { width:100%; height:100%; max-height:100%; background:linear-gradient(180deg,#dbeafe 0%,#f8fafc 72%,#cbd5e1 72%,#cbd5e1 100%); border-radius:8px; cursor:crosshair; }
+.stickman-stage-bar { display:flex; align-items:center; gap:8px; padding:8px 12px; border-top:1px solid #273449; }
+.stickman-stage-bar label { color:#94a3b8; font-size:10px; }
+.stickman-stage-bar input[type=range] { accent-color:#fb923c; }
+.stickman-time { width:54px; text-align:right; color:#fed7aa; font:11px monospace; }
+.stickman-fields { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.stickman-field { display:flex; flex-direction:column; gap:3px; color:#94a3b8; font-size:10px; }
+.stickman-field.full { grid-column:1/-1; }
+.stickman-field input, .stickman-field select { width:100%; border:1px solid #334155; border-radius:5px; background:#0f172a; color:#e2e8f0; padding:6px; font-size:11px; }
+.stickman-actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+.stickman-actions button.primary { background:#c2410c; border-color:#fb923c; color:#fff; }
+.stickman-hint { margin:10px 0; color:#64748b; font-size:10px; line-height:1.45; }
+.stickman-status { padding:0 12px; display:flex; align-items:center; color:#94a3b8; font-size:10px; border-top:1px solid #273449; background:#111827; }
+.stickman-guide { display:flex; flex-wrap:wrap; align-content:center; gap:7px 12px; min-height:0; padding:8px 14px; background:#1e293b; border-bottom:1px solid #273449; color:#cbd5e1; font-size:10px; line-height:1.35; }
+.stickman-guide strong { width:100%; color:#fed7aa; }
+.stickman-guide small { width:100%; color:#94a3b8; }
+@media (max-width: 900px) {
+  #stickman-studio-dialog { width:calc(100vw - 12px); height:calc(100vh - 12px); }
+  .stickman-work { grid-template-columns:150px minmax(0,1fr); }
+  .stickman-inspector { display:none; }
+}
+@media (max-height: 650px) {
+  .stickman-guide { padding:5px 12px; }
+  .stickman-guide small { display:none; }
+  .stickman-canvas-wrap { padding:8px; }
+}
+
+#stickman-workspace-dialog {
+  width: min(1280px, calc(100vw - 28px)); height: min(820px, calc(100vh - 28px));
+  padding: 0; border: 1px solid #475569; border-radius: 14px; background: #0f172a;
+  color: #e2e8f0; box-shadow: 0 24px 90px rgba(0,0,0,.62); overflow: hidden;
+}
+#stickman-workspace-dialog::backdrop { background: rgba(2, 6, 23, .72); backdrop-filter: blur(4px); }
+.stickman-workspace-shell { height: 100%; display: grid; grid-template-rows: 52px 44px minmax(0,1fr) 34px; }
+.stickman-workspace-toolbar { display:flex; align-items:center; gap:7px; padding:0 12px; border-bottom:1px solid #273449; background:#172033; }
+.stickman-workspace-toolbar strong { color:#fed7aa; font:700 19px 'Caveat', cursive; margin-right:8px; white-space:nowrap; }
+.stickman-workspace-toolbar span { color:#94a3b8; font-size:10px; margin-right:auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.stickman-workspace-toolbar button, .stickman-workspace-actions button { border:1px solid #475569; border-radius:6px; background:#202c40; color:#e2e8f0; padding:6px 9px; cursor:pointer; font-size:11px; }
+.stickman-workspace-toolbar button:hover, .stickman-workspace-actions button:hover { border-color:#a78bfa; color:#fff; }
+.stickman-workspace-tabs { display:flex; align-items:end; gap:2px; padding:0 10px; background:#111827; border-bottom:1px solid #273449; overflow:auto; }
+.stickman-workspace-tabs button { border:0; border-bottom:2px solid transparent; background:transparent; color:#94a3b8; padding:13px 10px 10px; cursor:pointer; font-size:11px; white-space:nowrap; }
+.stickman-workspace-tabs button.active { color:#ede9fe; border-bottom-color:#a78bfa; background:#1e1b4b; }
+.stickman-workspace-shell main { min-height:0; overflow:auto; padding:24px; background:radial-gradient(circle at 75% 15%, rgba(76,29,149,.22), transparent 34%), #0b1220; }
+.stickman-workspace-panel { max-width:860px; margin:0 auto; padding:28px; border:1px solid #334155; border-radius:14px; background:rgba(15,23,42,.86); }
+.stickman-workspace-eyebrow { color:#c4b5fd; font:600 10px 'DM Sans', sans-serif; letter-spacing:.16em; text-transform:uppercase; }
+.stickman-workspace-panel h2 { margin:8px 0; color:#f8fafc; font-size:26px; }
+.stickman-workspace-panel p { max-width:700px; color:#cbd5e1; line-height:1.6; font-size:13px; }
+.stickman-workspace-actions { display:flex; flex-wrap:wrap; gap:8px; margin:22px 0; }
+.stickman-workspace-actions button { background:#312e81; border-color:#6366f1; }
+.stickman-workspace-details { display:grid; gap:7px; padding:16px; border-left:3px solid #8b5cf6; background:#111827; color:#94a3b8; font-size:11px; line-height:1.45; }
+.stickman-workspace-details strong { color:#e9d5ff; }
+.stickman-workspace-shell footer { display:flex; align-items:center; gap:12px; padding:0 14px; color:#94a3b8; font-size:10px; border-top:1px solid #273449; background:#111827; }
+.stickman-workspace-status { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+@media (max-width: 760px) {
+  #stickman-workspace-dialog { width:calc(100vw - 10px); height:calc(100vh - 10px); }
+  .stickman-workspace-toolbar { overflow:auto; }
+  .stickman-workspace-toolbar strong { display:none; }
+  .stickman-workspace-panel { padding:18px; }
+  .stickman-workspace-tabs button { padding-left:7px; padding-right:7px; }
+}

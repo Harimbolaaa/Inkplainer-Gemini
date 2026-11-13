@@ -1,0 +1,11 @@
+{
+  "title": "harimbola-csv",
+  "description": "A setup and verification tool for preparing imported projects for deployment and preview, helping teams catch critical issues before release.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
