@@ -4144,6 +4144,167 @@ html[data-theme="dark"] .cam-dock-chip-btn.active {
   background: var(--accent-lo);
 }
 
+/* ── Preset Hover Visual Thumbnail Preview ── */
+#preset-hover-preview {
+  position: fixed;
+  z-index: 9999;
+  width: 236px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-6px) scale(0.98);
+  transition: opacity 0.14s ease, transform 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+  background: var(--sidebar);
+  border: 1px solid var(--border-hi);
+  border-radius: 10px;
+  padding: 9px;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.16), 0 3px 10px rgba(0,0,0,0.08);
+  color: var(--text);
+}
+#preset-hover-preview.visible {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+}
+html[data-theme="dark"] #preset-hover-preview {
+  box-shadow: 0 18px 40px rgba(0,0,0,0.52), 0 2px 10px rgba(0,0,0,0.35);
+}
+.preset-preview-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 7px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: #fcfcfa;
+}
+.preset-preview-stage.is-blueprint {
+  background: #16324f;
+  border-color: rgba(125,211,252,0.32);
+}
+.preset-preview-stage svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.preset-preview-hand {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.22));
+  animation: presetHandBob 1.7s ease-in-out infinite;
+}
+.preset-preview-ghost {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(24,24,27,0.55);
+  background: rgba(255,255,255,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+  animation: presetGhostPulse 1.6s ease-in-out infinite;
+}
+.preset-preview-stage.is-blueprint .preset-preview-ghost {
+  border-color: rgba(186,230,253,0.85);
+  background: rgba(22,50,79,0.55);
+  color: #e0f2fe;
+}
+.preset-preview-badge {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.25px;
+  background: rgba(17,17,17,0.74);
+  color: #ffffff;
+  backdrop-filter: blur(4px);
+}
+.preset-preview-stage.is-blueprint .preset-preview-badge {
+  background: rgba(12,31,52,0.84);
+  color: #bae6fd;
+  border: 1px solid rgba(125,211,252,0.28);
+}
+.preset-preview-meta {
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.preset-preview-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.preset-preview-title {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.preset-preview-kind {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--muted-hi);
+  flex-shrink: 0;
+}
+.preset-preview-desc {
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--muted-hi);
+}
+.preset-preview-specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 1px;
+}
+.preset-preview-spec {
+  font-size: 9px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.preset-preview-scanbar {
+  animation: presetScanSweep 2.1s ease-in-out infinite;
+}
+.preset-preview-animstroke {
+  stroke-dasharray: 180;
+  stroke-dashoffset: 48;
+  animation: presetStrokeDraw 2.2s ease-in-out infinite alternate;
+}
+@keyframes presetHandBob {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(3px, -3px); }
+}
+@keyframes presetGhostPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.8; }
+  50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+}
+@keyframes presetScanSweep {
+  0%, 100% { transform: translateX(-6px); opacity: 0.82; }
+  50% { transform: translateX(8px); opacity: 1; }
+}
+@keyframes presetStrokeDraw {
+  0% { stroke-dashoffset: 110; }
+  100% { stroke-dashoffset: 18; }
+}
+
 /* ── Logo Dropdown ── */
 .topbar-logo {
   display: flex;
@@ -7112,6 +7273,9 @@ window.addEventListener('DOMContentLoaded', () => {
 function toggleCard(header) {
   const card = header.closest('.card');
   card.classList.toggle('collapsed');
+  if (card.classList.contains('collapsed') && typeof hidePresetHoverPreview === 'function') {
+    hidePresetHoverPreview();
+  }
 }
 
 function updateSliderFill(input) {
@@ -8180,25 +8344,34 @@ function _isDrawingGeneration() {
   return getAnimOrder().some(l => _OUTLINE_ANIM_MODES.has(l.animStyle || state.animStyle));
 }
 
-function _hasStickmanProductionAnimation() {
-  const scene = window.TimelineStudio?.getActiveScene?.();
-  return Boolean(scene?.production?.tracks?.some(track =>
-    track.type === 'character' && track.visible !== false && track.character
-  ));
+function _hasStickmanProductionAnimation(sceneOverride = null) {
+  const scene = sceneOverride || window.TimelineStudio?.getActiveScene?.();
+  if (!scene?.production) return false;
+  if (scene.production.tracks?.some(track => track.type === 'character' && track.visible !== false && track.character)) return true;
+  if (scene.production.effects?.some(eff => eff.visible !== false)) return true;
+  if (scene.production.camera?.keyframes?.length > 0) return true;
+  return false;
+}
+
+function _sceneNeedsCompositePlayback(sceneOverride = null, layersOverride = null) {
+  const scene = sceneOverride || window.TimelineStudio?.getActiveScene?.();
+  const layers = layersOverride || scene?.layers || state.layers || [];
+  if (window.StudioUI?.hasMotion?.(layers)) return true;
+  if (_hasStickmanProductionAnimation(scene)) return true;
+  return false;
 }
 
 function generate() {
   if (window.StudioUI?.isEditing()) { showToast('Finish or cancel vector editing before playback'); return; }
+  if (typeof _cameraEdit !== 'undefined' && _cameraEdit.active && typeof toggleCameraEditMode === 'function') {
+    toggleCameraEditMode(false);
+  }
   window.StudioEffects?.stopPreview(false);
   if (window.EffectManager) EffectManager.stopAll();
-  // Stickman tracks are scene-owned, not legacy image layers. Use the shared
-  // compositor so SVG/image layers and Stickman tracks play together.
-  if (_hasStickmanProductionAnimation() && window.TimelineStudio?.playMotionScene) {
+  // Stickman tracks and motion layers share the scene compositor.
+  const activeSc = window.TimelineStudio?.getActiveScene?.();
+  if (_sceneNeedsCompositePlayback(activeSc, state.layers) && window.TimelineStudio?.playMotionScene) {
     window.TimelineStudio.playMotionScene();
-    return;
-  }
-  if (window.StudioUI && window.TimelineStudio?.playMotionScene && StudioUI.hasMotion(state.layers)) {
-    TimelineStudio.playMotionScene();
     return;
   }
   if (window.TimelineStudio?.cancelPreviewForSingleSceneRun) {
@@ -8219,6 +8392,11 @@ function _generateNow() {
   // Commit any open text edit before generating
   closeTextEditor(true);
   deactivateTextPlacement();
+  if (typeof _cameraEdit !== 'undefined' && _cameraEdit.active) {
+    _cameraEdit.active = false;
+    if (typeof syncExtraVideoScribeControls === 'function') syncExtraVideoScribeControls(getSelectedLayer());
+  }
+  state._cameraSettleToken = (state._cameraSettleToken || 0) + 1;
   state.bgCanvas       = null;
   state._activeSlots   = [];
   state._currentSlot   = null;
@@ -8233,14 +8411,19 @@ function _generateNow() {
   state._lastHandTipX = null;
   state._lastHandTipY = null;
   state._lastHandTipTs = 0;
-  state._camScale = 1;
-  state._camCX = state.canvasW / 2;
-  state._camCY = state.canvasH / 2;
-  (state.layers || []).forEach(l => { l._erasedByAnim = false; });
-  ctx = _mainCtx;
 
   // Build ordered list then group by animOrder (same number → run simultaneously)
   const allOrdered = getAnimOrder();
+  const activeSc = window.TimelineStudio?.getActiveScene?.();
+  const initCam = (activeSc && window.CameraCore?.evaluateSceneCameraAtTime)
+    ? window.CameraCore.evaluateSceneCameraAtTime(activeSc, 0, allOrdered, state.canvasW, state.canvasH, { defaultCameraMode: state.cameraMode, defaultCameraZoom: state.cameraZoom })
+    : null;
+  state._camScale = initCam?.active ? initCam.zoom : 1;
+  state._camCX = initCam?.active ? initCam.cx : state.canvasW / 2;
+  state._camCY = initCam?.active ? initCam.cy : state.canvasH / 2;
+  (state.layers || []).forEach(l => { l._erasedByAnim = false; });
+  ctx = _mainCtx;
+
   state._animQueue = allOrdered; // flat list (backward compat)
   state._queuePos  = 0;
 
@@ -8424,14 +8607,10 @@ function _allLayersDone() {
 
   const shouldReveal = _imageRevealOn && anyOutline && _revealStyle !== 'instant';
 
-  function _snap() {
+  const settleToken = state._cameraSettleToken || 0;
+
+  function _snap(preserveCamera = false) {
     if (anyOutlineNoReveal || anyErasedLayer) {
-      // At least one layer has "reveal original image" off — bgCanvas already
-      // holds the correct per-layer baked result (drawn-only for that layer,
-      // raw image for any other layer that doesn't opt out), so just draw it
-      // and stop. BUG FIX: this used to fall through into the raw-image redraw
-      // below unconditionally, painting the original photo back over the
-      // drawn-only result even with the checkbox off.
       if (state.bgCanvas) {
         const _tmpBg = state.bgCanvas; state.bgCanvas = null;
         fillBg(_mainCtx);
@@ -8441,26 +8620,33 @@ function _allLayersDone() {
       }
       if (state.bgCanvas) _mainCtx.drawImage(state.bgCanvas, 0, 0);
     } else {
-      // Nothing is opting out of reveal — safe to draw every layer's raw image directly.
       state.bgCanvas = null;
       redrawLayersOnCanvas();
     }
-    // BUG FIX: on Drawing-tab styles, the last frame draws the hand and THEN
-    // calls finishAnim() — whose own hctx.clearRect() call fires while
-    // _tickAllSlots has hctx.clearRect temporarily disabled (so parallel
-    // layers can each draw a hand without erasing one another mid-frame).
-    // That leaves the hand permanently stuck on screen. This is the first
-    // point after that suppression has been lifted, so it's the reliable
-    // place to actually clear it.
+    if (preserveCamera && typeof window._applyDynamicCameraFrame === 'function') {
+      window._applyDynamicCameraFrame(true);
+    }
     hctx.clearRect(0, 0, state.canvasW, state.canvasH);
   }
 
   function _finalizeAfterCameraSettle() {
+    if ((state._cameraSettleToken || 0) !== settleToken) return;
+    const activeSc = window.TimelineStudio?.getActiveScene?.();
+    const scDur = Math.max(0.5, Number(activeSc?.duration) || 5.0);
+    const hasSceneKfs = !!(activeSc && Array.isArray(activeSc.cameraKeyframes) && activeSc.cameraKeyframes.length > 0);
+    const endEval = hasSceneKfs && window.CameraCore?.evaluateSceneCameraAtTime
+      ? window.CameraCore.evaluateSceneCameraAtTime(activeSc, scDur, state.layers || [], state.canvasW, state.canvasH, { defaultCameraMode: state.cameraMode, defaultCameraZoom: state.cameraZoom })
+      : null;
+    const endResetEnabled = hasSceneKfs ? !endEval?.active : (activeSc?.camera?.endResetToFull !== false);
+
     const finalizeDone = () => {
-      _snap();
-      state._camScale = 1;
-      state._camCX = state.canvasW / 2;
-      state._camCY = state.canvasH / 2;
+      if ((state._cameraSettleToken || 0) !== settleToken) return;
+      _snap(!endResetEnabled);
+      if (endResetEnabled) {
+        state._camScale = 1;
+        state._camCX = state.canvasW / 2;
+        state._camCY = state.canvasH / 2;
+      }
       document.getElementById('play-pause-btn').disabled = true;
       document.getElementById('done-badge').classList.add('show');
       document.getElementById('anim-style-label').textContent = '';
@@ -8473,8 +8659,6 @@ function _allLayersDone() {
       }
     };
 
-    const activeSc = window.TimelineStudio?.getActiveScene?.();
-    const endResetEnabled = activeSc?.camera?.endResetToFull !== false;
     const startScale = state._camScale || 1;
     const startCX = state._camCX ?? (state.canvasW / 2);
     const startCY = state._camCY ?? (state.canvasH / 2);
@@ -8483,11 +8667,12 @@ function _allLayersDone() {
       const baseSnapCvs = document.createElement('canvas');
       baseSnapCvs.width = state.canvasW;
       baseSnapCvs.height = state.canvasH;
-      _snap();
+      _snap(false);
       baseSnapCvs.getContext('2d').drawImage(document.getElementById('main-canvas'), 0, 0);
       const settleStart = performance.now();
       const settleDur = 460;
       const stepZoomOut = (now) => {
+        if ((state._cameraSettleToken || 0) !== settleToken) return;
         const p = Math.min(1, (now - settleStart) / settleDur);
         const ease = p * p * (3 - 2 * p);
         state._camScale = startScale + (1 - startScale) * ease;
@@ -8518,10 +8703,11 @@ function _allLayersDone() {
   // Reveal animation
   const dur  = _revealDuration;
   const ease = t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-  const start = Date.now();
+  const start = performance.now();
 
   (function reveal() {
-    const el = (Date.now() - start) / dur;
+    if ((state._cameraSettleToken || 0) !== settleToken) return;
+    const el = (performance.now() - start) / dur;
     if (el >= 1) {
       _finalizeAfterCameraSettle();
       return;
@@ -8550,6 +8736,9 @@ function _allLayersDone() {
       });
     }
     _mainCtx.restore();
+    if (typeof window._applyDynamicCameraFrame === 'function') {
+      window._applyDynamicCameraFrame(true);
+    }
     requestAnimationFrame(reveal);
   })();
 }
@@ -9122,16 +9311,42 @@ function _isPointOpaqueOnLayerImage(px, py, layer, bounds) {
   }
 }
 
+// ── Active View Camera (shared across canvas redraw, selection overlay & pointer hit-testing) ──
+window.getActiveViewCamera = function() {
+  const W = state.canvasW || 1280;
+  const H = state.canvasH || 720;
+  if (state.playing || (typeof _cameraEdit !== 'undefined' && _cameraEdit?.active)) {
+    return { active: false, cx: W / 2, cy: H / 2, zoom: 1 };
+  }
+  const activeScene = window.TimelineStudio?.getActiveScene?.();
+  if (!activeScene || !window.CameraCore?.evaluateSceneCameraAtTime) {
+    return { active: false, cx: W / 2, cy: H / 2, zoom: 1 };
+  }
+  const localT = _getSceneLocalTime(activeScene);
+  const ordered = (activeScene.layers || []).filter(l => l.visible !== false && l.img);
+  return window.CameraCore.evaluateSceneCameraAtTime(
+    activeScene,
+    localT,
+    ordered,
+    W,
+    H,
+    { defaultCameraMode: state.cameraMode, defaultCameraZoom: state.cameraZoom }
+  );
+};
+
 // ── Redraw all layers composited on canvas ──
 function redrawLayersOnCanvas() {
   const activeScene = window.TimelineStudio?.getActiveScene?.();
-  const activeProduction = activeScene?.production;
   const localT = activeScene ? _getSceneLocalTime(activeScene) : 0;
-  if (activeScene && (
-    state.layers?.some(l => l.gsapEffect || l.svgMotion || l.rotation || (l.keyframes && l.keyframes.length > 0)) ||
-    activeProduction?.tracks?.some(track => track.type === 'character' && track.visible !== false)
-  )) {
-    window.TimelineStudio.renderSceneCompositeToContext(_mainCtx, activeScene, localT, false);
+  const ignoreCam = !!(typeof _cameraEdit !== 'undefined' && _cameraEdit?.active);
+  const hasCamAnim = !ignoreCam && !!(activeScene && window.CameraCore?.sceneHasCameraAnimation?.(activeScene, { defaultCameraMode: state.cameraMode }));
+  const needsComposite = !!(activeScene && (
+    _sceneNeedsCompositePlayback(activeScene, state.layers) ||
+    hasCamAnim ||
+    state.layers?.some(l => l.rotation || l.vectorData || (l.trimPath !== undefined && l.trimPath < 100) || (l.keyframes && l.keyframes.length > 0))
+  ));
+  if (activeScene && window.TimelineStudio?.renderSceneCompositeToContext && needsComposite) {
+    window.TimelineStudio.renderSceneCompositeToContext(_mainCtx, activeScene, localT, false, { ignoreCamera: ignoreCam });
     _recordRenderedScene(activeScene.id, localT, null);
     return;
   }
@@ -9180,20 +9395,23 @@ function getStickmanCanvasBounds(track, sceneOverride = null, localTimeOverride 
   const time = localTimeOverride !== null
     ? localTimeOverride
     : (scene && window.TimelineStudio ? Math.max(0, state.playheadTime - window.TimelineStudio.getSceneStartOffset(scene.id)) : 0);
-  return window.StickmanProduction?.getTrackBounds?.(scene, track, time);
+  const ignoreCam = !!(typeof _cameraEdit !== 'undefined' && _cameraEdit?.active);
+  return window.StickmanProduction?.getTrackBounds?.(scene, track, time, { ignoreCamera: ignoreCam });
 }
 function renderActiveSceneImmediately() {
   const scene = window.TimelineStudio?.getActiveScene?.();
   if (!scene || !window.TimelineStudio?.renderSceneCompositeToContext) return;
   const time = _getSceneLocalTime(scene);
-  window.TimelineStudio.renderSceneCompositeToContext(_mainCtx, scene, time, false);
+  const ignoreCam = !!(typeof _cameraEdit !== 'undefined' && _cameraEdit?.active);
+  window.TimelineStudio.renderSceneCompositeToContext(_mainCtx, scene, time, false, { ignoreCamera: ignoreCam });
   _recordRenderedScene(scene.id, time, null);
 }
-function _drawSelectionBox(bounds, isHover = false, hoverLabel = '', haloOnly = false) {
+function _drawSelectionBox(bounds, isHover = false, hoverLabel = '', haloOnly = false, invZoom = 1) {
   if (!bounds) return;
   const { x, y, w, h, rotation = 0 } = bounds;
   const cx = x + w / 2;
   const cy = y + h / 2;
+  const iz = invZoom > 0 ? invZoom : 1;
   sctx.save();
   if (rotation) {
     sctx.translate(cx, cy);
@@ -9203,30 +9421,38 @@ function _drawSelectionBox(bounds, isHover = false, hoverLabel = '', haloOnly = 
   if (isHover) {
     if (haloOnly) {
       sctx.strokeStyle = 'rgba(108, 99, 255, 0.34)';
-      sctx.lineWidth = 6;
-      sctx.strokeRect(x - 3, y - 3, w + 6, h + 6);
+      sctx.lineWidth = 6 * iz;
+      sctx.strokeRect(x - 3 * iz, y - 3 * iz, w + 6 * iz, h + 6 * iz);
     } else {
       sctx.fillStyle = 'rgba(108, 99, 255, 0.08)';
       sctx.fillRect(x, y, w, h);
       sctx.strokeStyle = 'rgba(108, 99, 255, 0.85)';
-      sctx.lineWidth = 1.75;
-      sctx.setLineDash([5, 3]);
+      sctx.lineWidth = 1.75 * iz;
+      sctx.setLineDash([5 * iz, 3 * iz]);
       sctx.strokeRect(x, y, w, h);
       sctx.setLineDash([]);
     }
     if (hoverLabel) {
       sctx.save();
-      sctx.font = '600 11px "DM Sans", system-ui, sans-serif';
+      const viewCam = window.getActiveViewCamera?.();
+      const halfVW = (state.canvasW / 2) * iz;
+      const halfVH = (state.canvasH / 2) * iz;
+      const minVX = viewCam?.active ? (viewCam.cx - halfVW) : 0;
+      const maxVX = viewCam?.active ? (viewCam.cx + halfVW) : state.canvasW;
+      const minVY = viewCam?.active ? (viewCam.cy - halfVH) : 0;
+      const maxVY = viewCam?.active ? (viewCam.cy + halfVH) : state.canvasH;
+      const fontPx = 11 * iz;
+      sctx.font = `600 ${fontPx}px "DM Sans", system-ui, sans-serif`;
       const maxChars = 28;
       const text = hoverLabel.length > maxChars ? hoverLabel.slice(0, maxChars - 1) + '…' : hoverLabel;
-      const padX = 7;
+      const padX = 7 * iz;
       const tagW = Math.ceil(sctx.measureText(text).width) + padX * 2;
-      const tagH = 20;
-      const tagX = Math.max(4, Math.min(state.canvasW - tagW - 4, x));
-      const tagY = y >= tagH + 6 ? y - tagH - 4 : Math.min(state.canvasH - tagH - 4, y + 4);
+      const tagH = 20 * iz;
+      const tagX = Math.max(minVX + 4 * iz, Math.min(maxVX - tagW - 4 * iz, x));
+      const tagY = y >= minVY + tagH + 6 * iz ? y - tagH - 4 * iz : Math.min(maxVY - tagH - 4 * iz, y + 4 * iz);
       sctx.fillStyle = '#5b52eb';
       sctx.beginPath();
-      if (typeof sctx.roundRect === 'function') sctx.roundRect(tagX, tagY, tagW, tagH, 5);
+      if (typeof sctx.roundRect === 'function') sctx.roundRect(tagX, tagY, tagW, tagH, 5 * iz);
       else sctx.rect(tagX, tagY, tagW, tagH);
       sctx.fill();
       sctx.fillStyle = '#ffffff';
@@ -9239,23 +9465,23 @@ function _drawSelectionBox(bounds, isHover = false, hoverLabel = '', haloOnly = 
   }
   // Selection rect
   sctx.strokeStyle = '#6c63ff';
-  sctx.lineWidth = 2;
-  sctx.setLineDash([5, 3]);
+  sctx.lineWidth = 2 * iz;
+  sctx.setLineDash([5 * iz, 3 * iz]);
   sctx.strokeRect(x, y, w, h);
   sctx.setLineDash([]);
   // Corner handles
   const corners = [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
   corners.forEach(([cx2, cy2]) => {
     sctx.fillStyle = '#6c63ff';
-    sctx.beginPath(); sctx.arc(cx2, cy2, HANDLE_R, 0, Math.PI * 2); sctx.fill();
-    sctx.strokeStyle = '#fff'; sctx.lineWidth = 1.5; sctx.stroke();
+    sctx.beginPath(); sctx.arc(cx2, cy2, HANDLE_R * iz, 0, Math.PI * 2); sctx.fill();
+    sctx.strokeStyle = '#fff'; sctx.lineWidth = 1.5 * iz; sctx.stroke();
   });
   // Edge midpoint handles
   const mids = [[x + w / 2, y], [x + w, y + h / 2], [x + w / 2, y + h], [x, y + h / 2]];
   mids.forEach(([cx2, cy2]) => {
     sctx.fillStyle = '#fff';
-    sctx.beginPath(); sctx.arc(cx2, cy2, 4, 0, Math.PI * 2); sctx.fill();
-    sctx.strokeStyle = '#6c63ff'; sctx.lineWidth = 1.5; sctx.stroke();
+    sctx.beginPath(); sctx.arc(cx2, cy2, 4 * iz, 0, Math.PI * 2); sctx.fill();
+    sctx.strokeStyle = '#6c63ff'; sctx.lineWidth = 1.5 * iz; sctx.stroke();
   });
   sctx.restore();
 }
@@ -9421,12 +9647,13 @@ function _drawCameraFrameOverlay(target) {
   sctx.restore();
 }
 
-function _drawMagneticGuidesOverlay() {
+function _drawMagneticGuidesOverlay(invZoom = 1) {
   if (!_activeSnapGuides.length) return;
+  const iz = invZoom > 0 ? invZoom : 1;
   sctx.save();
   sctx.strokeStyle = '#06b6d4';
-  sctx.lineWidth = 1.25;
-  sctx.setLineDash([4, 3]);
+  sctx.lineWidth = 1.25 * iz;
+  sctx.setLineDash([4 * iz, 3 * iz]);
   for (const g of _activeSnapGuides) {
     sctx.beginPath();
     if (g.axis === 'x') {
@@ -9473,20 +9700,31 @@ function drawSelectionHandles() {
     ? getStickmanCanvasBounds(stickman, activeScene, localTime)
     : (layer ? getLayerCanvasBounds(layer, localTime) : null);
 
+  const viewCam = window.getActiveViewCamera?.();
+  const invZoom = viewCam?.active && viewCam.zoom > 0 ? 1 / viewCam.zoom : 1;
+
+  sctx.save();
+  if (viewCam?.active) {
+    sctx.translate(state.canvasW / 2, state.canvasH / 2);
+    sctx.scale(viewCam.zoom, viewCam.zoom);
+    sctx.translate(-viewCam.cx, -viewCam.cy);
+  }
   if (_hoverCandidate && _hoverCandidate.sceneId === activeScene?.id) {
     const hoverMatchesSelected = (_hoverCandidate.kind === 'layer' && layer && _hoverCandidate.id === layer.id)
       || (_hoverCandidate.kind === 'stickman' && stickman && _hoverCandidate.id === stickman.id);
     if (!hoverMatchesSelected || _hoverCandidate.fromList) {
       const lbl = _hoverCandidate.isHidden ? `${_hoverCandidate.name || ''} (masqué)` : (_hoverCandidate.name || '');
-      _drawSelectionBox(_hoverCandidate.bounds, true, lbl.trim(), hoverMatchesSelected);
+      _drawSelectionBox(_hoverCandidate.bounds, true, lbl.trim(), hoverMatchesSelected, invZoom);
     }
   }
-  if (bounds) _drawSelectionBox(bounds, false);
+  if (bounds) _drawSelectionBox(bounds, false, '', false, invZoom);
+  _drawMagneticGuidesOverlay(invZoom);
+  sctx.restore();
+
   if (_cameraEdit.active) {
     const camTarget = _getEditableCameraTarget();
     if (camTarget) _drawCameraFrameOverlay(camTarget);
   }
-  _drawMagneticGuidesOverlay();
 }
 
 // ── Canvas pointer interaction: move + resize + camera frame + magnetic guides ──
@@ -9500,12 +9738,20 @@ function getCanvasScale() {
 function toCanvasCoords(e) {
   const rect = canvas.getBoundingClientRect();
   const s = state.canvasW / rect.width;
-  return { x: (e.clientX - rect.left) * s, y: (e.clientY - rect.top) * s };
+  const raw = { x: (e.clientX - rect.left) * s, y: (e.clientY - rect.top) * s };
+  const viewCam = window.getActiveViewCamera?.();
+  if (viewCam?.active && window.CameraCore?.screenToWorldPoint) {
+    return window.CameraCore.screenToWorldPoint(raw, viewCam, state.canvasW, state.canvasH);
+  }
+  return raw;
 }
 function hitTestHandle(px, py, bounds) {
   if (!bounds) return null;
   const pt = _toLayerLocalPoint(px, py, bounds);
   const { x, y, w, h } = bounds;
+  const viewCam = window.getActiveViewCamera?.();
+  const invZoom = viewCam?.active && viewCam.zoom > 0 ? 1 / viewCam.zoom : 1;
+  const hitTol = HANDLE_R * 2 * invZoom;
   const handles = [
     { type: 'nw', cx: x,         cy: y },
     { type: 'ne', cx: x + w,     cy: y },
@@ -9517,7 +9763,7 @@ function hitTestHandle(px, py, bounds) {
     { type: 'w',  cx: x,         cy: y + h / 2 },
   ];
   for (const h2 of handles) {
-    if (Math.hypot(pt.x - h2.cx, pt.y - h2.cy) <= HANDLE_R * 2) return h2.type;
+    if (Math.hypot(pt.x - h2.cx, pt.y - h2.cy) <= hitTol) return h2.type;
   }
   return null;
 }
@@ -9645,6 +9891,7 @@ function hitTestLayer(px, py) {
 }
 
 function _pauseAllPlaybackForCanvasEdit() {
+  state._cameraSettleToken = (state._cameraSettleToken || 0) + 1;
   let paused = false;
   if (window.TimelineStudio?.isPreviewPlaying?.()) {
     window.TimelineStudio.pausePreviewAll();
@@ -10161,13 +10408,15 @@ document.addEventListener('mouseup', () => {
   const beforeSnap = _interact.beforeSnap;
   const origCam = _interact.origCam;
   const interactLayerId = _interact.layerId;
+  const interactTargetKind = _interact.targetKind;
+  const interactKfId = _interact.kfId;
   _interact = null;
   _activeSnapGuides = [];
   selectCanvas.style.cursor = 'default';
   if (wasInteract === 'cam-move' || wasInteract === 'cam-resize') {
     const activeSc = window.TimelineStudio?.getActiveScene?.();
-    const kfTarget = _interact?.targetKind === 'keyframe'
-      ? (activeSc?.cameraKeyframes || []).find(k => k.id === _interact.kfId)
+    const kfTarget = interactTargetKind === 'keyframe'
+      ? (activeSc?.cameraKeyframes || []).find(k => k.id === interactKfId)
       : null;
     const camLayer = kfTarget ? null : (getLayerById(interactLayerId) || sel);
     const camChanged = kfTarget
@@ -10636,21 +10885,460 @@ function saveCustomPreset(name) {
 }
 
 function deleteCustomPreset(id) {
+  hidePresetHoverPreview();
   const arr = loadCustomPresets().filter(p => p.id !== id);
   _saveCustomPresetsToStorage(arr);
   renderPresets();
 }
 
+// ── Hover visual thumbnail preview ────────────────────────────────────────────
+const _presetPreviewMap = new Map();
+let _presetHoverEl = null;
+let _presetHoverActiveId = null;
+
+function _escapePresetHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+const _PRESET_ANIM_LABELS = {
+  scanner: 'Scanner',
+  contour: 'Contour',
+  outlineonly: 'Outline Only',
+  illustfill: 'Illust Fill',
+  outlinefill: 'Outline Fill',
+  sketchfill: 'Sketch & Fill',
+  chunkjump: 'Chunk Jump',
+  outlinechunks: 'Outline Chunks',
+  scribble: 'Scribble',
+  handpush: 'Hand Push',
+  popbounce: 'Pop Bounce',
+  handeraser: 'Hand Eraser',
+  'spec-text': 'Text Draw',
+  'spec-human': 'Human',
+  'spec-animal': 'Animal',
+  'spec-portrait': 'Portrait',
+  'spec-vehicle': 'Vehicle',
+  'spec-building': 'Building',
+  'spec-landscape': 'Landscape',
+  'spec-spiral': 'Spiral',
+};
+
+const _PRESET_STROKE_LABELS = {
+  default: 'Marker',
+  charcoal: 'Charcoal',
+  multipass: 'Sketch',
+  fountain: 'Fountain',
+  blueprint: 'Blueprint',
+};
+
+const _PRESET_HAND_LABELS = {
+  ghost: 'Ghost Hand',
+  custom1: 'Hand 1',
+  custom2: 'Hand 2',
+  custom3: 'Hand 3',
+  custom4: 'Pen Hand',
+  custom5: 'Cartoon Hand',
+  custom6: 'Pixel Hand',
+};
+
+function _describeCustomPreset(s) {
+  const animLbl = _PRESET_ANIM_LABELS[s.animStyle] || s.animStyle || 'Custom';
+  const strokeLbl = _PRESET_STROKE_LABELS[s.outlineStrokeStyle] || s.outlineStrokeStyle || 'Marker';
+  const handLbl = _PRESET_HAND_LABELS[s.hand] || s.hand || 'Hand 1';
+  return `${animLbl} with ${strokeLbl.toLowerCase()} lines, ${handLbl.toLowerCase()} at ${s.speed ?? 40}× speed.`;
+}
+
+function _buildPresetThumbnailHtml(preset) {
+  const s = preset.settings || {};
+  const anim = s.animStyle || 'scanner';
+  const strokeStyle = s.outlineStrokeStyle || 'default';
+  const colorStyle = s.colorStyle || 'filled';
+  const hand = s.hand || 'custom1';
+  const isBlueprint = strokeStyle === 'blueprint';
+  const isOutlineOnly = anim === 'outlineonly';
+  const isScanner = anim === 'scanner';
+  const isContour = anim === 'contour';
+  const isFillMode = anim === 'illustfill' || anim === 'outlinefill' || anim === 'sketchfill';
+  const isChunk = anim === 'chunkjump' || anim === 'outlinechunks' || anim === 'scribble';
+  const isHandPush = anim === 'handpush';
+  const isPopBounce = anim === 'popbounce';
+  const isEraser = anim === 'handeraser';
+
+  const ink = isBlueprint ? '#bae6fd'
+    : strokeStyle === 'charcoal' ? '#27272a'
+    : strokeStyle === 'fountain' ? '#0f172a'
+    : '#18181b';
+  const inkSoft = isBlueprint ? 'rgba(186,230,253,0.32)' : 'rgba(24,24,27,0.16)';
+  const strokeW = strokeStyle === 'charcoal' ? 3.1 : strokeStyle === 'fountain' ? 2.4 : strokeStyle === 'multipass' ? 1.5 : 2.0;
+  const uid = 'pp' + Math.random().toString(36).slice(2, 7);
+
+  // Fill palette based on colorStyle
+  const fillAlpha = colorStyle === 'watercolor' ? 0.52 : colorStyle === 'sparse' ? 0.78 : 0.94;
+  const bulbFill = isOutlineOnly ? 'none' : colorStyle === 'sparse' ? `url(#${uid}-hatch-amber)` : `rgba(251,191,36,${fillAlpha})`;
+  const capFill = isOutlineOnly ? 'none' : `rgba(148,163,184,${fillAlpha})`;
+  const waveFill = isOutlineOnly ? 'none' : colorStyle === 'sparse' ? `url(#${uid}-hatch-sky)` : `rgba(56,189,248,${fillAlpha})`;
+  const leafFill = isOutlineOnly ? 'none' : colorStyle === 'sparse' ? `url(#${uid}-hatch-mint)` : `rgba(52,211,153,${fillAlpha})`;
+  const cardFill = isOutlineOnly ? 'none' : isBlueprint ? 'rgba(125,211,252,0.08)' : `rgba(254,240,138,${colorStyle === 'watercolor' ? 0.35 : 0.55})`;
+
+  // Reveal clip width for scanner / contour / fill-in-progress
+  const revealX = isScanner ? 128 : isContour ? 136 : isFillMode ? 124 : isEraser ? 148 : 212;
+
+  // Target active drawing point (in % of 212x120 stage)
+  let tipPctX = 0.62;
+  let tipPctY = 0.54;
+  if (isScanner) { tipPctX = 0.60; tipPctY = s.zigzag ? 0.48 : 0.56; }
+  else if (isContour) { tipPctX = 0.65; tipPctY = 0.44; }
+  else if (isBlueprint || isOutlineOnly) { tipPctX = 0.64; tipPctY = 0.52; }
+  else if (isFillMode) { tipPctX = 0.58; tipPctY = 0.58; }
+  else if (isHandPush) { tipPctX = 0.24; tipPctY = 0.55; }
+  else if (isEraser) { tipPctX = 0.72; tipPctY = 0.56; }
+
+  const bgMarkup = isBlueprint
+    ? `<rect width="212" height="120" fill="#16324f"/>
+       <path d="M0 20H212M0 40H212M0 60H212M0 80H212M0 100H212M26 0V120M52 0V120M78 0V120M104 0V120M130 0V120M156 0V120M182 0V120" stroke="rgba(125,211,252,0.16)" stroke-width="0.7"/>
+       <rect x="7" y="7" width="198" height="106" fill="none" stroke="rgba(186,230,253,0.34)" stroke-width="0.8" stroke-dasharray="4 3"/>`
+    : `<rect width="212" height="120" fill="#fcfcfa"/>
+       <circle cx="24" cy="24" r="0.8" fill="rgba(0,0,0,0.08)"/><circle cx="56" cy="24" r="0.8" fill="rgba(0,0,0,0.08)"/><circle cx="88" cy="24" r="0.8" fill="rgba(0,0,0,0.08)"/><circle cx="120" cy="24" r="0.8" fill="rgba(0,0,0,0.08)"/><circle cx="152" cy="24" r="0.8" fill="rgba(0,0,0,0.08)"/><circle cx="184" cy="24" r="0.8" fill="rgba(0,0,0,0.08)"/>
+       <circle cx="24" cy="60" r="0.8" fill="rgba(0,0,0,0.08)"/><circle cx="56" cy="60" r="0.8" fill="rgba(0,0,0,0.08)"/><circle cx="88" cy="60" r="0.8" fill="rgba(0,0,0,0.08)"/><circle cx="120" cy="60" r="0.8" fill="rgba(0,0,0,0.08)"/><circle cx="152" cy="60" r="0.8" fill="rgba(0,0,0,0.08)"/><circle cx="184" cy="60" r="0.8" fill="rgba(0,0,0,0.08)"/>
+       <circle cx="24" cy="96" r="0.8" fill="rgba(0,0,0,0.08)"/><circle cx="56" cy="96" r="0.8" fill="rgba(0,0,0,0.08)"/><circle cx="88" cy="96" r="0.8" fill="rgba(0,0,0,0.08)"/><circle cx="120" cy="96" r="0.8" fill="rgba(0,0,0,0.08)"/><circle cx="152" cy="96" r="0.8" fill="rgba(0,0,0,0.08)"/><circle cx="184" cy="96" r="0.8" fill="rgba(0,0,0,0.08)"/>`;
+
+  const watercolorBlur = colorStyle === 'watercolor' && !isOutlineOnly
+    ? `<filter id="${uid}-wc" x="-15%" y="-15%" width="130%" height="130%"><feGaussianBlur stdDeviation="2.2"/></filter>`
+    : '';
+  const charcoalFx = strokeStyle === 'charcoal'
+    ? `<filter id="${uid}-charcoal" x="-8%" y="-8%" width="116%" height="116%">
+         <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="2" result="n"/>
+         <feDisplacementMap in="SourceGraphic" in2="n" scale="1.7" xChannelSelector="R" yChannelSelector="G"/>
+       </filter>`
+    : '';
+
+  const hatchDefs = colorStyle === 'sparse' && !isOutlineOnly
+    ? `<pattern id="${uid}-hatch-amber" width="6" height="6" patternTransform="rotate(35)" patternUnits="userSpaceOnUse">
+         <line x1="0" y1="0" x2="0" y2="6" stroke="rgba(245,158,11,0.72)" stroke-width="2.4"/>
+       </pattern>
+       <pattern id="${uid}-hatch-sky" width="6" height="6" patternTransform="rotate(35)" patternUnits="userSpaceOnUse">
+         <line x1="0" y1="0" x2="0" y2="6" stroke="rgba(56,189,248,0.72)" stroke-width="2.4"/>
+       </pattern>
+       <pattern id="${uid}-hatch-mint" width="6" height="6" patternTransform="rotate(35)" patternUnits="userSpaceOnUse">
+         <line x1="0" y1="0" x2="0" y2="6" stroke="rgba(52,211,153,0.72)" stroke-width="2.4"/>
+       </pattern>`
+    : '';
+
+  // Shared miniature whiteboard explainer illustration (lightbulb + chart card + sketch text)
+  const fillsLayer = isOutlineOnly ? '' : `
+    <g ${colorStyle === 'watercolor' ? `filter="url(#${uid}-wc)"` : ''}>
+      <circle cx="58" cy="54" r="22" fill="${bulbFill}"/>
+      <rect x="49" y="76" width="18" height="11" rx="3" fill="${capFill}"/>
+      <rect x="108" y="25" width="76" height="68" rx="7" fill="${cardFill}"/>
+      <path d="M118 76 C126 58, 138 66, 147 50 C156 36, 166 56, 174 44 L174 82 L118 82 Z" fill="${waveFill}"/>
+      <circle cx="164" cy="40" r="7" fill="${leafFill}"/>
+    </g>
+  `;
+
+  const strokeFilterAttr = strokeStyle === 'charcoal' ? `filter="url(#${uid}-charcoal)"` : '';
+  const multipassGhost = strokeStyle === 'multipass'
+    ? `<g opacity="0.34" transform="translate(1.2,-0.9)" stroke="${ink}" stroke-width="1" fill="none" stroke-linecap="round">
+         <circle cx="58" cy="54" r="22.4"/>
+         <rect x="107.5" y="24.5" width="77" height="69" rx="7"/>
+       </g>
+       <g opacity="0.25" transform="translate(-1.1,1.1)" stroke="${ink}" stroke-width="0.9" fill="none" stroke-linecap="round">
+         <circle cx="58" cy="54" r="21.7"/>
+         <path d="M118 76 C126 58, 138 66, 147 50 C156 36, 166 56, 174 44"/>
+       </g>`
+    : '';
+
+  const outlineShapes = `
+    <g ${strokeFilterAttr} stroke="${ink}" stroke-width="${strokeW}" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Lightbulb -->
+      <path d="M46 74 C38 68 36 58 37 49 C39 38 48 31 58 31 C68 31 77 38 79 49 C80 58 78 68 70 74 Z"/>
+      <path d="M50 75 H66 M51 81 H65 M54 86 H62"/>
+      <path d="M53 60 L56 50 L60 55 L63 49" stroke-width="${Math.max(1.3, strokeW * 0.72)}"/>
+      <!-- Spark rays -->
+      <path d="M58 17 V24 M32 28 L37 33 M84 28 L79 33 M25 53 H31 M85 53 H91" stroke-width="${Math.max(1.2, strokeW * 0.72)}"/>
+      <!-- Explainer card + trend curve -->
+      <rect x="108" y="25" width="76" height="68" rx="7"/>
+      <path d="M118 37 H148 M118 45 H138" stroke-width="${Math.max(1.3, strokeW * 0.72)}"/>
+      <path class="${isContour || isOutlineOnly ? 'preset-preview-animstroke' : ''}" d="M118 76 C126 58, 138 66, 147 50 C156 36, 166 56, 174 44"/>
+      <circle cx="164" cy="40" r="6.5" stroke-width="${Math.max(1.2, strokeW * 0.78)}"/>
+    </g>
+    ${multipassGhost}
+  `;
+
+  // Faint unrevealed guide sketch for partial-progress styles
+  const ghostSketch = `
+    <g stroke="${inkSoft}" stroke-width="1.2" fill="none" stroke-dasharray="3 3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M46 74 C38 68 36 58 37 49 C39 38 48 31 58 31 C68 31 77 38 79 49 C80 58 78 68 70 74 Z"/>
+      <rect x="108" y="25" width="76" height="68" rx="7"/>
+      <path d="M118 76 C126 58, 138 66, 147 50 C156 36, 166 56, 174 44"/>
+      <circle cx="164" cy="40" r="6.5"/>
+    </g>
+  `;
+
+  let sceneContent = '';
+  if (isFillMode) {
+    // Full crisp ink outline across entire canvas, color fills revealed up to revealX
+    sceneContent = `
+      <g clip-path="url(#${uid}-clip)">${fillsLayer}</g>
+      ${outlineShapes}
+      <line x1="${revealX}" y1="18" x2="${revealX}" y2="100" stroke="rgba(220,38,38,0.28)" stroke-width="1" stroke-dasharray="3 2"/>
+    `;
+  } else if (isScanner) {
+    // Scanner sweep revealing artwork left -> right with scanline + optional zigzag wave
+    const scanLine = s.zigzag
+      ? `<path class="preset-preview-scanbar" d="M${revealX} 12 L${revealX - 5} 30 L${revealX + 5} 48 L${revealX - 5} 66 L${revealX + 5} 84 L${revealX} 108" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-opacity="0.72"/>`
+      : `<line class="preset-preview-scanbar" x1="${revealX}" y1="10" x2="${revealX}" y2="110" stroke="#ef4444" stroke-width="1.6" stroke-opacity="0.75"/>`;
+    sceneContent = `
+      ${ghostSketch}
+      <g clip-path="url(#${uid}-clip)">${fillsLayer}${outlineShapes}</g>
+      ${scanLine}
+    `;
+  } else if (isContour) {
+    sceneContent = `
+      ${ghostSketch}
+      <g clip-path="url(#${uid}-clip)">${fillsLayer}${outlineShapes}</g>
+    `;
+  } else if (isChunk) {
+    // Discrete chunk tiles revealed
+    sceneContent = `
+      ${ghostSketch}
+      <g clip-path="url(#${uid}-chunks)">${fillsLayer}${outlineShapes}</g>
+      <g stroke="${inkSoft}" stroke-width="0.7" fill="none">
+        <rect x="28" y="20" width="38" height="38" rx="2"/>
+        <rect x="70" y="20" width="38" height="38" rx="2"/>
+        <rect x="112" y="20" width="38" height="38" rx="2"/>
+        <rect x="28" y="62" width="38" height="38" rx="2"/>
+        <rect x="112" y="62" width="38" height="38" rx="2"/>
+      </g>
+    `;
+  } else if (isHandPush) {
+    sceneContent = `
+      <g opacity="0.35" stroke="${ink}" stroke-width="1.5" stroke-linecap="round">
+        <line x1="12" y1="45" x2="32" y2="45"/><line x1="8" y1="58" x2="28" y2="58"/><line x1="16" y1="71" x2="34" y2="71"/>
+      </g>
+      <g transform="translate(14, 0)">${fillsLayer}${outlineShapes}</g>
+    `;
+  } else if (isPopBounce) {
+    sceneContent = `
+      <g stroke="${isBlueprint ? 'rgba(125,211,252,0.4)' : 'rgba(26,26,26,0.18)'}" stroke-width="1.2" fill="none" stroke-dasharray="3 3">
+        <rect x="22" y="13" width="168" height="94" rx="11"/>
+      </g>
+      ${fillsLayer}${outlineShapes}
+    `;
+  } else if (isEraser) {
+    sceneContent = `
+      ${fillsLayer}${outlineShapes}
+      <path d="M126 105 L190 22" stroke="${isBlueprint ? '#16324f' : '#fcfcfa'}" stroke-width="26" stroke-linecap="round"/>
+      <path d="M126 105 L190 22" stroke="${inkSoft}" stroke-width="1.2" stroke-dasharray="3 3" stroke-linecap="round"/>
+    `;
+  } else if (isBlueprint || isOutlineOnly) {
+    sceneContent = `
+      ${ghostSketch}
+      <g clip-path="url(#${uid}-clip)">${outlineShapes}</g>
+      ${isBlueprint ? `<g stroke="rgba(125,211,252,0.55)" stroke-width="0.8">
+        <line x1="37" y1="98" x2="79" y2="98"/><line x1="37" y1="95" x2="37" y2="101"/><line x1="79" y1="95" x2="79" y2="101"/>
+      </g>` : ''}
+    `;
+  } else {
+    sceneContent = `${fillsLayer}${outlineShapes}`;
+  }
+
+  const svg = `
+    <svg viewBox="0 0 212 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        ${watercolorBlur}
+        ${charcoalFx}
+        ${hatchDefs}
+        <clipPath id="${uid}-clip">
+          <rect x="0" y="0" width="${revealX}" height="120"/>
+        </clipPath>
+        <clipPath id="${uid}-chunks">
+          <rect x="28" y="20" width="38" height="38"/>
+          <rect x="70" y="20" width="38" height="38"/>
+          <rect x="112" y="20" width="38" height="38"/>
+          <rect x="28" y="62" width="38" height="38"/>
+          <rect x="112" y="62" width="38" height="38"/>
+        </clipPath>
+      </defs>
+      ${bgMarkup}
+      ${sceneContent}
+    </svg>
+  `;
+
+  // Hand or Ghost cursor overlay
+  let handOverlayHtml = '';
+  if (hand === 'ghost') {
+    handOverlayHtml = `
+      <div class="preset-preview-ghost" style="left:${(tipPctX * 100).toFixed(1)}%;top:${(tipPctY * 100).toFixed(1)}%;">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+        </svg>
+      </div>
+    `;
+  } else if (typeof CUSTOM_HANDS !== 'undefined' && CUSTOM_HANDS[hand]?.images?.[720]) {
+    const meta = CUSTOM_HANDS[hand].images[720];
+    const targetH = 92;
+    const scale = targetH / meta.height;
+    const w = meta.width * scale;
+    const offX = meta.tipX * scale;
+    const offY = meta.tipY * scale;
+    handOverlayHtml = `
+      <img class="preset-preview-hand" src="${meta.path}" alt=""
+        style="width:${w.toFixed(1)}px;height:${targetH}px;left:calc(${(tipPctX * 100).toFixed(1)}% - ${offX.toFixed(1)}px);top:calc(${(tipPctY * 100).toFixed(1)}% - ${offY.toFixed(1)}px);">
+    `;
+  }
+
+  const animLabel = _PRESET_ANIM_LABELS[anim] || anim;
+  const strokeLabel = _PRESET_STROKE_LABELS[strokeStyle] || strokeStyle;
+  const handLabel = _PRESET_HAND_LABELS[hand] || hand;
+  const speedVal = s.speed ?? 40;
+  const kindLabel = preset.isCustom ? 'Custom' : 'Built-in';
+  const desc = preset.desc || _describeCustomPreset(s);
+  const colorLabel = colorStyle.charAt(0).toUpperCase() + colorStyle.slice(1);
+
+  return `
+    <div class="preset-preview-stage${isBlueprint ? ' is-blueprint' : ''}">
+      ${svg}
+      ${handOverlayHtml}
+      <div class="preset-preview-badge">${speedVal}× · ${_escapePresetHtml(handLabel)}</div>
+    </div>
+    <div class="preset-preview-meta">
+      <div class="preset-preview-title-row">
+        <div class="preset-preview-title">${_escapePresetHtml(preset.name)}</div>
+        <span class="preset-preview-kind">${kindLabel}</span>
+      </div>
+      <div class="preset-preview-desc">${_escapePresetHtml(desc)}</div>
+      <div class="preset-preview-specs">
+        <span class="preset-preview-spec">${_escapePresetHtml(animLabel)}</span>
+        <span class="preset-preview-spec">${_escapePresetHtml(isOutlineOnly ? strokeLabel : `${strokeLabel} · ${colorLabel}`)}</span>
+      </div>
+    </div>
+  `;
+}
+
+function _ensurePresetHoverPreviewEl() {
+  if (_presetHoverEl && document.body.contains(_presetHoverEl)) return _presetHoverEl;
+  _presetHoverEl = document.createElement('div');
+  _presetHoverEl.id = 'preset-hover-preview';
+  _presetHoverEl.setAttribute('role', 'tooltip');
+  _presetHoverEl.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(_presetHoverEl);
+  return _presetHoverEl;
+}
+
+function showPresetHoverPreview(presetId, anchorEl) {
+  const preset = _presetPreviewMap.get(presetId);
+  if (!preset || !anchorEl) return;
+  const card = anchorEl.closest('.card');
+  if (card && card.classList.contains('collapsed')) return;
+
+  const el = _ensurePresetHoverPreviewEl();
+  if (_presetHoverActiveId !== presetId) {
+    el.innerHTML = _buildPresetThumbnailHtml(preset);
+    _presetHoverActiveId = presetId;
+  }
+
+  const rect = anchorEl.getBoundingClientRect();
+  const sidebarEl = document.getElementById('sidebar');
+  const sidebarRect = sidebarEl ? sidebarEl.getBoundingClientRect() : rect;
+  const previewW = 236;
+  const gap = 10;
+
+  // Prefer placing immediately to the right of the sidebar so it aligns cleanly and never clips
+  let left = Math.max(rect.right, sidebarRect.right) + gap;
+  if (left + previewW > window.innerWidth - 12) {
+    left = Math.max(12, rect.left - previewW - gap);
+  }
+
+  el.classList.add('visible');
+  el.setAttribute('aria-hidden', 'false');
+
+  const previewH = el.offsetHeight || 220;
+  let top = rect.top - 10;
+  if (top + previewH > window.innerHeight - 12) {
+    top = window.innerHeight - previewH - 12;
+  }
+  if (top < 12) top = 12;
+
+  el.style.left = `${Math.round(left)}px`;
+  el.style.top = `${Math.round(top)}px`;
+}
+
+function hidePresetHoverPreview() {
+  _presetHoverActiveId = null;
+  if (!_presetHoverEl) return;
+  _presetHoverEl.classList.remove('visible');
+  _presetHoverEl.setAttribute('aria-hidden', 'true');
+}
+
+function _initPresetHoverPreview() {
+  const builtinGrid = document.getElementById('preset-builtin-grid');
+  const customList = document.getElementById('preset-custom-list');
+  const sidebarEl = document.getElementById('sidebar');
+
+  const bindContainer = (container) => {
+    if (!container || container.dataset.hoverPreviewBound === '1') return;
+    container.dataset.hoverPreviewBound = '1';
+
+    container.addEventListener('mouseover', (e) => {
+      const target = e.target.closest('[data-preset-id]');
+      if (!target || !container.contains(target)) return;
+      if (e.target.closest('.preset-del-btn')) {
+        hidePresetHoverPreview();
+        return;
+      }
+      showPresetHoverPreview(target.dataset.presetId, target);
+    });
+
+    container.addEventListener('mouseout', (e) => {
+      const fromItem = e.target.closest('[data-preset-id]');
+      if (!fromItem) return;
+      const toItem = e.relatedTarget?.closest?.('[data-preset-id]');
+      if (toItem === fromItem && !e.relatedTarget?.closest?.('.preset-del-btn')) return;
+      if (!toItem || !container.contains(toItem)) {
+        hidePresetHoverPreview();
+      }
+    });
+
+    container.addEventListener('focusin', (e) => {
+      const target = e.target.closest('[data-preset-id]');
+      if (!target || !container.contains(target)) return;
+      if (e.target.closest('.preset-del-btn')) return;
+      showPresetHoverPreview(target.dataset.presetId, target);
+    });
+
+    container.addEventListener('focusout', (e) => {
+      const next = e.relatedTarget?.closest?.('[data-preset-id]');
+      if (!next) hidePresetHoverPreview();
+    });
+  };
+
+  bindContainer(builtinGrid);
+  bindContainer(customList);
+
+  if (sidebarEl && sidebarEl.dataset.hoverScrollBound !== '1') {
+    sidebarEl.dataset.hoverScrollBound = '1';
+    sidebarEl.addEventListener('scroll', hidePresetHoverPreview, { passive: true });
+    window.addEventListener('resize', hidePresetHoverPreview, { passive: true });
+  }
+}
+
 // ── Render ────────────────────────────────────────────────────────────────────
 function renderPresets() {
   const activePid = state.activePresetId;
+  _presetPreviewMap.clear();
+  BUILT_IN_PRESETS.forEach(p => _presetPreviewMap.set(p.id, { ...p, isCustom: false }));
 
   // Built-in grid
   const builtinGrid = document.getElementById('preset-builtin-grid');
   if (builtinGrid) {
     builtinGrid.innerHTML = BUILT_IN_PRESETS.map(p => `
-      <button class="preset-btn preset-builtin${activePid === p.id ? ' active' : ''}" title="${p.desc}" onclick="applyPreset(${JSON.stringify(p.settings).replace(/"/g, '&quot;')}, '${p.id}')">
-        <span>${p.name}</span>
+      <button class="preset-btn preset-builtin${activePid === p.id ? ' active' : ''}" data-preset-id="${_escapePresetHtml(p.id)}" aria-label="${_escapePresetHtml(p.name + ' — ' + p.desc)}" onclick="applyPreset(${JSON.stringify(p.settings).replace(/"/g, '&quot;')}, '${p.id}')">
+        <span>${_escapePresetHtml(p.name)}</span>
         <svg class="preset-lock" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
           <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
@@ -10663,14 +11351,15 @@ function renderPresets() {
   const customList = document.getElementById('preset-custom-list');
   const saveTrigger = document.getElementById('preset-save-trigger');
   const customs = loadCustomPresets();
+  customs.forEach(p => _presetPreviewMap.set(p.id, { ...p, isCustom: true }));
 
   if (customList) {
     if (customs.length === 0) {
       customList.innerHTML = '<div style="font-size:10px;color:var(--muted);padding:4px 2px;line-height:1.5;">No custom presets yet. Save your current settings below.</div>';
     } else {
       customList.innerHTML = customs.map(p => `
-        <div class="preset-custom-item${activePid === p.id ? ' active' : ''}">
-          <span class="preset-custom-name" title="Click to apply" onclick="applyPreset(${JSON.stringify(p.settings).replace(/"/g, '&quot;')}, '${p.id}')">${p.name}</span>
+        <div class="preset-custom-item${activePid === p.id ? ' active' : ''}" data-preset-id="${_escapePresetHtml(p.id)}">
+          <span class="preset-custom-name" aria-label="Apply ${_escapePresetHtml(p.name)}" onclick="applyPreset(${JSON.stringify(p.settings).replace(/"/g, '&quot;')}, '${p.id}')">${_escapePresetHtml(p.name)}</span>
           <button class="preset-del-btn" title="Delete preset" onclick="deleteCustomPreset('${p.id}')">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -10687,6 +11376,7 @@ function renderPresets() {
   }
   // Also hide the form if it was open and we just hit the max
   if (customs.length >= MAX_CUSTOM) closePresetSaveForm();
+  _initPresetHoverPreview();
 }
 
 // ── Save form ─────────────────────────────────────────────────────────────────
@@ -11850,14 +12540,7 @@ function onBgColorInput(val) {
   scheduleAutoSave();
 }
 function redrawWithBg() {
-  fillBg(ctx);
-  state.layers.forEach(layer => {
-    if (layer.visible === false) return;
-    ctx.save();
-    ctx.globalAlpha = layer.opacity !== undefined ? layer.opacity : 1;
-    ctx.drawImage(layer.img, layer.x, layer.y, layer.w, layer.h);
-    ctx.restore();
-  });
+  redrawLayersOnCanvas();
   drawSelectionHandles();
 }
 function toggleHandGlide() {
@@ -11911,52 +12594,82 @@ function _applyCanvasSizeImmediate() {
   const readout = document.getElementById('size-readout');
   if (readout) readout.textContent = `${w} × ${h}`;
 
-  // Rescale and re-center every layer to fit the new canvas.
-  // Each layer keeps its size proportional to the canvas it was on, then is
-  // centered so it never disappears off-screen.
-  const oldW = state.canvasW;
-  const oldH = state.canvasH;
-  if (state.layers.length && (oldW !== w || oldH !== h)) {
+  window.TimelineStudio?.saveWorkingStateToActiveScene?.();
+  const oldW = state.canvasW || w;
+  const oldH = state.canvasH || h;
+  if (oldW !== w || oldH !== h) {
     const scaleX = w / oldW;
     const scaleY = h / oldH;
-    state.layers.forEach(layer => {
-      // IMPROVED: Use a smarter scaling strategy
-      // If both dimensions are growing, use the smaller scale to maintain aspect
-      // If both are shrinking, use the smaller scale to prevent overflow
-      // If mixed (one growing, one shrinking), use average to balance
-      const isGrowing = scaleX > 1 && scaleY > 1;
-      const isShrinking = scaleX < 1 && scaleY < 1;
-      const isMixed = !isGrowing && !isShrinking;
-      
-      let s;
-      if (isGrowing || isShrinking) {
-        // Use minimum scale to prevent overflow but allow growth
-        s = Math.min(scaleX, scaleY);
-      } else {
-        // Mixed case: use geometric mean for balanced scaling
-        s = Math.sqrt(scaleX * scaleY);
-      }
-      
-      // Ensure minimum scale to prevent images from becoming too small
-      s = Math.max(s, 0.3);
-      
-      const newW = Math.round(layer.w * s);
-      const newH = Math.round(layer.h * s);
-      // Center on the new canvas
-      layer.w = newW;
-      layer.h = newH;
-      layer.x = Math.round((w - newW) / 2);
-      layer.y = Math.round((h - newH) / 2);
-    });
+    const isGrowing = scaleX > 1 && scaleY > 1;
+    const isShrinking = scaleX < 1 && scaleY < 1;
+    const s = Math.max(0.3, (isGrowing || isShrinking) ? Math.min(scaleX, scaleY) : Math.sqrt(scaleX * scaleY));
+
+    const rescaleLayerSet = (layers) => {
+      (layers || []).forEach(layer => {
+        const newW = Math.round(layer.w * s);
+        const newH = Math.round(layer.h * s);
+        const prevCenterX = layer.x + layer.w / 2;
+        const prevCenterY = layer.y + layer.h / 2;
+        layer.w = newW;
+        layer.h = newH;
+        layer.x = Math.round(prevCenterX * scaleX - newW / 2);
+        layer.y = Math.round(prevCenterY * scaleY - newH / 2);
+        if (Number.isFinite(layer.baseW)) layer.baseW = Math.round(layer.baseW * s);
+        if (Number.isFinite(layer.baseH)) layer.baseH = Math.round(layer.baseH * s);
+        if (Array.isArray(layer.keyframes)) {
+          layer.keyframes.forEach(kf => {
+            if (Number.isFinite(kf.x)) kf.x = Math.round(kf.x * scaleX);
+            if (Number.isFinite(kf.y)) kf.y = Math.round(kf.y * scaleY);
+          });
+        }
+        if (layer.camera) {
+          const camScaled = {
+            ...layer.camera,
+            cx: Number.isFinite(layer.camera.cx) ? layer.camera.cx * scaleX : undefined,
+            cy: Number.isFinite(layer.camera.cy) ? layer.camera.cy * scaleY : undefined,
+          };
+          layer.camera = window.CameraCore?.normalizeLayerCamera?.(
+            camScaled,
+            w,
+            h,
+            layer.cameraZoom || state.cameraZoom || 1.8
+          ) || camScaled;
+        }
+      });
+    };
+
+    const allScenes = state.scenes || [];
+    if (allScenes.length) {
+      allScenes.forEach(sc => {
+        rescaleLayerSet(sc.layers);
+        if (Array.isArray(sc.cameraKeyframes) && sc.cameraKeyframes.length) {
+          const scaledKfs = sc.cameraKeyframes.map(k => ({
+            ...k,
+            cx: Number.isFinite(k.cx) ? k.cx * scaleX : k.cx,
+            cy: Number.isFinite(k.cy) ? k.cy * scaleY : k.cy,
+          }));
+          sc.cameraKeyframes = window.CameraCore?.normalizeSceneCameraKeyframes?.(
+            scaledKfs,
+            sc.duration || 5.0,
+            w,
+            h
+          ) || scaledKfs;
+        }
+      });
+    } else {
+      rescaleLayerSet(state.layers);
+    }
   }
 
   initCanvas(w, h);
   resetAnim();
   // resetAnim calls fillBg which wipes the canvas — redraw layers on top
   redrawLayersOnCanvas();
+  drawSelectionHandles();
+  (state.scenes || []).forEach(sc => window.TimelineStudio?.updateSceneThumbnail?.(sc));
   renderLayerList();
   scheduleAutoSave();
-  
+
   // Update bottom bar size readout
   _syncBbSizeReadout();
 }
@@ -12942,11 +13655,29 @@ let _camHandBuf = null;
 window._applyDynamicCameraFrame = function(isSettling = false) {
   const W = state.canvasW;
   const H = state.canvasH;
+  const activeSc = window.TimelineStudio?.getActiveScene?.();
+  const scDur = Math.max(0.5, Number(activeSc?.duration) || 5.0);
+  const prog = typeof getExportAnimationProgress === 'function'
+    ? getExportAnimationProgress()
+    : (state.done ? 1 : (state._animProgress || 0));
+  const localTime = Math.max(0, Math.min(scDur, prog * scDur));
+
   const activeSlot = (state._activeSlots || []).find(s => !s.done) || state._activeSlots?.[0] || null;
   const activeLayer = activeSlot?.layer || null;
   const hasCustomCam = !!(activeLayer && activeLayer.camera?.enabled);
   const camMode = hasCustomCam ? 'custom' : (activeLayer?.cameraMode || state.cameraMode || 'static');
-  if (camMode === 'static' && !isSettling) {
+  const hasSceneKeyframes = !!(activeSc && Array.isArray(activeSc.cameraKeyframes) && activeSc.cameraKeyframes.length > 0);
+  const camEval = window.CameraCore?.evaluateSceneCameraAtTime?.(
+    activeSc,
+    localTime,
+    state.layers || [],
+    W,
+    H,
+    { defaultCameraMode: state.cameraMode, defaultCameraZoom: state.cameraZoom }
+  );
+  const hasSceneDefaultCamera = !!(camEval?.active && !hasCustomCam && camMode === 'static');
+
+  if (!isSettling && camMode === 'static' && !hasSceneKeyframes && !hasSceneDefaultCamera) {
     state._camScale = 1;
     state._camCX = W / 2;
     state._camCY = H / 2;
@@ -12954,52 +13685,58 @@ window._applyDynamicCameraFrame = function(isSettling = false) {
   }
 
   if (!isSettling) {
-    const maxZoom = activeLayer?.cameraZoom || state.cameraZoom || 1.8;
-    let targetScale = 1;
-    let targetCX = W / 2;
-    let targetCY = H / 2;
+    if ((hasSceneKeyframes || hasSceneDefaultCamera) && !hasCustomCam && camMode === 'static') {
+      state._camScale = camEval?.active ? camEval.zoom : 1;
+      state._camCX = camEval?.active ? camEval.cx : (W / 2);
+      state._camCY = camEval?.active ? camEval.cy : (H / 2);
+    } else {
+      const maxZoom = activeLayer?.cameraZoom || state.cameraZoom || 1.8;
+      let targetScale = 1;
+      let targetCX = W / 2;
+      let targetCY = H / 2;
 
-    if (hasCustomCam && window.CameraCore) {
-      const nc = window.CameraCore.normalizeLayerCamera(activeLayer.camera, W, H, maxZoom);
-      targetScale = nc.zoom;
-      targetCX = nc.cx;
-      targetCY = nc.cy;
-    } else if (camMode === 'follow-hand') {
-      targetScale = maxZoom;
-      const handFresh = state._lastHandTipTs && (performance.now() - state._lastHandTipTs < 240);
-      if (handFresh && state._lastHandTipX != null && state._lastHandTipY != null) {
-        targetCX = state._lastHandTipX;
-        targetCY = state._lastHandTipY;
-      } else if (activeLayer) {
-        targetCX = activeLayer.x + activeLayer.w / 2;
-        targetCY = activeLayer.y + activeLayer.h / 2;
+      if (hasCustomCam && window.CameraCore) {
+        const nc = window.CameraCore.normalizeLayerCamera(activeLayer.camera, W, H, maxZoom);
+        targetScale = nc.zoom;
+        targetCX = nc.cx;
+        targetCY = nc.cy;
+      } else if (camMode === 'follow-hand') {
+        targetScale = maxZoom;
+        const handFresh = state._lastHandTipTs && (performance.now() - state._lastHandTipTs < 240);
+        if (handFresh && state._lastHandTipX != null && state._lastHandTipY != null) {
+          targetCX = state._lastHandTipX;
+          targetCY = state._lastHandTipY;
+        } else if (activeLayer) {
+          targetCX = activeLayer.x + activeLayer.w / 2;
+          targetCY = activeLayer.y + activeLayer.h / 2;
+        }
+      } else if (camMode === 'pan-to-next') {
+        if (activeLayer) {
+          targetCX = activeLayer.x + activeLayer.w / 2;
+          targetCY = activeLayer.y + activeLayer.h / 2;
+          const fitZoom = Math.min(W / Math.max(120, activeLayer.w * 1.45), H / Math.max(120, activeLayer.h * 1.45));
+          targetScale = Math.max(1.25, Math.min(maxZoom, fitZoom));
+        } else {
+          targetScale = 1.35;
+        }
       }
-    } else if (camMode === 'pan-to-next') {
-      if (activeLayer) {
-        targetCX = activeLayer.x + activeLayer.w / 2;
-        targetCY = activeLayer.y + activeLayer.h / 2;
-        const fitZoom = Math.min(W / Math.max(120, activeLayer.w * 1.45), H / Math.max(120, activeLayer.h * 1.45));
-        targetScale = Math.max(1.25, Math.min(maxZoom, fitZoom));
-      } else {
-        targetScale = 1.35;
-      }
+
+      if (state._camScale == null) state._camScale = camEval?.active ? camEval.zoom : 1;
+      if (state._camCX == null) state._camCX = camEval?.active ? camEval.cx : (W / 2);
+      if (state._camCY == null) state._camCY = camEval?.active ? camEval.cy : (H / 2);
+
+      const transFactor = hasCustomCam ? Math.max(0.06, Math.min(0.24, 0.12 / Math.max(0.35, activeLayer.camera?.transitionDur || 0.7))) : (camMode === 'follow-hand' ? 0.14 : 0.10);
+      const zoomLerp = hasCustomCam ? transFactor : 0.09;
+      state._camScale += (targetScale - state._camScale) * zoomLerp;
+      state._camCX += (targetCX - state._camCX) * transFactor;
+      state._camCY += (targetCY - state._camCY) * transFactor;
     }
-
-    if (state._camScale == null) state._camScale = 1;
-    if (state._camCX == null) state._camCX = W / 2;
-    if (state._camCY == null) state._camCY = H / 2;
-
-    const transFactor = hasCustomCam ? Math.max(0.06, Math.min(0.24, 0.12 / Math.max(0.35, activeLayer.camera?.transitionDur || 0.7))) : (camMode === 'follow-hand' ? 0.14 : 0.10);
-    const zoomLerp = hasCustomCam ? transFactor : 0.09;
-    state._camScale += (targetScale - state._camScale) * zoomLerp;
-    state._camCX += (targetCX - state._camCX) * transFactor;
-    state._camCY += (targetCY - state._camCY) * transFactor;
   }
 
   const scale = state._camScale || 1;
   const cx = state._camCX ?? (W / 2);
   const cy = state._camCY ?? (H / 2);
-  if (Math.abs(scale - 1) < 0.005 && Math.hypot(cx - W / 2, cy - H / 2) < 1) return;
+  if (Math.abs(scale - 1) < 0.004 && Math.hypot(cx - W / 2, cy - H / 2) < 0.5) return;
 
   if (!_camMainBuf || _camMainBuf.width !== W || _camMainBuf.height !== H) {
     _camMainBuf = document.createElement('canvas');
@@ -13018,8 +13755,9 @@ window._applyDynamicCameraFrame = function(isSettling = false) {
   hBufCtx.clearRect(0, 0, W, H);
   hBufCtx.drawImage(handCanvas, 0, 0);
 
-  // Re-render _mainCtx with camera transform (filling infinite board background first)
+  // Re-render _mainCtx with camera transform (clearing first and filling infinite board background)
   _mainCtx.save();
+  _mainCtx.clearRect(0, 0, W, H);
   const prevBgCvs = state.bgCanvas;
   const prevSlot = state._slotMode;
   state.bgCanvas = null;
@@ -16147,31 +16885,16 @@ const TimelineStudio = (() => {
       tc.width = 160;
       tc.height = 90;
       const tctx = tc.getContext('2d');
-      const scaleX = tc.width / state.canvasW;
-      const scaleY = tc.height / state.canvasH;
-
-      // Draw scene background
-      const prevBg = state.canvasBg;
-      const prevSlot = state._slotMode;
-      const prevBgCvs = state.bgCanvas;
-      state.canvasBg = scene.canvasBg || { type: 'solid', val: 'white' };
-      state._slotMode = false;
-      state.bgCanvas = null;
-      tctx.save();
-      tctx.scale(scaleX, scaleY);
-      fillBg(tctx);
-      (scene.layers || []).forEach(l => {
-        if (l.visible === false || !l.img) return;
-        tctx.save();
-        tctx.globalAlpha = l.opacity ?? 1;
-        if (window.StudioUI) StudioUI.drawLayer(tctx, l, { ...l, trimPath: l.trimPath ?? 100 });
-        else tctx.drawImage(l.img, l.x, l.y, l.w, l.h);
-        tctx.restore();
-      });
-      tctx.restore();
-      state.canvasBg = prevBg;
-      state._slotMode = prevSlot;
-      state.bgCanvas = prevBgCvs;
+      const fullCvs = document.createElement('canvas');
+      fullCvs.width = Math.max(64, state.canvasW || 1280);
+      fullCvs.height = Math.max(64, state.canvasH || 720);
+      const fctx = fullCvs.getContext('2d');
+      const repTime = scene.id === state.activeSceneId
+        ? _getSceneLocalTime(scene)
+        : (scene.cameraKeyframes?.[0]?.time ?? 0);
+      renderSceneCompositeToContext(fctx, scene, repTime, false);
+      tctx.clearRect(0, 0, tc.width, tc.height);
+      tctx.drawImage(fullCvs, 0, 0, tc.width, tc.height);
       scene.thumbnailDataUrl = tc.toDataURL('image/jpeg', 0.65);
     } catch (_) {}
   }
@@ -16720,6 +17443,7 @@ const TimelineStudio = (() => {
           inPoint: Number(localT.toFixed(2)),
           outPoint: origOut,
           keyframes: (selLayer.keyframes || []).filter(k => k.time >= localT),
+          camera: selLayer.camera ? JSON.parse(JSON.stringify(selLayer.camera)) : undefined,
           textProps: selLayer.textProps ? JSON.parse(JSON.stringify(selLayer.textProps)) : undefined,
         };
         selLayer.keyframes = (selLayer.keyframes || []).filter(k => k.time <= localT);
@@ -16742,6 +17466,14 @@ const TimelineStudio = (() => {
     pushUndoSnapshot('Split Scene');
     const firstDur = Number(localT.toFixed(2));
     const secondDur = Number((sc.duration - firstDur).toFixed(2));
+    const splitCamEval = window.CameraCore?.evaluateSceneCameraAtTime?.(
+      sc,
+      firstDur,
+      sc.layers || [],
+      state.canvasW,
+      state.canvasH,
+      { defaultCameraMode: state.cameraMode, defaultCameraZoom: state.cameraZoom }
+    );
     sc.duration = firstDur;
 
     const secondLayers = sc.layers
@@ -16764,9 +17496,32 @@ const TimelineStudio = (() => {
           keyframes: (l.keyframes || [])
             .filter(k => k.time >= firstDur)
             .map(k => ({ ...k, time: Number((k.time - firstDur).toFixed(2)) })),
+          camera: l.camera ? JSON.parse(JSON.stringify(l.camera)) : undefined,
           textProps: l.textProps ? JSON.parse(JSON.stringify(l.textProps)) : undefined,
         };
       });
+
+    const origCamKfs = Array.isArray(sc.cameraKeyframes) ? sc.cameraKeyframes : [];
+    const secondCamKfs = origCamKfs
+      .filter(k => k.time >= firstDur)
+      .map((k, kIdx) => ({
+        ...JSON.parse(JSON.stringify(k)),
+        id: `camkf-sp-${Date.now().toString(36)}-${kIdx}`,
+        time: Number((k.time - firstDur).toFixed(3)),
+      }));
+    if (origCamKfs.length > 0 && splitCamEval && !secondCamKfs.some(k => k.time <= 0.05)) {
+      secondCamKfs.unshift({
+        id: `camkf-sp-0-${Date.now().toString(36)}`,
+        time: 0,
+        cx: splitCamEval.cx,
+        cy: splitCamEval.cy,
+        zoom: splitCamEval.zoom,
+        transitionDur: 0.7,
+        easing: 'ease-in-out',
+        presetId: 'custom',
+      });
+    }
+    sc.cameraKeyframes = origCamKfs.filter(k => k.time <= firstDur);
 
     // Clamp first scene's layers to firstDur
     sc.layers.forEach(l => {
@@ -16784,6 +17539,8 @@ const TimelineStudio = (() => {
       groups: JSON.parse(JSON.stringify(sc.groups || [])),
       selectedLayerId: secondLayers[0]?.id ?? null,
       thumbnailDataUrl: sc.thumbnailDataUrl,
+      camera: sc.camera ? JSON.parse(JSON.stringify(sc.camera)) : undefined,
+      cameraKeyframes: secondCamKfs,
       transitionOut: JSON.parse(JSON.stringify(sc.transitionOut || { type: 'cut', duration: 0.6 })),
     };
 
@@ -17061,7 +17818,7 @@ const TimelineStudio = (() => {
     return [...ordered, ...unordered];
   }
 
-  function renderSceneCompositeToContext(targetCtx, scene, localTime, progressiveReveal = false) {
+  function renderSceneCompositeToContext(targetCtx, scene, localTime, progressiveReveal = false, options = {}) {
     if (!scene || !targetCtx) return;
     const prevBg = state.canvasBg;
     const prevSlot = state._slotMode;
@@ -17079,14 +17836,16 @@ const TimelineStudio = (() => {
       (l.inPoint ?? 0) <= 0.05 && Math.abs((l.outPoint ?? scDur) - scDur) <= 0.15
     );
 
-    const camEval = window.CameraCore?.evaluateSceneCameraAtTime?.(
-      scene,
-      localTime,
-      orderedLayers,
-      state.canvasW,
-      state.canvasH,
-      { defaultCameraMode: state.cameraMode, defaultCameraZoom: state.cameraZoom }
-    );
+    const camEval = !options?.ignoreCamera
+      ? window.CameraCore?.evaluateSceneCameraAtTime?.(
+          scene,
+          localTime,
+          orderedLayers,
+          state.canvasW,
+          state.canvasH,
+          { defaultCameraMode: state.cameraMode, defaultCameraZoom: state.cameraZoom }
+        )
+      : null;
     if (camEval?.active) {
       targetCtx.translate(state.canvasW / 2, state.canvasH / 2);
       targetCtx.scale(camEval.zoom, camEval.zoom);
@@ -17171,7 +17930,7 @@ const TimelineStudio = (() => {
     }
 
     if (window.StickmanProduction?.renderAt) {
-      window.StickmanProduction.renderAt(scene, localTime, targetCtx);
+      window.StickmanProduction.renderAt(scene, localTime, targetCtx, { ignoreCamera: !!options?.ignoreCamera });
     }
     targetCtx.restore();
     state.canvasBg = prevBg;
@@ -17334,7 +18093,7 @@ const TimelineStudio = (() => {
         }
         state.canvasBg = prevBg;
         state.bgCanvas = prevBgCvs;
-        state.slotMode = prevSlot;
+        state._slotMode = prevSlot;
 
         const midPulse = Math.sin(ease * Math.PI);
         const blurPx = (midPulse * 4.5).toFixed(1);
@@ -17461,6 +18220,9 @@ const TimelineStudio = (() => {
 
   // ── Global Preview Engine (`Preview All`) ──
   function playMotionScene() {
+    if (typeof toggleCameraEditMode === 'function' && _cameraEdit?.active) {
+      toggleCameraEditMode(false);
+    }
     saveWorkingStateToActiveScene();
     cancelPreviewForSingleSceneRun();
     cancelAnimationFrame(state.animFrame);
@@ -17573,16 +18335,20 @@ const TimelineStudio = (() => {
     toBgCvs.width = state.canvasW;
     toBgCvs.height = state.canvasH;
     const toBgCtx = toBgCvs.getContext('2d');
-    const prevBg = state.canvasBg;
-    const prevBgCanvas = state.bgCanvas;
-    const prevSlot = state._slotMode;
-    state.canvasBg = toScene.canvasBg || { type: 'solid', val: 'white' };
-    state.bgCanvas = null;
-    state._slotMode = false;
-    fillBg(toBgCtx);
-    state.canvasBg = prevBg;
-    state.bgCanvas = prevBgCanvas;
-    state._slotMode = prevSlot;
+    if (_sceneNeedsCompositePlayback(toScene)) {
+      renderSceneCompositeToContext(toBgCtx, toScene, 0, false);
+    } else {
+      const prevBg = state.canvasBg;
+      const prevBgCanvas = state.bgCanvas;
+      const prevSlot = state._slotMode;
+      state.canvasBg = toScene.canvasBg || { type: 'solid', val: 'white' };
+      state.bgCanvas = null;
+      state._slotMode = false;
+      fillBg(toBgCtx);
+      state.canvasBg = prevBg;
+      state.bgCanvas = prevBgCanvas;
+      state._slotMode = prevSlot;
+    }
 
     const startTs = performance.now();
     const stepTransition = (now) => {
@@ -17644,7 +18410,7 @@ const TimelineStudio = (() => {
       _autoScrollTimelineToPlayhead();
     }
 
-    if (window.StudioUI && StudioUI.hasMotion(sc.layers)) {
+    if (_sceneNeedsCompositePlayback(sc)) {
       const resume = _motionResume?.sceneIdx === sceneIdx ? _motionResume.time : initialTime;
       _playMotionClock(sceneIdx, resume);
       return;
@@ -17714,6 +18480,9 @@ const TimelineStudio = (() => {
 
   function startPreviewAll() {
     if (state.recording && _exportController) { showToast('Cancel the export before starting a new preview'); return; }
+    if (typeof toggleCameraEditMode === 'function' && _cameraEdit?.active) {
+      toggleCameraEditMode(false);
+    }
     window.StudioEffects?.stopPreview(false);
     if (window.EffectManager) EffectManager.stopAll();
     saveWorkingStateToActiveScene();
@@ -18552,7 +19321,7 @@ const TimelineStudio = (() => {
   }
 
   function _getExportMultiSceneProgress() {
-    if (window.StudioUI && StudioUI.hasMotion(state.scenes[_previewSceneIdx]?.layers)) {
+    if (_sceneNeedsCompositePlayback(state.scenes[_previewSceneIdx])) {
       return state.playheadTime / Math.max(.5, getTotalProjectDuration());
     }
     const totalScenes = Math.max(1, state.scenes.length);
@@ -19014,6 +19783,9 @@ const TimelineStudio = (() => {
   }
 
   async function _exportSequentialProjectBody(progressText, progressBar, signal, cleanups) {
+    if (typeof toggleCameraEditMode === 'function' && _cameraEdit?.active) {
+      toggleCameraEditMode(false);
+    }
     window.StudioEffects?.stopPreview(false);
     saveWorkingStateToActiveScene();
     pausePreviewAll();
@@ -19330,10 +20102,11 @@ const TimelineStudio = (() => {
       };
     }
 
-    // Hook main playbar button to also support Preview All when scenes exist
+    // Hook main playbar button to also support Preview All when scenes or composite animations exist
     const origTogglePlay = window.togglePlay;
     window.togglePlay = function() {
-      if ((state.scenes && state.scenes.length > 1) || (window.StudioUI && StudioUI.hasMotion(state.layers))) {
+      const activeSc = getActiveScene();
+      if ((state.scenes && state.scenes.length > 1) || _sceneNeedsCompositePlayback(activeSc, state.layers)) {
         togglePreviewAll();
         return;
       }

@@ -136,8 +136,8 @@
     refreshTracks(); refreshEffects(); renderStudioPreview();
     return true;
   }
-  function evaluateCamera(camera, time) {
-    if (productionCore?.evaluateCamera) return productionCore.evaluateCamera(camera, time);
+  function evaluateCamera(camera, time, options = {}) {
+    if (productionCore?.evaluateCamera) return productionCore.evaluateCamera(camera, time, options);
     const frames = (camera?.keyframes || []).slice().sort((a, b) => a.time - b.time);
     if (!frames.length) return { x: camera?.x || 0, y: camera?.y || 0, zoom: camera?.zoom || 1, rotation: camera?.rotation || 0 };
     const before = frames.filter(frame => frame.time <= time).pop() || frames[0];
@@ -145,6 +145,86 @@
     const u = after === before ? 0 : Math.max(0, Math.min(1, (time - before.time) / Math.max(.001, after.time - before.time)));
     const mix = key => (before[key] ?? 0) + ((after[key] ?? before[key] ?? 0) - (before[key] ?? 0)) * u;
     return { x: mix('x'), y: mix('y'), zoom: Math.max(.05, mix('zoom') || 1), rotation: mix('rotation') };
+  }
+  function trackBoundsFromJoints(joints, character) {
+    const points = Object.values(joints || {}).filter(point => Number.isFinite(point?.x) && Number.isFinite(point?.y));
+    if (!points.length) return { x: 0, y: 0, w: 1, h: 1 };
+    const headSize = Number(character?.style?.headSize) || 28;
+    const xs = points.map(point => point.x), ys = points.map(point => point.y);
+    const minX = Math.min(...xs) - headSize, maxX = Math.max(...xs) + headSize;
+    const minY = Math.min(...ys) - headSize * 1.8, maxY = Math.max(...ys) + headSize;
+    return { x: minX, y: minY, w: Math.max(1, maxX - minX), h: Math.max(1, maxY - minY) };
+  }
+  function _computeSceneTrackTargets(p, scene, renderTime, width, height) {
+    const targets = {};
+    for (const track of p?.tracks || []) {
+      if (track.type !== 'character' || !track.character) continue;
+      const source = core.normalizeCharacter ? core.normalizeCharacter(clone(track.character)) : track.character;
+      const keyed = track.source === 'stickman-studio' && track.keyframes?.length
+        ? { ...source, motion: null, keyframes: track.keyframes }
+        : source;
+      const evaluated = keyed.motion ? core.evaluateMotion(keyed, renderTime, keyed.motion) : core.evaluateCharacter(keyed, renderTime);
+      const joints = evaluated.pose?.joints || {}, rootJoint = joints.root || joints.hips || joints.torso;
+      if (rootJoint) {
+        const tx = Number(track.transform?.x) || 0;
+        const ty = Number(track.transform?.y) || 0;
+        targets[track.ownerId || track.character.id] = {
+          x: (rootJoint.x + tx) - width / 2,
+          y: (rootJoint.y + ty) - height / 2,
+        };
+      }
+    }
+    return targets;
+  }
+  function getTrackBounds(scene, track, localTime = 0, options = {}) {
+    if (!scene || !track?.character) return null;
+    const keyedCharacter = track.source === 'stickman-studio' && track.keyframes?.length
+      ? { ...track.character, motion: null, keyframes: track.keyframes } : track.character;
+    const normalizedCharacter = core.normalizeCharacter ? core.normalizeCharacter(clone(keyedCharacter)) : keyedCharacter;
+    const evaluated = normalizedCharacter.motion
+      ? core.evaluateMotion(normalizedCharacter, localTime, normalizedCharacter.motion)
+      : core.evaluateCharacter(normalizedCharacter, localTime);
+    const bounds = trackBoundsFromJoints(evaluated.pose?.joints || {}, track.character);
+    const transform = track.transform || {};
+    const scale = Math.max(.1, Number(transform.scale) || 1);
+    const raw = {
+      x: bounds.x + (Number(transform.x) || 0) + bounds.w * (1 - scale) / 2,
+      y: bounds.y + (Number(transform.y) || 0) + bounds.h * (1 - scale) / 2,
+      w: bounds.w * scale,
+      h: bounds.h * scale,
+    };
+    if (options?.ignoreCamera) return raw;
+    const p = production(scene);
+    const app = appState();
+    const width = Number(app?.canvasW) || 1280;
+    const height = Number(app?.canvasH) || 720;
+    const targets = _computeSceneTrackTargets(p, scene, localTime, width, height);
+    const cam = evaluateCamera(p?.camera, localTime, { targets });
+    if (cam && (Math.abs((cam.zoom || 1) - 1) > 0.004 || cam.x || cam.y || cam.rotation)) {
+      const rad = ((cam.rotation || 0) * Math.PI) / 180;
+      const cos = Math.cos(rad), sin = Math.sin(rad);
+      const mapPt = (px, py) => {
+        const dx = px - width / 2 - (cam.x || 0);
+        const dy = py - height / 2 - (cam.y || 0);
+        const sx = (dx * cos - dy * sin) * cam.zoom + width / 2;
+        const sy = (dx * sin + dy * cos) * cam.zoom + height / 2;
+        return [sx, sy];
+      };
+      const pts = [
+        mapPt(raw.x, raw.y),
+        mapPt(raw.x + raw.w, raw.y),
+        mapPt(raw.x + raw.w, raw.y + raw.h),
+        mapPt(raw.x, raw.y + raw.h),
+      ];
+      const xs = pts.map(pt => pt[0]), ys = pts.map(pt => pt[1]);
+      return {
+        x: Math.min(...xs),
+        y: Math.min(...ys),
+        w: Math.max(1, Math.max(...xs) - Math.min(...xs)),
+        h: Math.max(1, Math.max(...ys) - Math.min(...ys)),
+      };
+    }
+    return raw;
   }
   function drawEffect(ctx, effect, time, width, height) {
     const start = Number(effect.start) || 0, duration = Math.max(.001, Number(effect.duration) || 1);
@@ -180,21 +260,21 @@
     }
     ctx.restore();
   }
-  function renderAt(scene, localTime, targetCtx = root.ctx) {
+  function renderAt(scene, localTime, targetCtx = root.ctx, options = {}) {
     const p = production(scene); if (!targetCtx || !p) return false;
-    const width = targetCtx.canvas.width, height = targetCtx.canvas.height;
+    const app = appState();
+    const width = Number(app?.canvasW) || targetCtx.canvas.width;
+    const height = Number(app?.canvasH) || targetCtx.canvas.height;
     const renderTime = Math.max(0, Math.min(Number(scene.duration || p.duration || 5), Number(localTime) || 0));
     targetCtx.save();
-    const targets = {};
-    for (const track of p.tracks || []) {
-      if (track.type !== 'character' || !track.character) continue;
-      const source = core.normalizeCharacter ? core.normalizeCharacter(clone(track.character)) : track.character;
-      const evaluated = source.motion ? core.evaluateMotion(source, renderTime, source.motion) : core.evaluateCharacter(source, renderTime);
-      const joints = evaluated.pose?.joints || {}, rootJoint = joints.root || joints.hips || joints.torso;
-      if (rootJoint) targets[track.ownerId || track.character.id] = rootJoint;
+    if (!options?.ignoreCamera) {
+      const targets = _computeSceneTrackTargets(p, scene, renderTime, width, height);
+      const camera = evaluateCamera(p.camera, renderTime, { targets });
+      targetCtx.translate(width / 2, height / 2);
+      targetCtx.rotate((camera.rotation || 0) * Math.PI / 180);
+      targetCtx.scale(camera.zoom, camera.zoom);
+      targetCtx.translate(-width / 2 - camera.x, -height / 2 - camera.y);
     }
-    const camera = evaluateCamera(p.camera, renderTime, { targets });
-    targetCtx.translate(width / 2, height / 2); targetCtx.rotate((camera.rotation || 0) * Math.PI / 180); targetCtx.scale(camera.zoom, camera.zoom); targetCtx.translate(-width / 2 - camera.x, -height / 2 - camera.y);
     const activeTracks = (p.tracks || []).filter(track =>
       track.type === 'character' &&
       track.visible !== false &&
@@ -223,29 +303,6 @@
       for (const bone of bones) { const a = joints[bone.parent], b = joints[bone.child]; if (!a || !b) continue; targetCtx.beginPath(); targetCtx.moveTo(a.x, a.y); targetCtx.lineTo(b.x, b.y); targetCtx.stroke(); }
       const head = joints.head || joints.neck; if (head) { targetCtx.beginPath(); targetCtx.arc(head.x, head.y - (character.style?.headSize || 28) * .7, character.style?.headSize || 28, 0, Math.PI * 2); targetCtx.stroke(); }
       targetCtx.restore();
-    }
-    function trackBoundsFromJoints(joints, character) {
-      const points = Object.values(joints || {}).filter(point => Number.isFinite(point?.x) && Number.isFinite(point?.y));
-      if (!points.length) return { x: 0, y: 0, w: 1, h: 1 };
-      const headSize = Number(character?.style?.headSize) || 28;
-      const xs = points.map(point => point.x), ys = points.map(point => point.y);
-      const minX = Math.min(...xs) - headSize, maxX = Math.max(...xs) + headSize;
-      const minY = Math.min(...ys) - headSize * 1.8, maxY = Math.max(...ys) + headSize;
-      return { x: minX, y: minY, w: Math.max(1, maxX - minX), h: Math.max(1, maxY - minY) };
-    }
-    function getTrackBounds(scene, track, localTime = 0) {
-      if (!scene || !track?.character) return null;
-      const keyedCharacter = track.source === 'stickman-studio' && track.keyframes?.length
-        ? { ...track.character, motion: null, keyframes: track.keyframes } : track.character;
-      const evaluated = keyedCharacter.motion ? core.evaluateMotion(keyedCharacter, localTime, keyedCharacter.motion) : core.evaluateCharacter(keyedCharacter, localTime);
-      const bounds = trackBoundsFromJoints(evaluated.pose?.joints || {}, track.character);
-      const transform = track.transform || {};
-      const scale = Math.max(.1, Number(transform.scale) || 1);
-      return {
-        x: bounds.x + (Number(transform.x) || 0) + bounds.w * (1 - scale) / 2,
-        y: bounds.y + (Number(transform.y) || 0) + bounds.h * (1 - scale) / 2,
-        w: bounds.w * scale, h: bounds.h * scale,
-      };
     }
     targetCtx.restore();
     for (const effect of p.effects) drawEffect(targetCtx, effect, localTime, width, height);
@@ -391,7 +448,7 @@
     return (appState()?.scenes || []).map(scene => ({ id: scene.id, production: clone(scene.production || defaultProduction()) }));
   }
   function restore(entries) { for (const entry of entries || []) { const scene = appState()?.scenes?.find(item => item.id === entry.id); if (scene && entry.production) scene.production = clone(entry.production); } }
-  root.StickmanProduction = { open, production, renderAt, serialize, restore, addTemplate, getTrackBounds };
+  root.StickmanProduction = { open, production, renderAt, serialize, restore, addTemplate, getTrackBounds, evaluateCamera };
   root.addEventListener('load', () => setTimeout(() => {
     if (!document.getElementById('stickman-production-launch')) {
       const anchor = document.getElementById('stickman-launch'); if (!anchor) return;

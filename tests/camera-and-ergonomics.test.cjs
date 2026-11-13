@@ -274,3 +274,115 @@ test('CameraCore evaluateSceneCameraAtTime evaluates timed scene.cameraKeyframes
   assert.ok(tEnd.zoom < 1.2, `Expected zoom reset near scene end, got ${tEnd.zoom}`);
 });
 
+test('CameraCore worldToScreenPoint, screenToWorldPoint roundtrip and sceneHasCameraAnimation', () => {
+  const camIn = { cx: 940, cy: 210, zoom: 3.2 };
+  const worldPt = { x: 885, y: 245 };
+  const scrPt = CameraCore.worldToScreenPoint(worldPt, camIn, 1280, 720);
+  const backIn = CameraCore.screenToWorldPoint(scrPt, camIn, 1280, 720);
+  assert.ok(Math.abs(backIn.x - worldPt.x) < 1e-6);
+  assert.ok(Math.abs(backIn.y - worldPt.y) < 1e-6);
+
+  const camOut = { cx: 480, cy: 360, zoom: 0.5 };
+  const scrOut = CameraCore.worldToScreenPoint(worldPt, camOut, 1280, 720);
+  const backOut = CameraCore.screenToWorldPoint(scrOut, camOut, 1280, 720);
+  assert.ok(Math.abs(backOut.x - worldPt.x) < 1e-6);
+  assert.ok(Math.abs(backOut.y - worldPt.y) < 1e-6);
+
+  assert.equal(CameraCore.sceneHasCameraAnimation({ id: 'plain', layers: [{ visible: true, cameraMode: 'static' }] }), false);
+  assert.equal(CameraCore.sceneHasCameraAnimation({ id: 'def', camera: { defaultZoom: 1.4 }, layers: [] }), true);
+  assert.equal(CameraCore.sceneHasCameraAnimation({ id: 'kf', cameraKeyframes: [{ id: 'k1', time: 1, zoom: 2 }], layers: [] }), true);
+  assert.equal(CameraCore.sceneHasCameraAnimation({ id: 'lay', layers: [{ visible: true, camera: { enabled: true, zoom: 1.8 } }] }), true);
+  assert.equal(CameraCore.sceneHasCameraAnimation({ id: 'sm', production: { camera: { keyframes: [{ id: 's1', time: 0, zoom: 1.5 }] } }, layers: [] }), true);
+});
+
+test('StickmanProduction exposes getTrackBounds, passes follow targets to evaluateCamera, and supports ignoreCamera', () => {
+  const coreSrc = fs.readFileSync(path.join(__dirname, '../stickman-core.js'), 'utf8');
+  const prodCoreSrc = fs.readFileSync(path.join(__dirname, '../stickman-production-core.js'), 'utf8');
+  const uiSrc = fs.readFileSync(path.join(__dirname, '../stickman-production-ui.js'), 'utf8');
+
+  const noop = () => {};
+  const sandbox = {
+    Math, Number, Array, Object, String, Boolean, Date, JSON, Promise, Set, Map,
+    console,
+    addEventListener: noop,
+    removeEventListener: noop,
+    setTimeout: noop, clearTimeout: noop,
+    requestAnimationFrame: noop, cancelAnimationFrame: noop,
+    localStorage: { getItem: () => null, setItem: noop },
+    document: {
+      createElement: () => ({ style: {}, querySelector: () => null, querySelectorAll: () => [], append: noop, innerHTML: '' }),
+      body: { append: noop },
+      head: { append: noop },
+    },
+    state: {
+      canvasW: 1280,
+      canvasH: 720,
+      playheadTime: 0,
+      scenes: [],
+      activeSceneId: 'sc-1',
+    },
+    StickmanTemplates: { templates: [], categories: [], styles: [] },
+  };
+  sandbox.globalThis = sandbox;
+  sandbox.window = sandbox;
+  vm.createContext(sandbox);
+  vm.runInContext(coreSrc, sandbox);
+  vm.runInContext(prodCoreSrc, sandbox);
+  vm.runInContext(uiSrc, sandbox);
+
+  assert.equal(typeof sandbox.StickmanProduction?.getTrackBounds, 'function');
+
+  const char = sandbox.StickmanCore.createCharacter('Hero', { x: 420, y: 360 });
+  const track = {
+    id: 'track-1',
+    type: 'character',
+    visible: true,
+    inPoint: 0,
+    outPoint: 5,
+    character: char,
+    transform: { x: 0, y: 0, scale: 1, rotation: 0 },
+  };
+  const scene = {
+    id: 'sc-1',
+    duration: 5,
+    production: {
+      duration: 5,
+      tracks: [track],
+      effects: [],
+      captions: [],
+      camera: { keyframes: [{ id: 'c1', time: 0, zoom: 2, x: 0, y: 0 }], followTarget: 'track-1', followSmoothing: 1, shake: 0, pulse: 0 },
+    },
+  };
+  sandbox.state.scenes = [scene];
+
+  const cam = sandbox.StickmanProduction.evaluateCamera(scene.production.camera, 0, {
+    targets: { 'track-1': { x: 120, y: -40 } },
+  });
+  assert.equal(cam.zoom, 2);
+  assert.equal(cam.x, 120);
+  assert.equal(cam.y, -40);
+
+  const rawBounds = sandbox.StickmanProduction.getTrackBounds(scene, track, 0, { ignoreCamera: true });
+  const camBounds = sandbox.StickmanProduction.getTrackBounds(scene, track, 0, { ignoreCamera: false });
+  assert.ok(rawBounds && camBounds);
+  assert.ok(camBounds.w > rawBounds.w * 1.5, 'Camera zoom should enlarge projected stickman selection bounds');
+});
+
+test('index.html, studio.js, and animations.js keep camera state coherent across whiteboard, SVG, preview, resize, split, and export', () => {
+  const html = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');
+  const studioJs = fs.readFileSync(path.join(__dirname, '../studio.js'), 'utf8');
+  const animJs = fs.readFileSync(path.join(__dirname, '../animations.js'), 'utf8');
+
+  assert.ok(html.includes('window.getActiveViewCamera = function()'));
+  assert.ok(html.includes('CameraCore.screenToWorldPoint(raw, viewCam'));
+  assert.ok(html.includes('renderSceneCompositeToContext(_mainCtx, activeScene, localT, false, { ignoreCamera: ignoreCam })'));
+  assert.ok(html.includes('interactTargetKind = _interact.targetKind'));
+  assert.equal(html.includes('state.slotMode = prevSlot'), false, 'Typo state.slotMode should not exist');
+  assert.ok(html.includes('_applyDynamicCameraFrame') && animJs.includes('window._applyDynamicCameraFrame(true)'));
+  assert.ok(html.includes('function _sceneNeedsCompositePlayback('));
+  assert.ok(html.includes('scaledKfs = sc.cameraKeyframes.map'));
+  assert.ok(html.includes('origCamKfs'));
+  assert.ok(studioJs.includes('activePenViewCamera()') && studioJs.includes('screenToWorldPoint'));
+});
+
+

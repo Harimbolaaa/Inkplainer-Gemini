@@ -366,7 +366,12 @@
     let activeIdx = timeline.findIndex(item => t >= item.start && t <= item.end);
     if (activeIdx === -1) {
       if (t < timeline[0].start) {
-        return { cx: basePose.cx, cy: basePose.cy, zoom: basePose.zoom, active: true };
+        return {
+          cx: basePose.cx,
+          cy: basePose.cy,
+          zoom: basePose.zoom,
+          active: Math.abs(basePose.zoom - 1) > 0.004 || Math.hypot(basePose.cx - canvasW / 2, basePose.cy - canvasH / 2) > 1,
+        };
       }
       let prevIdx = -1;
       for (let i = timeline.length - 1; i >= 0; i--) {
@@ -503,6 +508,50 @@
     };
   }
 
+  function worldToScreenPoint(pt, cam, canvasW = 1280, canvasH = 720) {
+    const x = Number(pt?.x) || 0;
+    const y = Number(pt?.y) || 0;
+    if (!cam || !cam.active) return { x, y };
+    const zoom = clamp(Number(cam.zoom) || 1.0, 0.5, 4.0);
+    const cx = Number.isFinite(Number(cam.cx)) ? Number(cam.cx) : canvasW / 2;
+    const cy = Number.isFinite(Number(cam.cy)) ? Number(cam.cy) : canvasH / 2;
+    return {
+      x: (x - cx) * zoom + canvasW / 2,
+      y: (y - cy) * zoom + canvasH / 2,
+    };
+  }
+
+  function screenToWorldPoint(pt, cam, canvasW = 1280, canvasH = 720) {
+    const x = Number(pt?.x) || 0;
+    const y = Number(pt?.y) || 0;
+    if (!cam || !cam.active) return { x, y };
+    const zoom = clamp(Number(cam.zoom) || 1.0, 0.5, 4.0);
+    const cx = Number.isFinite(Number(cam.cx)) ? Number(cam.cx) : canvasW / 2;
+    const cy = Number.isFinite(Number(cam.cy)) ? Number(cam.cy) : canvasH / 2;
+    return {
+      x: (x - canvasW / 2) / zoom + cx,
+      y: (y - canvasH / 2) / zoom + cy,
+    };
+  }
+
+  function sceneHasCameraAnimation(scene, options = {}) {
+    if (!scene) return false;
+    if (Array.isArray(scene.cameraKeyframes) && scene.cameraKeyframes.length > 0) return true;
+    const scZoom = Number(scene.camera?.defaultZoom);
+    if (Number.isFinite(scZoom) && Math.abs(scZoom - 1) > 0.005) return true;
+    const layers = (scene.layers || []).filter(l => l && l.visible !== false);
+    if (layers.some(l => l.camera?.enabled || (l.cameraMode && l.cameraMode !== 'static'))) return true;
+    if (options.defaultCameraMode && options.defaultCameraMode !== 'static' && layers.length > 0) return true;
+    const pCam = scene.production?.camera;
+    if (pCam) {
+      if (Array.isArray(pCam.keyframes) && pCam.keyframes.length > 0) return true;
+      if (pCam.preset && pCam.preset !== 'static' && pCam.preset !== 'wide') return true;
+      if (Math.abs((Number(pCam.zoom) || 1) - 1) > 0.005) return true;
+      if (Number(pCam.x) || Number(pCam.y) || Number(pCam.rotation)) return true;
+    }
+    return false;
+  }
+
   const api = {
     clamp,
     ease,
@@ -514,6 +563,9 @@
     computeAutoFrameForLayer,
     getCameraFrameRect,
     cameraFromFrameRect,
+    worldToScreenPoint,
+    screenToWorldPoint,
+    sceneHasCameraAnimation,
     evaluateSceneCameraAtTime,
     computeMagneticSnap,
   };

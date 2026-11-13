@@ -2,7 +2,7 @@
 const StudioEffects = (() => {
   'use strict';
   const clone = value => JSON.parse(JSON.stringify(value));
-  const categories = { In: 'Entrée', Out: 'Sortie', Text: 'Texte', Idle: 'Boucle', Emphasis: 'Accent' };
+  const categories = { In: 'Entrance', Out: 'Exit', Text: 'Text', Idle: 'Loop', Emphasis: 'Emphasis' };
   const paths = {
     In: 'M4 12h15m-5-5 5 5-5 5M5 5v14',
     Out: 'M4 12h15m-5-5 5 5-5 5M21 5v14',
@@ -14,53 +14,53 @@ const StudioEffects = (() => {
   const color = (key, label, value) => ({ key, label, value, type: 'color' });
   const parameters = {
     smoothOvershoot: [n('distance', 'Distance (px)', 90)],
-    cinematicFadeScale: [n('scale', 'Échelle initiale', 1.18, 0, 5, .01)],
-    dynamicGlitchIn: [n('intensity', 'Intensité (px)', 65, 0, 200)],
+    cinematicFadeScale: [n('scale', 'Initial Scale', 1.18, 0, 5, .01)],
+    dynamicGlitchIn: [n('intensity', 'Intensity (px)', 65, 0, 200)],
     elasticPop: [],
-    blurReveal: [n('blur', 'Flou (px)', 24, 0, 80), n('distance', 'Distance (px)', 18)],
-    dropSquash: [n('distance', 'Hauteur (px)', 260)],
+    blurReveal: [n('blur', 'Blur (px)', 24, 0, 80), n('distance', 'Distance (px)', 18)],
+    dropSquash: [n('distance', 'Height (px)', 260)],
     flip3DIn: [n('angle', 'Angle (°)', -90, -720, 720)],
     zoomSpin: [n('angle', 'Rotation (°)', -180, -1080, 1080)],
     wipeRight: [],
     slideBounce: [n('distance', 'Distance (px)', 320)],
     shrinkVanish: [],
-    flyAway: [n('distance', 'Distance X (px)', 700, -2000, 2000), n('height', 'Hauteur (px)', 450), n('angle', 'Rotation (°)', 35, -720, 720)],
-    pixelDissolve: [n('columns', 'Colonnes', 16, 2, 64), n('rows', 'Lignes', 12, 2, 64)],
+    flyAway: [n('distance', 'Distance X (px)', 700, -2000, 2000), n('height', 'Height (px)', 450), n('angle', 'Rotation (°)', 35, -720, 720)],
+    pixelDissolve: [n('columns', 'Columns', 16, 2, 64), n('rows', 'Rows', 12, 2, 64)],
     spinOut: [n('angle', 'Rotation (°)', 540, -1440, 1440)],
     swishLeft: [n('distance', 'Distance (px)', 650)],
-    blurOut: [n('blur', 'Flou (px)', 30, 0, 80)],
+    blurOut: [n('blur', 'Blur (px)', 30, 0, 80)],
     implode: [],
     slideDownFade: [n('distance', 'Distance (px)', 180)],
-    sinkHole: [n('distance', 'Distance (px)', 130), color('holeColor', 'Couleur du trou', '#0f172a')],
+    sinkHole: [n('distance', 'Distance (px)', 130), color('holeColor', 'Hole Color', '#0f172a')],
     fold3DOut: [n('angle', 'Angle (°)', 90, -720, 720)],
-    typewriterPro: [{ key: 'cursor', label: 'Curseur de saisie', value: true, type: 'checkbox' }, color('cursorColor', 'Couleur du curseur', '#111827')],
-    staggeredPopUp: [n('distance', 'Distance (px)', 55), n('stagger', 'Décalage / lettre (s)', .04, 0, 2, .01)],
-    neonFlicker: [n('glow', 'Lueur (px)', 24, 0, 100), color('glowColor', 'Couleur de lueur', '#38bdf8')],
-    decodeMatrix: [color('color', 'Couleur du décodage', '#22c55e'), { key: 'characters', label: 'Alphabet de décodage', value: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>/\\{}[]', type: 'text' }],
+    typewriterPro: [{ key: 'cursor', label: 'Typing Cursor', value: true, type: 'checkbox' }, color('cursorColor', 'Cursor Color', '#111827')],
+    staggeredPopUp: [n('distance', 'Distance (px)', 55), n('stagger', 'Stagger / letter (s)', .04, 0, 2, .01)],
+    neonFlicker: [n('glow', 'Glow (px)', 24, 0, 100), color('glowColor', 'Glow Color', '#38bdf8')],
+    decodeMatrix: [color('color', 'Decode Color', '#22c55e'), { key: 'characters', label: 'Decode Charset', value: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>/\\{}[]', type: 'text' }],
     waveText: [n('amplitude', 'Amplitude (px)', 16, 0, 100)],
-    trackingInReveal: [n('spacing', 'Espacement (px)', 30, 0, 100)],
+    trackingInReveal: [n('spacing', 'Letter Spacing (px)', 30, 0, 100)],
     jitterText: [n('amplitude', 'Amplitude (px)', 12, 0, 100)],
-    flipBoard: [n('stagger', 'Décalage / lettre (s)', .04, 0, 2, .01)],
-    sliceText: [n('distance', 'Distance (px)', 100), n('strips', 'Nombre de bandes', 24, 4, 96)],
-    kineticScroll: [n('distance', 'Distance (px)', 95), n('stagger', 'Décalage / lettre (s)', .04, 0, 2, .01)],
+    flipBoard: [n('stagger', 'Stagger / letter (s)', .04, 0, 2, .01)],
+    sliceText: [n('distance', 'Distance (px)', 100), n('strips', 'Strip Count', 24, 4, 96)],
+    kineticScroll: [n('distance', 'Distance (px)', 95), n('stagger', 'Stagger / letter (s)', .04, 0, 2, .01)],
     liquidFloat: [n('amplitude', 'Amplitude (px)', 16, 0, 200)],
-    heartbeatPulse: [n('scale', 'Échelle maximale', 1.16, .1, 3, .01)],
+    heartbeatPulse: [n('scale', 'Max Scale', 1.16, .1, 3, .01)],
     continuousParallaxDrift: [n('distance', 'Distance (px)', 35, 0, 300)],
     gentleSwing: [n('angle', 'Angle (°)', 8, 0, 90)],
-    shakeRumble: [n('amplitude', 'Amplitude (px)', 6, 0, 100), n('frequency', 'Secousses / cycle', 20, 3, 80)],
-    glowPulse: [n('glow', 'Lueur (px)', 28, 0, 100), color('glowColor', 'Couleur de lueur', '#38bdf8')],
+    shakeRumble: [n('amplitude', 'Amplitude (px)', 6, 0, 100), n('frequency', 'Shakes / cycle', 20, 3, 80)],
+    glowPulse: [n('glow', 'Glow (px)', 28, 0, 100), color('glowColor', 'Glow Color', '#38bdf8')],
     wobble: [n('angle', 'Angle (°)', 8, 0, 90)],
-    breathingScale: [n('scale', 'Échelle maximale', 1.055, .1, 3, .005)],
-    orbitRing: [n('radius', 'Rayon (px)', 40, 0, 500), n('ellipse', 'Ratio de l’ellipse', .55, 0, 2, .05)],
-    wavyDistortion: [n('amplitude', 'Amplitude (px)', 10, 0, 100), n('strips', 'Nombre de bandes', 24, 4, 96)],
+    breathingScale: [n('scale', 'Max Scale', 1.055, .1, 3, .005)],
+    orbitRing: [n('radius', 'Radius (px)', 40, 0, 500), n('ellipse', 'Ellipse Ratio', .55, 0, 2, .05)],
+    wavyDistortion: [n('amplitude', 'Amplitude (px)', 10, 0, 100), n('strips', 'Strip Count', 24, 4, 96)],
     rubberBand: [],
-    flashBang: [n('glow', 'Lueur (px)', 45, 0, 100), color('flashColor', 'Couleur du flash', '#ffffff'), color('glowColor', 'Couleur de lueur', '#38bdf8')],
+    flashBang: [n('glow', 'Glow (px)', 45, 0, 100), color('flashColor', 'Flash Color', '#ffffff'), color('glowColor', 'Glow Color', '#38bdf8')],
     tadaCelebrate: [],
     jello: [],
-    cameraShake: [n('intensity', 'Intensité (px)', 22, 0, 200), n('frequency', 'Secousses / cycle', 24, 4, 96)],
+    cameraShake: [n('intensity', 'Intensity (px)', 22, 0, 200), n('frequency', 'Shakes / cycle', 24, 4, 96)],
     colorInvertFlash: [],
-    rippleEffect: [n('amplitude', 'Amplitude (px)', 14, 0, 100), n('lineWidth', 'Épaisseur (px)', 2, .5, 20, .5), color('color', 'Couleur de l’onde', '#60a5fa')],
-    glitchBurst: [n('intensity', 'Intensité (px)', 55, 0, 200)],
+    rippleEffect: [n('amplitude', 'Amplitude (px)', 14, 0, 100), n('lineWidth', 'Stroke Width (px)', 2, .5, 20, .5), color('color', 'Ripple Color', '#60a5fa')],
+    glitchBurst: [n('intensity', 'Intensity (px)', 55, 0, 200)],
     spotlightSweep: [],
     popOut3D: [],
   };
@@ -68,10 +68,10 @@ const StudioEffects = (() => {
   const pivotEffects = new Set(['smoothOvershoot', 'cinematicFadeScale', 'elasticPop', 'dropSquash', 'zoomSpin', 'shrinkVanish', 'flyAway', 'spinOut', 'swishLeft', 'blurOut', 'implode', 'sinkHole', 'liquidFloat', 'heartbeatPulse', 'gentleSwing', 'wobble', 'breathingScale', 'rubberBand', 'flashBang', 'tadaCelebrate', 'jello', 'cameraShake', 'popOut3D']);
   const glyphEffects = new Set(['typewriterPro', 'staggeredPopUp', 'decodeMatrix', 'waveText', 'trackingInReveal', 'jitterText', 'flipBoard', 'kineticScroll']);
   const easeOptions = [
-    ['', 'Courbe originale'], ['none', 'Linéaire'], ['power2.in', 'Accélération'],
-    ['power2.out', 'Décélération'], ['power2.inOut', 'Ease In-Out'],
-    ['back.out(1.7)', 'Dépassement'], ['elastic.out(1,.45)', 'Élastique'],
-    ['bounce.out', 'Rebond'], ['expo.inOut', 'Exponentielle'], ['sine.inOut', 'Sinusoïdale'],
+    ['', 'Default Curve'], ['none', 'Linear'], ['power2.in', 'Ease In'],
+    ['power2.out', 'Ease Out'], ['power2.inOut', 'Ease In-Out'],
+    ['back.out(1.7)', 'Overshoot'], ['elastic.out(1,.45)', 'Elastic'],
+    ['bounce.out', 'Bounce'], ['expo.inOut', 'Exponential'], ['sine.inOut', 'Sine'],
   ];
   let el, button, field, number, select, icon;
   let pane, settingsBody, catalogGrid, effectSelect, resultCount, targetName, status, transport, progress, clock, live, applyButton, removeButton, playButton, pauseButton, stopButton;
@@ -87,15 +87,15 @@ const StudioEffects = (() => {
   });
   function descriptors(key) {
     const result = [...(parameters[key] || [])];
-    if (pivotEffects.has(key)) result.push(n('originX', 'Ancrage X (0–1)', .5, 0, 1, .05),
-      n('originY', 'Ancrage Y (0–1)', key === 'gentleSwing' ? 0 : key === 'dropSquash' ? 1 : .5, 0, 1, .05));
+    if (pivotEffects.has(key)) result.push(n('originX', 'Anchor X (0–1)', .5, 0, 1, .05),
+      n('originY', 'Anchor Y (0–1)', key === 'gentleSwing' ? 0 : key === 'dropSquash' ? 1 : .5, 0, 1, .05));
     if (['flip3DIn', 'fold3DOut', 'popOut3D', 'sinkHole'].includes(key)) {
-      result.push(n('perspective', 'Perspective (px)', 800, 100, 2400, 50), n('mesh', 'Précision 3D', 8, 2, 24));
+      result.push(n('perspective', 'Perspective (px)', 800, 100, 2400, 50), n('mesh', '3D Mesh Detail', 8, 2, 24));
     }
-    if (glyphEffects.has(key)) result.push(n('slices', 'Bandes pour une image', 12, 2, 60));
-    if (['dynamicGlitchIn', 'glitchBurst', 'rippleEffect'].includes(key)) result.push(n('strips', 'Nombre de bandes', 24, 4, 96));
+    if (glyphEffects.has(key)) result.push(n('slices', 'Image Slices', 12, 2, 60));
+    if (['dynamicGlitchIn', 'glitchBurst', 'rippleEffect'].includes(key)) result.push(n('strips', 'Strip Count', 24, 4, 96));
     if (['dynamicGlitchIn', 'pixelDissolve', 'decodeMatrix', 'jitterText', 'shakeRumble', 'cameraShake', 'glitchBurst'].includes(key)) {
-      result.push(n('seed', 'Graine aléatoire', 17, 0, 9999));
+      result.push(n('seed', 'Random Seed', 17, 0, 9999));
     }
     return result;
   }
@@ -142,7 +142,7 @@ const StudioEffects = (() => {
     settingsBody.disabled = !usable;
     effectSelect.disabled = state.recording || !window.gsap;
     pauseButton.setAttribute('aria-pressed', String(!!tl?.paused()));
-    pauseButton.title = tl?.paused() ? 'Reprendre l’aperçu' : 'Mettre l’aperçu en pause';
+    pauseButton.title = tl?.paused() ? 'Resume preview' : 'Pause preview';
     pauseButton.setAttribute('aria-label', pauseButton.title);
     pauseButton.replaceChildren(icon(tl?.paused() ? 'm8 5 11 7-11 7z' : 'M8 5v14M16 5v14'));
     transport.classList.toggle('is-playing', !!tl && !tl.paused() && (tl.repeat() < 0 || tl.totalProgress() < 1));
@@ -164,7 +164,7 @@ const StudioEffects = (() => {
   }
   function preview(paused = false, at = 0) {
     if (!canEdit()) {
-      announce(state.recording ? 'Export en cours : réglages verrouillés.' : 'Sélectionnez un calque visible et terminez l’édition vectorielle.', true);
+      announce(state.recording ? 'Export in progress: controls locked.' : 'Select a visible layer and finish vector editing.', true);
       return;
     }
     stopPreview(false);
@@ -177,8 +177,8 @@ const StudioEffects = (() => {
         ...draft.options, delay: draft.delay, repeat: draft.repeat,
         repeatDelay: draft.repeatDelay, yoyo: draft.yoyo, paused: true,
         onUpdate: updateTransport,
-        onStart: () => announce(dirty ? 'Aperçu en direct · modifications non appliquées.' : 'Aperçu en direct sur le canevas.'),
-        onComplete: () => { updateTransport(); announce('Aperçu terminé. Rejouez ou faites glisser le curseur.'); },
+        onStart: () => announce(dirty ? 'Live preview · unapplied changes.' : 'Live preview on canvas.'),
+        onComplete: () => { updateTransport(); announce('Preview complete. Replay or scrub the slider.'); },
       });
       const span = tl.repeat() < 0 ? tl.duration() : tl.totalDuration();
       tl.totalTime(at * span, false);
@@ -188,17 +188,17 @@ const StudioEffects = (() => {
       }
       renderPreview();
       updateTransport();
-      if (paused) announce('Aperçu en pause · ajustez les paramètres ou le curseur.');
-      else if (draft.delay > 0 && at === 0) announce(`Délai initial : ${draft.delay.toFixed(2)} s…`);
+      if (paused) announce('Preview paused · adjust parameters or scrub.');
+      else if (draft.delay > 0 && at === 0) announce(`Initial delay: ${draft.delay.toFixed(2)} s…`);
     } catch (error) {
       previewTarget = null;
       updateTransport();
-      announce(`Aperçu indisponible : ${error.message}`, true);
+      announce(`Preview unavailable: ${error.message}`, true);
     }
   }
   function changed(restart = false) {
     dirty = true;
-    announce('Modifications non appliquées · « Appliquer » pour les conserver.');
+    announce('Unapplied changes · click "Apply" to save them.');
     if (!live.checked || !canEdit()) return;
     cancelAnimationFrame(refreshFrame);
     refreshFrame = requestAnimationFrame(() => {
@@ -218,7 +218,7 @@ const StudioEffects = (() => {
     } else if (p.type === 'color' || p.type === 'text') {
       input = el('input', 'studio-input', null, { type: p.type, id, maxlength: 120 });
       input.value = value;
-      if (p.type === 'text') input.placeholder = 'Alphabet par défaut';
+      if (p.type === 'text') input.placeholder = 'Default charset';
       input.addEventListener('input', () => { update(input.value || undefined); changed(); });
     } else {
       input = number(value, { min: p.min, max: p.max, step: p.step, id });
@@ -227,7 +227,7 @@ const StudioEffects = (() => {
       else {
         range = el('input', 'gsap-control-range', null, {
           type: 'range', min: p.min, max: p.max, step: p.step,
-          id: `${id}-range`, 'aria-label': `${p.label} — curseur`,
+          id: `${id}-range`, 'aria-label': `${p.label} slider`,
         });
         range.addEventListener('input', () => {
           input.value = range.value;
@@ -285,29 +285,29 @@ const StudioEffects = (() => {
     settingsBody.replaceChildren();
     const entry = entryFor(draft.effect);
     const title = el('div', 'gsap-current-row');
-    const reset = button('Réinitialiser', () => {
+    const reset = button('Reset', () => {
       draft = defaultConfig(draft.effect);
       renderSettings();
       changed(true);
     }, 'gsap-reset');
     reset.id = 'gsap-reset';
     title.append(el('div', 'gsap-current-title', entry.name), reset);
-    settingsBody.append(title, el('p', 'gsap-hint', `${categories[entry.category]} · ${entry.category === 'Text' ? 'Lettres ou bandes d’image.' : 'Réglages indépendants des keyframes.'}`));
+    settingsBody.append(title, el('p', 'gsap-hint', `${categories[entry.category]} · ${entry.category === 'Text' ? 'Animates letters or image slices.' : 'Settings stay independent from keyframes.'}`));
     const timing = el('div', 'gsap-fields');
-    for (const p of [n('duration', 'Durée / cycle (s)', 1.2, .05, 60, .05), n('delay', 'Délai initial (s)', 0, 0, 300, .05),
-      n('repeat', 'Répétitions (−1 = ∞)', 0, -1, 99), n('repeatDelay', 'Pause / cycle (s)', 0, 0, 60, .05)]) {
+    for (const p of [n('duration', 'Duration / cycle (s)', 1.2, .05, 60, .05), n('delay', 'Initial delay (s)', 0, 0, 300, .05),
+      n('repeat', 'Repeats (−1 = ∞)', 0, -1, 99), n('repeatDelay', 'Pause / cycle (s)', 0, 0, 60, .05)]) {
       timing.append(inputFor(p, draft[p.key], v => { draft[p.key] = p.key === 'repeat' ? Math.floor(v) : v; }, `gsap-${p.key}`));
     }
-    settingsBody.append(timing, inputFor({ key: 'yoyo', label: 'Aller-retour (yoyo)', type: 'checkbox' }, draft.yoyo, v => { draft.yoyo = v; }, 'gsap-yoyo'));
+    settingsBody.append(timing, inputFor({ key: 'yoyo', label: 'Yoyo (reverse)', type: 'checkbox' }, draft.yoyo, v => { draft.yoyo = v; }, 'gsap-yoyo'));
     if (customEase.has(entry.key)) {
       const ease = select(easeOptions, draft.options.ease || '');
       ease.id = 'gsap-ease';
       ease.addEventListener('change', () => { if (ease.value) draft.options.ease = ease.value; else delete draft.options.ease; changed(); });
-      settingsBody.append(field('Courbe de mouvement', ease));
+      settingsBody.append(field('Motion Curve', ease));
     }
     const specific = el('div', 'gsap-fields');
     const advanced = el('details', 'gsap-advanced');
-    advanced.append(el('summary', '', 'Rendu avancé'));
+    advanced.append(el('summary', '', 'Advanced Rendering'));
     const advancedFields = el('div', 'gsap-fields');
     const ordinary = new Set((parameters[entry.key] || []).map(p => p.key));
     for (const p of descriptors(entry.key)) {
@@ -319,14 +319,14 @@ const StudioEffects = (() => {
       if (p.type === 'text') control.classList.add('gsap-full');
       (ordinary.has(p.key) ? specific : advancedFields).append(control);
     }
-    if (specific.children.length) settingsBody.append(el('div', 'gsap-section-label', 'Paramètres de l’effet'), specific);
+    if (specific.children.length) settingsBody.append(el('div', 'gsap-section-label', 'Effect Parameters'), specific);
     if (advancedFields.children.length) { advanced.append(advancedFields); settingsBody.append(advanced); }
     updateTransport();
   }
   function renderCatalog() {
     effectSelect.value = draft.effect;
     const entries = catalog().filter(e => (filter === 'All' || e.category === filter) && `${e.name} ${categories[e.category]} ${e.key}`.toLocaleLowerCase().includes(search));
-    resultCount.textContent = `${entries.length} / ${catalog().length} effets`;
+    resultCount.textContent = `${entries.length} / ${catalog().length} effects`;
     catalogGrid.replaceChildren();
     for (const entry of entries) {
       const card = button('', () => choose(entry.key), 'gsap-effect');
@@ -335,7 +335,7 @@ const StudioEffects = (() => {
       card.append(icon(paths[entry.category]), el('span', '', entry.name));
       catalogGrid.append(card);
     }
-    if (!entries.length) catalogGrid.append(el('p', 'gsap-hint gsap-full', 'Aucun effet. Essayez un autre nom ou une autre catégorie.'));
+    if (!entries.length) catalogGrid.append(el('p', 'gsap-hint gsap-full', 'No matching effects. Try another name or category.'));
   }
   function choose(key) {
     if (!entryFor(key) || state.recording) return;
@@ -345,7 +345,7 @@ const StudioEffects = (() => {
     pane.querySelector('.gsap-library').open = false;
     renderCatalog();
     renderSettings();
-    announce('Effet sélectionné · appliquez-le pour le conserver dans le projet.');
+    announce('Effect selected · apply it to save to the project.');
     if (live.checked && canEdit()) preview();
   }
   function syncSelection(force = false) {
@@ -358,14 +358,14 @@ const StudioEffects = (() => {
       dirty = false;
       renderCatalog();
       renderSettings();
-      announce(target?.gsapEffect ? 'Effet enregistré · inclus dans la timeline et les exports.' : 'L’aperçu est temporaire. Appliquez l’effet pour le sauvegarder.');
+      announce(target?.gsapEffect ? 'Effect saved · included in timeline and exports.' : 'Preview is temporary. Apply the effect to save it.');
     }
-    targetName.textContent = target?.name || 'Aucun calque sélectionné';
+    targetName.textContent = target?.name || 'No layer selected';
     pane.querySelector('.gsap-empty').hidden = !!target;
     pane.querySelector('.gsap-target').hidden = !target;
-    if (state.recording) announce('Export en cours : réglages verrouillés.');
-    else if (target?.visible === false) announce('Ce calque est masqué. Rendez-le visible pour tester l’effet.', true);
-    else if (StudioUI.isEditing()) announce('Terminez l’édition vectorielle pour régler les effets GSAP.');
+    if (state.recording) announce('Export in progress: controls locked.');
+    else if (target?.visible === false) announce('This layer is hidden. Show it to preview the effect.', true);
+    else if (StudioUI.isEditing()) announce('Finish vector editing to configure GSAP effects.');
     document.querySelectorAll('.studio-gsap-badge').forEach(badge => { badge.disabled = !!state.recording; });
     updateTransport();
   }
@@ -375,14 +375,14 @@ const StudioEffects = (() => {
     stopPreview(false);
     commitEffect(normalize(draft), 'Apply GSAP Effect');
     dirty = false;
-    announce('Effet appliqué · sauvegarde automatique, timeline et exports.');
+    announce('Effect applied · saved automatically to timeline and exports.');
     updateTransport();
   }
   function remove() {
     if (!canEdit() || !target.gsapEffect) return;
     stopPreview(false);
     commitEffect(null, 'Remove GSAP Effect');
-    announce('Effet retiré. Vos keyframes et réglages de dessin sont conservés.');
+    announce('Effect removed. Keyframes and drawing settings are preserved.');
     updateTransport();
   }
   function commitEffect(value, label) {
@@ -428,15 +428,15 @@ const StudioEffects = (() => {
     ({ el, button, field, number, select, icon } = primitives);
     const tab = button('GSAP', open, 'sidebar-tab-btn', paths.Emphasis);
     tab.id = 'stab-gsap';
-    tab.title = '50 effets GSAP · aperçu en temps réel';
+    tab.title = '50 GSAP effects · real-time preview';
     document.querySelector('.sidebar-tab-row').append(tab);
-    pane = el('section', 'sidebar-tab-pane gsap-pane', null, { id: 'sidebar-pane-gsap', 'aria-label': 'Effets GSAP' });
+    pane = el('section', 'sidebar-tab-pane gsap-pane', null, { id: 'sidebar-pane-gsap', 'aria-label': 'GSAP Effects' });
     const heading = el('div', 'gsap-heading');
-    heading.append(el('div', 'studio-eyebrow', 'Motion lab'), el('h3', '', 'Effets GSAP'), el('span', 'gsap-local', 'LOCAL · 50'));
+    heading.append(el('div', 'studio-eyebrow', 'Motion lab'), el('h3', '', 'GSAP Effects'), el('span', 'gsap-local', 'LOCAL · 50'));
     const targetRow = el('div', 'gsap-target');
     targetName = el('span');
     targetRow.append(icon('M4 4h16v16H4zM8 8h8v8H8z'), targetName);
-    effectSelect = el('select', 'studio-select', null, { id: 'gsap-effect-select', 'aria-label': 'Effet GSAP à tester' });
+    effectSelect = el('select', 'studio-select', null, { id: 'gsap-effect-select', 'aria-label': 'GSAP effect to preview' });
     for (const [category, label] of Object.entries(categories)) {
       const group = el('optgroup', '', null, { label });
       catalog().filter(entry => entry.category === category).forEach(entry => {
@@ -446,18 +446,18 @@ const StudioEffects = (() => {
     }
     effectSelect.addEventListener('change', () => choose(effectSelect.value));
     const empty = el('div', 'gsap-empty');
-    const demo = button('Ajouter un SVG de test', async () => {
+    const demo = button('Add sample SVG', async () => {
       if (state.recording || StudioUI.isEditing()) return;
       demo.disabled = true;
       try { await StudioUI.insertAsset('rocket'); syncSelection(); open(); }
       finally { demo.disabled = false; }
     }, 'studio-action');
     demo.id = 'gsap-add-demo';
-    empty.append(el('p', 'gsap-hint', 'Sélectionnez un calque, ou ajoutez un SVG pour commencer.'), demo);
-    const searchInput = el('input', 'studio-search', null, { type: 'search', placeholder: 'Rechercher parmi les 50 effets…', 'aria-label': 'Rechercher un effet GSAP', id: 'gsap-search' });
+    empty.append(el('p', 'gsap-hint', 'Select a layer or add a sample SVG to get started.'), demo);
+    const searchInput = el('input', 'studio-search', null, { type: 'search', placeholder: 'Search 50 effects…', 'aria-label': 'Search GSAP effect', id: 'gsap-search' });
     searchInput.addEventListener('input', () => { search = searchInput.value.trim().toLocaleLowerCase(); renderCatalog(); });
     const filters = el('div', 'gsap-categories');
-    for (const [key, label] of [['All', 'Tous'], ...Object.entries(categories)]) {
+    for (const [key, label] of [['All', 'All'], ...Object.entries(categories)]) {
       const b = button(label, () => {
         filter = key;
         filters.querySelectorAll('button').forEach(node => node.setAttribute('aria-pressed', String(node === b)));
@@ -468,16 +468,16 @@ const StudioEffects = (() => {
       filters.append(b);
     }
     resultCount = el('span', 'gsap-count', '', { 'aria-live': 'polite' });
-    catalogGrid = el('div', 'gsap-catalog', null, { 'aria-label': 'Catalogue des effets' });
+    catalogGrid = el('div', 'gsap-catalog', null, { 'aria-label': 'Effects catalog' });
     settingsBody = el('fieldset', 'gsap-settings');
     transport = el('div', 'gsap-transport');
     const liveRow = el('div', 'gsap-live-row');
     live = el('input', '', null, { type: 'checkbox', id: 'gsap-live' });
     live.checked = !matchMedia('(prefers-reduced-motion: reduce)').matches;
     live.addEventListener('change', () => { if (live.checked && canEdit()) preview(); else if (!live.checked) stopPreview(); });
-    liveRow.append(field('Aperçu automatique', live), el('span', 'gsap-live-indicator', 'TEMPS RÉEL'));
+    liveRow.append(field('Live preview', live), el('span', 'gsap-live-indicator', 'REALTIME'));
     const controls = el('div', 'gsap-play-controls');
-    playButton = button('Rejouer', () => preview(), 'studio-action', 'M4 11a8 8 0 1 1 2 7M4 4v7h7');
+    playButton = button('Replay', () => preview(), 'studio-action', 'M4 11a8 8 0 1 1 2 7M4 4v7h7');
     playButton.id = 'gsap-play';
     pauseButton = button('', () => {
       const tl = previewTarget && EffectManager.get(previewTarget);
@@ -486,49 +486,49 @@ const StudioEffects = (() => {
       updateTransport();
     }, 'studio-action');
     pauseButton.id = 'gsap-pause';
-    stopButton = button('', () => { stopPreview(); announce('Aperçu arrêté · pose de la timeline restaurée.'); }, 'studio-action', 'M6 6h12v12H6z');
+    stopButton = button('', () => { stopPreview(); announce('Preview stopped · timeline pose restored.'); }, 'studio-action', 'M6 6h12v12H6z');
     stopButton.id = 'gsap-stop';
-    stopButton.setAttribute('aria-label', 'Arrêter et restaurer la pose');
-    clock = el('output', 'gsap-clock', '0.00 s', { 'aria-label': 'Temps de l’aperçu' });
+    stopButton.setAttribute('aria-label', 'Stop and restore pose');
+    clock = el('output', 'gsap-clock', '0.00 s', { 'aria-label': 'Preview time' });
     controls.append(playButton, pauseButton, stopButton);
-    progress = el('input', 'gsap-progress', null, { type: 'range', min: 0, max: 1000, value: 0, step: 1, id: 'gsap-progress', 'aria-label': 'Position dans l’aperçu GSAP' });
+    progress = el('input', 'gsap-progress', null, { type: 'range', min: 0, max: 1000, value: 0, step: 1, id: 'gsap-progress', 'aria-label': 'GSAP preview scrub position' });
     progress.addEventListener('input', () => {
       const at = Number(progress.value) / 1000;
       const tl = previewTarget && EffectManager.get(previewTarget);
       if (!tl) preview(true, at);
       else { tl.pause().totalTime(at * (tl.repeat() < 0 ? tl.duration() : tl.totalDuration()), false); updateTransport(); renderPreview(); }
-      announce('Aperçu en pause · déplacement image par image.');
+      announce('Preview paused · frame-by-frame scrub.');
     });
     const actions = el('div', 'gsap-apply-actions');
-    applyButton = button('Appliquer au calque', apply, 'studio-action primary', 'M5 12l4 4L19 6');
+    applyButton = button('Apply to Layer', apply, 'studio-action primary', 'M5 12l4 4L19 6');
     applyButton.id = 'gsap-apply';
-    removeButton = button('Retirer', remove, 'studio-action danger');
+    removeButton = button('Remove', remove, 'studio-action danger');
     removeButton.id = 'gsap-remove';
     actions.append(applyButton, removeButton);
     status = el('p', 'gsap-status', '', { role: 'status', 'aria-live': 'polite', id: 'gsap-status' });
     transport.append(liveRow, controls, progress, clock, actions, status);
     const dependencies = el('details', 'gsap-dependencies');
-    dependencies.append(el('summary', '', 'Moteur & dépendances locales'));
-    dependencies.append(el('p', 'gsap-hint', `GSAP ${window.gsap?.version || 'indisponible'} · Canvas 2D · 50 effets embarqués. Aucune installation ni connexion requise.`));
-    const license = el('a', '', 'Licence GSAP', { href: 'vendor/gsap.LICENSE.txt', target: '_blank', rel: 'noopener' });
-    dependencies.append(license, el('p', 'gsap-hint', 'La licence GSAP restreint les éditeurs visuels concurrents : un accord écrit peut être nécessaire.'));
+    dependencies.append(el('summary', '', 'Engine & local dependencies'));
+    dependencies.append(el('p', 'gsap-hint', `GSAP ${window.gsap?.version || 'unavailable'} · Canvas 2D · 50 bundled effects. Works completely offline.`));
+    const license = el('a', '', 'GSAP License', { href: 'vendor/gsap.LICENSE.txt', target: '_blank', rel: 'noopener' });
+    dependencies.append(license, el('p', 'gsap-hint', 'The GSAP license restricts competing visual editors; a commercial agreement may apply.'));
     const library = el('details', 'gsap-library', null, { open: '' });
     const libraryTitle = el('summary');
-    libraryTitle.append(document.createTextNode('Catalogue des effets'), resultCount);
+    libraryTitle.append(document.createTextNode('Effects catalog'), resultCount);
     const libraryBody = el('div', 'gsap-library-body');
     libraryBody.append(searchInput, filters, catalogGrid);
     library.append(libraryTitle, libraryBody);
-    pane.append(heading, targetRow, empty, field('Effet à tester', effectSelect), library, settingsBody, dependencies, transport);
+    pane.append(heading, targetRow, empty, field('Effect to preview', effectSelect), library, settingsBody, dependencies, transport);
     document.getElementById('sidebar-pane-drawing').after(pane);
-    const launch = button('Effets GSAP', open, 'studio-action', paths.Emphasis);
+    const launch = button('Effects', open, 'studio-action', paths.Emphasis);
     launch.id = 'btn-gsap-effects';
     document.getElementById('btn-assets-templates').after(launch);
-    const tool = button('Effets GSAP', open, 'tool-btn', paths.Emphasis);
+    const tool = button('Effects', open, 'tool-btn', paths.Emphasis);
     tool.id = 'studio-gsap-tool';
     document.getElementById('studio-vector-style').after(tool);
     for (const control of [launch, tool]) {
       control.dataset.gsapLaunch = '';
-      control.title = 'Ouvrir les 50 effets GSAP et leurs réglages en temps réel';
+      control.title = 'Open 50 GSAP effects with live preview';
       control.setAttribute('aria-controls', 'sidebar-pane-gsap');
     }
     initialized = true;

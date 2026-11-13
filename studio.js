@@ -938,9 +938,36 @@ const StudioUI = (() => {
           const saved = { _origX: data.origX, _origY: data.origY, _origW: data.origW, _origH: data.origH }[key];
           if (Number.isFinite(saved)) layer[key] = saved * s;
         }
+        if (layer.camera) {
+          const camCx = (Number.isFinite(layer.camera.cx) ? layer.camera.cx : entry.canvasW / 2) * sx;
+          const camCy = (Number.isFinite(layer.camera.cy) ? layer.camera.cy : entry.canvasH / 2) * sy;
+          layer.camera = window.CameraCore?.normalizeLayerCamera?.(
+            { ...layer.camera, cx: camCx, cy: camCy },
+            state.canvasW,
+            state.canvasH,
+            layer.cameraZoom || 1.8
+          ) || { ...layer.camera, cx: camCx, cy: camCy };
+        }
         delete layer.imageDataURL; delete layer.origImageDataURL;
         return layer;
       }));
+      if (Array.isArray(scene.cameraKeyframes)) {
+        const rescaledKfs = scene.cameraKeyframes.map((k, kIdx) => ({
+          ...k,
+          id: `camkf-tpl-${Date.now().toString(36)}-${kIdx}`,
+          cx: (Number.isFinite(k.cx) ? k.cx : entry.canvasW / 2) * sx,
+          cy: (Number.isFinite(k.cy) ? k.cy : entry.canvasH / 2) * sy,
+        }));
+        scene.cameraKeyframes = window.CameraCore?.normalizeSceneCameraKeyframes?.(
+          rescaledKfs,
+          scene.duration,
+          state.canvasW,
+          state.canvasH
+        ) || rescaledKfs;
+      }
+      if (scene.camera) {
+        scene.camera = window.CameraCore?.normalizeSceneCamera?.(scene.camera) || scene.camera;
+      }
       scene.groups = (scene.groups || []).map(g => {
         const newId = `group-${crypto.randomUUID()}`;
         groupMap.set(g.id, newId);
@@ -1274,6 +1301,9 @@ const StudioUI = (() => {
     }
     window.StudioEffects?.stopPreview();
     TimelineStudio.pausePreviewAll();
+    if (window._cameraEdit?.active && typeof window.toggleCameraEditMode === 'function') {
+      window.toggleCameraEditMode(false);
+    }
     closeTextEditor(true);
     deactivateTextPlacement();
     if (_cropState) cancelCrop();
@@ -1294,6 +1324,9 @@ const StudioUI = (() => {
     }
     window.StudioEffects?.stopPreview();
     TimelineStudio.pausePreviewAll();
+    if (window._cameraEdit?.active && typeof window.toggleCameraEditMode === 'function') {
+      window.toggleCameraEditMode(false);
+    }
     closeTextEditor(true);
     deactivateTextPlacement();
     if (_cropState) cancelCrop();
@@ -1345,9 +1378,18 @@ const StudioUI = (() => {
     vectorPanel.replaceChildren(hint, row);
     fitCanvas();
   }
+  function activePenViewCamera() {
+    return typeof window.getActiveViewCamera === 'function'
+      ? window.getActiveViewCamera()
+      : { active: false, cx: state.canvasW / 2, cy: state.canvasH / 2, zoom: 1 };
+  }
   function penPoint(e) {
     const rect = vectorOverlay.getBoundingClientRect();
-    const world = { x: (e.clientX - rect.left) * state.canvasW / rect.width, y: (e.clientY - rect.top) * state.canvasH / rect.height };
+    const raw = { x: (e.clientX - rect.left) * state.canvasW / rect.width, y: (e.clientY - rect.top) * state.canvasH / rect.height };
+    const cam = activePenViewCamera();
+    const world = (cam?.active && window.CameraCore?.screenToWorldPoint)
+      ? window.CameraCore.screenToWorldPoint(raw, cam, state.canvasW, state.canvasH)
+      : raw;
     return pen.mode === 'nodes' ? worldToVector(world) : world;
   }
   function worldToVector(p) {
@@ -1368,7 +1410,9 @@ const StudioUI = (() => {
   }
   function hitNode(p, includeHandles = true) {
     const rect = vectorOverlay.getBoundingClientRect();
-    const radius = 9 * state.canvasW / rect.width;
+    const cam = activePenViewCamera();
+    const zoomScale = cam?.active ? (cam.zoom || 1) : 1;
+    const radius = (9 * state.canvasW / rect.width) / zoomScale;
     const world = vectorToWorld(p);
     let best = null, distance = radius;
     pen.nodes.forEach((n, index) => {
@@ -1393,7 +1437,9 @@ const StudioUI = (() => {
     if (pen.mode === 'pen') {
       const first = pen.nodes[0];
       const rect = vectorOverlay.getBoundingClientRect();
-      if (pen.nodes.length > 2 && Math.hypot(p.x - first.x, p.y - first.y) < 10 * state.canvasW / rect.width) {
+      const cam = activePenViewCamera();
+      const closeDist = (10 * state.canvasW / rect.width) / (cam?.active ? (cam.zoom || 1) : 1);
+      if (pen.nodes.length > 2 && Math.hypot(p.x - first.x, p.y - first.y) < closeDist) {
         rememberPen(); pen.closed = true; showPenPanel(); drawPen(); return;
       }
       if (pen.closed) { showToast('Finish the closed path, or open it to add anchors'); return; }
@@ -1444,6 +1490,15 @@ const StudioUI = (() => {
     const c = vectorOverlay.getContext('2d');
     const rect = vectorOverlay.getBoundingClientRect();
     const size = state.canvasW / rect.width;
+    const cam = activePenViewCamera();
+    const zoomScale = cam?.active ? (cam.zoom || 1) : 1;
+    const handleSize = size / zoomScale;
+    c.save();
+    if (cam?.active) {
+      c.translate(state.canvasW / 2, state.canvasH / 2);
+      c.scale(cam.zoom, cam.zoom);
+      c.translate(-cam.cx, -cam.cy);
+    }
     c.save();
     if (pen.mode === 'nodes') {
       const { pose, layer, vector: v } = pen;
@@ -1461,16 +1516,17 @@ const StudioUI = (() => {
     c.restore();
     for (const [index, n] of pen.nodes.entries()) {
       const a = vectorToWorld(n), i = vectorToWorld({ x: n.inX, y: n.inY }), o = vectorToWorld({ x: n.outX, y: n.outY });
-      c.lineWidth = size;
+      c.lineWidth = handleSize;
       c.strokeStyle = '#6366f1';
       c.beginPath(); c.moveTo(i.x, i.y); c.lineTo(o.x, o.y); c.stroke();
       for (const h of [i, o]) {
-        c.fillStyle = '#fff'; c.fillRect(h.x - 2.5 * size, h.y - 2.5 * size, 5 * size, 5 * size);
-        c.strokeRect(h.x - 2.5 * size, h.y - 2.5 * size, 5 * size, 5 * size);
+        c.fillStyle = '#fff'; c.fillRect(h.x - 2.5 * handleSize, h.y - 2.5 * handleSize, 5 * handleSize, 5 * handleSize);
+        c.strokeRect(h.x - 2.5 * handleSize, h.y - 2.5 * handleSize, 5 * handleSize, 5 * handleSize);
       }
-      c.beginPath(); c.arc(a.x, a.y, 4.5 * size, 0, 2 * Math.PI);
+      c.beginPath(); c.arc(a.x, a.y, 4.5 * handleSize, 0, 2 * Math.PI);
       c.fillStyle = index === selectedNode ? '#6366f1' : '#fff'; c.fill(); c.stroke();
     }
+    c.restore();
   }
   function normalizePen(nodes, closed, stroke, fill, width) {
     const xs = nodes.flatMap(n => [n.x, n.inX, n.outX]), ys = nodes.flatMap(n => [n.y, n.inY, n.outY]);

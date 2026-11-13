@@ -1,6 +1,6 @@
 /* SVG workshop: a dedicated stage, a source shelf, and an editable sequence. */
-.motion-workshop-launch { color: #315d57; background: #edf6f3; border-color: #c9ddd6; white-space: nowrap; }
-.motion-workshop-launch:hover { color: #21463f; background: #e0eee8; }
+.motion-workshop-launch { color: var(--muted-hi, #444746); background: var(--panel, #f8fafd); border-color: var(--border-hi, rgba(15,23,42,0.14)); white-space: nowrap; }
+.motion-workshop-launch:hover { color: var(--text, #1f1f1f); background: var(--surface-2, #e8eef6); border-color: var(--accent, #0b57d0); }
 .studio-motion-badge { color: #b4e3d1; background: #1f3732; border-color: #3d6b5c; }
 #svg-workshop-dialog { width: min(1320px, 96vw); height: min(900px, 94vh); max-height: 96vh; }
 #svg-workshop-dialog .studio-dialog-head { padding: 17px 22px; flex-shrink: 0; }

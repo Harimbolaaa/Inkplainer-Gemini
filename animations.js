@@ -1894,6 +1894,9 @@ function _tickAllSlots() {
       });
     }
     _mainCtx.restore();
+    if (typeof window._applyDynamicCameraFrame === 'function') {
+      window._applyDynamicCameraFrame(true);
+    }
 
     const nextGroup = (state._groupPos ?? 0) + 1;
     if (nextGroup < (state._animGroups || []).length) {

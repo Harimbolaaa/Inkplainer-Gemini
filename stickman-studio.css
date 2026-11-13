@@ -3,20 +3,22 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  border: 1px solid rgba(26, 26, 26, .18);
-  border-radius: 8px;
-  background: #fff7ed;
-  color: #9a3412;
-  font: 600 12px 'Geist', 'DM Sans', sans-serif;
+  border: 1px solid var(--border-hi, rgba(15, 23, 42, 0.14));
+  border-radius: 999px;
+  background: var(--panel, #f8fafd);
+  color: var(--muted-hi, #444746);
+  font: 500 12px 'Geist', 'DM Sans', sans-serif;
   cursor: pointer;
+  transition: all 0.15s ease;
 }
-#stickman-launch:hover { background: #ffedd5; border-color: #fb923c; }
+#stickman-launch:hover { background: var(--surface-2, #e8eef6); border-color: var(--accent, #0b57d0); color: var(--text, #1f1f1f); }
 #stickman-workspace-launch {
   display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
-  border: 1px solid #7c3aed; border-radius: 8px; background: #2e1065;
-  color: #ede9fe; font: 600 12px 'Geist', 'DM Sans', sans-serif; cursor: pointer;
+  border: 1px solid var(--border-hi, rgba(15, 23, 42, 0.14)); border-radius: 999px; background: var(--panel, #f8fafd);
+  color: var(--muted-hi, #444746); font: 500 12px 'Geist', 'DM Sans', sans-serif; cursor: pointer;
+  transition: all 0.15s ease;
 }
-#stickman-workspace-launch:hover { background: #4c1d95; border-color: #a78bfa; }
+#stickman-workspace-launch:hover { background: var(--accent-lo, #d3e3fd); border-color: var(--accent, #0b57d0); color: var(--accent, #0b57d0); }
 #stickman-studio-dialog {
   width: min(1180px, calc(100vw - 32px));
   height: min(820px, calc(100vh - 32px));
